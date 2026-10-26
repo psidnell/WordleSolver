@@ -40,12 +40,13 @@ public class Wordle extends ComponentImpl {
         Word guessWord = new Word(guess);
         Match match = new Match(guessWord, solution);
         System.out.println(match);
+
+        solutions.prune(match);
+
         if (guessWord.equals(solution)) {
             System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses" );
             return false;
         }
-
-
 
         if (guessesRemaining == 0) {
             System.out.println("FAILED! No more guesses!");
@@ -53,5 +54,11 @@ public class Wordle extends ComponentImpl {
         }
 
         return true;
+    }
+
+    public void showRemaining() {
+        for (Word word : solutions.getSolutions()) {
+            System.out.println(word);
+        }
     }
 }

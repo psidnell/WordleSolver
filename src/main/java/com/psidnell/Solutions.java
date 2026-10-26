@@ -1,9 +1,6 @@
 package com.psidnell;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Solutions extends ComponentImpl {
 
@@ -12,10 +9,19 @@ public class Solutions extends ComponentImpl {
     @Override
     public void init() {
         super.init();
-        this.solutions = new HashMap<>(dictionary.getWords());
+        this.solutions = new TreeMap<>(dictionary.getWords());
     }
 
     public Collection<Word> getSolutions() {
         return (Collection<Word>) solutions.values();
+    }
+
+    public void prune(Match match) {
+        Collection<Word> wordsRemaining = new HashSet<>(solutions.values());
+        wordsRemaining.forEach(word -> {
+            if (match.wouldEliminateWord(word)) {
+                solutions.remove(word.getWord());
+            }
+        });
     }
 }

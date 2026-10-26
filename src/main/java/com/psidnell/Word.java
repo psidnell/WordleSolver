@@ -39,4 +39,9 @@ public class Word {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return word;
+    }
 }

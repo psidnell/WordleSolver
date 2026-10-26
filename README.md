@@ -4,4 +4,5 @@
 - https://www.nytimes.com/games-assets/v2/wordle.cb86e0a63ebda8c2eb3e.js
 
 ## TODO
-- Implement game itself
+- [X] Implement game itself
+- [ ] Keep track of solutions remaining

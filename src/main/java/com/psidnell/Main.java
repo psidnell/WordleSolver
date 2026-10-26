@@ -46,11 +46,17 @@ public class Main {
                 IO.println("Goodbye!");
                 running = false;
                 break;
+            case "s":
             case "solution":
                 wordle.setSolution(parts[1].toLowerCase());
                 break;
+            case "g":
             case "guess":
                 running = wordle.guess(parts[1].toLowerCase());
+                break;
+            case "r":
+            case "remaining":
+                wordle.showRemaining();
                 break;
             default:
                 IO.println("Unknown command: " + command);
