@@ -50,7 +50,9 @@ public class Main {
                 break;
             case "g":
             case "guess":
-                running = wordle.userGuess(parts[1].toLowerCase());
+                boolean correct = wordle.userGuess(parts[1].toLowerCase());
+                boolean guessesRemaining = wordle.getGuessesRemaining() >0;
+                running = guessesRemaining && !correct;
                 break;
             case "r":
             case "remaining":

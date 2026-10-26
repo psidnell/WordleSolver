@@ -44,4 +44,14 @@ public class Word {
     public String toString() {
         return word;
     }
+
+    public boolean haveCommonCharacters(Word other) {
+        for (int i = 0; i < 5; i++) {
+            Character c = word.charAt(i);
+            if (other.occurencesOf(c) > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
