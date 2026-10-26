@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +33,7 @@ public class Dictionary implements Component {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode rootNode = mapper.readTree(content);
 
-        Map<String, Word> words = new HashMap<>();
+        Map<String, Word> words = new TreeMap<>();
 
         // Extract words from the JSON structure
         JsonNode wordsNode = rootNode.get("words");
@@ -53,7 +54,7 @@ public class Dictionary implements Component {
         return words;
     }
 
-    public boolean isWord(String word) {
+    public boolean hasWord(String word) {
         return words.keySet().contains(word);
     }
 }

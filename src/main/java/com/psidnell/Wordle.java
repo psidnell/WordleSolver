@@ -13,7 +13,7 @@ public class Wordle extends ComponentImpl {
     }
 
     public void setSolution(String solution) {
-        if (!dictionary.isWord(solution)) {
+        if (!dictionary.hasWord(solution)) {
             throw new IllegalArgumentException("solution is not a valid word");
         }
         this.solution = new Word (solution);
@@ -26,22 +26,20 @@ public class Wordle extends ComponentImpl {
 
     // TODO Move all of the tests snd printing here
     public boolean userGuess(String guess) {
-        return guess(new Word(guess), solution, solutions, true);
-    }
 
-    public boolean guess(Word guess, Word solution, Solutions solutions, boolean print) {
+        if (guessesRemaining == 0) {
+            System.out.println("FAILED! No more guesses!");
+            return false;
+        }
 
-//        if (solution == null) {
-//            System.out.println("No solution is set");
-//            return true;
-//        }
+        Word guessWord = new Word(guess);
 
-        if (guess.getWord().length() != 5) {
+        if (guess.length() != 5) {
             System.out.println("Guess must be 5 characters");
             return true;
         }
 
-        if (!dictionary.isWord(guess.getWord())) {
+        if (!dictionary.hasWord(guess)) {
             System.out.println("Unknown word");
             return false;
         }
@@ -49,24 +47,26 @@ public class Wordle extends ComponentImpl {
         // We have a valid guess
         guessesRemaining--;
 
-        Match match = new Match(guess, solution);
-        if (print) {
-            System.out.println(match);
-        }
+        Match match = guess(guessWord, solution, solutions);
+        System.out.println(match);
 
-        solutions.prune(match);
 
-        if (print && guess.equals(solution)) {
+        if (match.isMatch()) {
             System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses" );
             return false;
         }
-//
-//        if (guessesRemaining == 0) {
-//            System.out.println("FAILED! No more guesses!");
-//            return false;
-//        }
 
         return true;
+    }
+
+    public Match guess(Word guess, Word solution, Solutions solutions) {
+
+
+        Match match = new Match(guess, solution);
+
+        solutions.prune(match);
+
+        return match;
     }
 
     public void showRemaining() {
@@ -92,10 +92,10 @@ public class Wordle extends ComponentImpl {
 
             for (Word posSolution : solutions.getSolutions()) {
                 Solutions nextSolutions = new Solutions(solutions);
-                guess(dictionaryGuess, posSolution, nextSolutions, false);
+                guess(dictionaryGuess, posSolution, nextSolutions);
                 totalSolutionSizeForGuess += nextSolutions.getSolutions().size();
                 if (totalSolutionSizeForGuess > minSolutionSize) {
-                    System.out.println("Abandoning: " + dictionaryGuess + " solutions: " + totalSolutionSizeForGuess);
+                    System.out.println("Abandoning: " + dictionaryGuess + "/" + posSolution + " solutions: " + totalSolutionSizeForGuess);
                     break;
                 }
             }
@@ -115,6 +115,8 @@ public class Wordle extends ComponentImpl {
             }
 
         }
+
+        System.out.println("Best word: " + bestWord + " solutions: " + minSolutionSize);
         return bestWord;
     }
 }

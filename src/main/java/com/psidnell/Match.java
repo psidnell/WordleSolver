@@ -7,6 +7,7 @@ public class Match {
     private MatchType matchTypes[] = new MatchType[5];
     private Map<Character, Integer> mustHaveAtLeast = new HashMap<>();
     private Word guess;
+    private boolean match;
 
     public enum MatchType {
         MATCH,
@@ -18,6 +19,7 @@ public class Match {
         this.guess = guess;
         String s = solution.getWord();
         String g = guess.getWord();
+        match = s.endsWith(g);
 
         Map<Character, Integer> charGuessesRemaining = new HashMap<>();
         for (char c : g.toCharArray()) {
@@ -108,5 +110,9 @@ public class Match {
         }
 
         return false;
+    }
+
+    public boolean isMatch() {
+        return match;
     }
 }
