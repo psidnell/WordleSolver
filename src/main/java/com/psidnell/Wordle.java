@@ -17,31 +17,34 @@ public class Wordle extends ComponentImpl {
         System.out.println("Guesses Remaining: " + guessesRemaining);
     }
 
-    public void guess(String guess) {
-
-        if (guessesRemaining == 0) {
-            System.out.println("No more guesses!");
-            return;
-        }
+    public boolean guess(String guess) {
 
         if (guess.length() != 5) {
             System.out.println("Guess must be 5 characters");
-            return;
+            return true;
         }
 
         //TODO for testing
 //        if (!dictionary.isWord(guess)) {
 //            System.out.println("Unknown word");
-//            return;
+//            return false;
 //        }
 
         Word guessWord = new Word(guess);
         Match match = new Match(guessWord, solution);
         System.out.println(match);
         if (guessWord.equals(solution)) {
-            System.out.println("Guessed correctly!");
+            System.out.println("SUCCESS Guessed correctly!");
+            return false;
         }
 
         guessesRemaining--;
+
+        if (guessesRemaining == 0) {
+            System.out.println("FAILED! No more guesses!");
+            return false;
+        }
+
+        return true;
     }
 }

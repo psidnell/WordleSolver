@@ -48,7 +48,7 @@ public class Main {
                 running = false;
                 break;
             case "guess":
-                wordle.guess(parts[1].toLowerCase());
+                running = wordle.guess(parts[1].toLowerCase());
                 break;
             default:
                 IO.println("Unknown command: " + command);
