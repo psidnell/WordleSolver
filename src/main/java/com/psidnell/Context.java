@@ -17,7 +17,9 @@ public class Context {
             component.setContext(this);
         });
 
-        components.values().forEach(Component::init);
+        for (Component component : components.values()) {
+            component.init();
+        }
     }
 
     public <T extends Component> T get(String name, Class<T> clazz) {

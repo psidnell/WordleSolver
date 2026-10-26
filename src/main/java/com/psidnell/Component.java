@@ -4,6 +4,6 @@ public interface Component {
     default void setContext(Context context) {
     }
 
-    default void init() {
+    default void init() throws Exception {
     }
 }

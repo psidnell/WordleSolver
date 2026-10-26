@@ -19,18 +19,22 @@ public class Wordle extends ComponentImpl {
 
     public boolean guess(String guess) {
 
+        if (solution == null) {
+            System.out.println("No solution is set");
+            return true;
+        }
+
         if (guess.length() != 5) {
             System.out.println("Guess must be 5 characters");
             return true;
         }
 
-        //TODO for testing
-//        if (!dictionary.isWord(guess)) {
-//            System.out.println("Unknown word");
-//            return false;
-//        }
+        if (!dictionary.isWord(guess)) {
+            System.out.println("Unknown word");
+            return false;
+        }
 
-
+        // We have a valid guess
         guessesRemaining--;
 
         Word guessWord = new Word(guess);

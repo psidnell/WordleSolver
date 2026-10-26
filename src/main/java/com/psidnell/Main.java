@@ -11,7 +11,6 @@ public class Main {
     public static void main(String[] args) throws Exception {
        final Context context = new Context();
        wordle = context.get("wordle", Wordle.class);
-       wordle.setSolution("sleep");
 
         IO.println("Wordle Solver");
 
@@ -46,6 +45,9 @@ public class Main {
             case "quit":
                 IO.println("Goodbye!");
                 running = false;
+                break;
+            case "solution":
+                wordle.setSolution(parts[1].toLowerCase());
                 break;
             case "guess":
                 running = wordle.guess(parts[1].toLowerCase());

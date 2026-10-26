@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Dictionary implements Component {
-    private final Map<String, Word> words;
+    private  Map<String, Word> words;
 
-    public Dictionary() throws IOException, URISyntaxException {
+    public void init() throws IOException, URISyntaxException {
         words = loadDictionary();
     }
 
