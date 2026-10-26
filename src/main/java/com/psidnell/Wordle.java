@@ -30,15 +30,18 @@ public class Wordle extends ComponentImpl {
 //            return false;
 //        }
 
+
+        guessesRemaining--;
+
         Word guessWord = new Word(guess);
         Match match = new Match(guessWord, solution);
         System.out.println(match);
         if (guessWord.equals(solution)) {
-            System.out.println("SUCCESS Guessed correctly!");
+            System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses" );
             return false;
         }
 
-        guessesRemaining--;
+
 
         if (guessesRemaining == 0) {
             System.out.println("FAILED! No more guesses!");
