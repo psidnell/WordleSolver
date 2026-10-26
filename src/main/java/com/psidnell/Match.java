@@ -92,7 +92,7 @@ public class Match {
                     // word does not have same letter in same place then it's
                     // not a match
                     if (!guessLetter.equals(wordLetter)) {
-                        return false;
+                        return true;
                     }
                     break;
                 default:
@@ -103,7 +103,8 @@ public class Match {
         for (Character c : mustHaveAtLeast.keySet() ) {
             // Does the word have enough of the letters we guessed?
             int atLeast = mustHaveAtLeast.get(c);
-            if (atLeast < word.occurencesOf(c)) {
+            int actual = word.occurencesOf(c);
+            if (actual < atLeast) {
                 return true;
             }
         }
