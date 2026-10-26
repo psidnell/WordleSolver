@@ -5,4 +5,6 @@
 
 ## TODO
 - [X] Implement game itself
-- [ ] Keep track of solutions remaining# WordleSolver
+- [X] Keep track of solutions remaining# WordleSolver
+- [ ] Enter guess results and parse to create match
+- [ ] Predict best next guess

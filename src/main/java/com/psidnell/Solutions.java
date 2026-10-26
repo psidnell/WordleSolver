@@ -2,14 +2,16 @@ package com.psidnell;
 
 import java.util.*;
 
-public class Solutions extends ComponentImpl {
+public class Solutions {
 
     private Map<String, Word> solutions;
 
-    @Override
-    public void init() {
-        super.init();
-        this.solutions = new TreeMap<>(dictionary.getWords());
+    public Solutions(Dictionary dictionary) {
+        solutions = new TreeMap<>(dictionary.getWords());
+    }
+
+    public Solutions(Solutions solutions) {
+        this.solutions = new TreeMap<>(solutions.solutions);
     }
 
     public Collection<Word> getSolutions() {

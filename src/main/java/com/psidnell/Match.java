@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Match {
-    private final Word solution;
     private MatchType matchTypes[] = new MatchType[5];
     private Map<Character, Integer> mustHaveAtLeast = new HashMap<>();
     private Word guess;
@@ -17,7 +16,6 @@ public class Match {
 
     public Match(Word guess, Word solution) {
         this.guess = guess;
-        this.solution = solution;
         String s = solution.getWord();
         String g = guess.getWord();
 

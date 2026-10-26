@@ -15,7 +15,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class Dictionary implements Component {
     private  Map<String, Word> words;
 
-    public void init() throws IOException, URISyntaxException {
+    @Override
+    public void setContext(Context context) throws Exception {
+        Component.super.setContext(context);
         words = loadDictionary();
     }
 

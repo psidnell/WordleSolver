@@ -4,6 +4,13 @@ public class Wordle extends ComponentImpl {
 
     private Word solution;
     int guessesRemaining = 6;
+    private Solutions solutions;
+
+    @Override
+    public void init() {
+        super.init();
+        this.solutions = new Solutions(dictionary);
+    }
 
     public void setSolution(String solution) {
         if (!dictionary.isWord(solution)) {
@@ -17,19 +24,24 @@ public class Wordle extends ComponentImpl {
         System.out.println("Guesses Remaining: " + guessesRemaining);
     }
 
-    public boolean guess(String guess) {
+    // TODO Move all of the tests snd printing here
+    public boolean userGuess(String guess) {
+        return guess(new Word(guess), solution, solutions, true);
+    }
 
-        if (solution == null) {
-            System.out.println("No solution is set");
-            return true;
-        }
+    public boolean guess(Word guess, Word solution, Solutions solutions, boolean print) {
 
-        if (guess.length() != 5) {
+//        if (solution == null) {
+//            System.out.println("No solution is set");
+//            return true;
+//        }
+
+        if (guess.getWord().length() != 5) {
             System.out.println("Guess must be 5 characters");
             return true;
         }
 
-        if (!dictionary.isWord(guess)) {
+        if (!dictionary.isWord(guess.getWord())) {
             System.out.println("Unknown word");
             return false;
         }
@@ -37,21 +49,22 @@ public class Wordle extends ComponentImpl {
         // We have a valid guess
         guessesRemaining--;
 
-        Word guessWord = new Word(guess);
-        Match match = new Match(guessWord, solution);
-        System.out.println(match);
+        Match match = new Match(guess, solution);
+        if (print) {
+            System.out.println(match);
+        }
 
         solutions.prune(match);
 
-        if (guessWord.equals(solution)) {
+        if (print && guess.equals(solution)) {
             System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses" );
             return false;
         }
-
-        if (guessesRemaining == 0) {
-            System.out.println("FAILED! No more guesses!");
-            return false;
-        }
+//
+//        if (guessesRemaining == 0) {
+//            System.out.println("FAILED! No more guesses!");
+//            return false;
+//        }
 
         return true;
     }
@@ -60,5 +73,48 @@ public class Wordle extends ComponentImpl {
         for (Word word : solutions.getSolutions()) {
             System.out.println(word);
         }
+    }
+
+    public Word propose() {
+        // Create a new wordle instance and guess with every dictionary word
+        // Remember the one with the smallest resultant solutions number
+        int minSolutionSize = Integer.MAX_VALUE;
+        Word bestWord = null;
+
+        int dictWords = dictionary.getWords().size();
+        int wordsDone = 0;
+        int percentDone = -1;
+        for (Word dictionaryGuess: dictionary.getWords().values()) {
+
+            System.out.println("Trying: " + dictionaryGuess);
+
+            int totalSolutionSizeForGuess = 0;
+
+            for (Word posSolution : solutions.getSolutions()) {
+                Solutions nextSolutions = new Solutions(solutions);
+                guess(dictionaryGuess, posSolution, nextSolutions, false);
+                totalSolutionSizeForGuess += nextSolutions.getSolutions().size();
+                if (totalSolutionSizeForGuess > minSolutionSize) {
+                    System.out.println("Abandoning: " + dictionaryGuess + " solutions: " + totalSolutionSizeForGuess);
+                    break;
+                }
+            }
+
+            if (totalSolutionSizeForGuess < minSolutionSize) {
+                System.out.println("Best word: " + dictionaryGuess + " solutions: " + totalSolutionSizeForGuess +
+                        " dropped: " + (minSolutionSize - totalSolutionSizeForGuess));
+                minSolutionSize = totalSolutionSizeForGuess;
+                bestWord = dictionaryGuess;
+            }
+
+            wordsDone++;
+            int nextPercentDome = (100 * wordsDone) / dictWords;
+            if (percentDone != nextPercentDome) {
+                percentDone = nextPercentDome;
+                System.out.println("PercentDone: " + percentDone);
+            }
+
+        }
+        return bestWord;
     }
 }

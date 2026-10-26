@@ -11,11 +11,10 @@ public class Context {
 
         components.put("dictionary", new Dictionary());
         components.put("wordle", new Wordle());
-        components.put("solutions", new Solutions());
 
-        components.values().forEach((component) -> {
+        for (Component component : components.values()) {
             component.setContext(this);
-        });
+        }
 
         for (Component component : components.values()) {
             component.init();

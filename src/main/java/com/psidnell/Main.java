@@ -1,7 +1,5 @@
 package com.psidnell;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Scanner;
 
 public class Main {
@@ -52,11 +50,15 @@ public class Main {
                 break;
             case "g":
             case "guess":
-                running = wordle.guess(parts[1].toLowerCase());
+                running = wordle.userGuess(parts[1].toLowerCase());
                 break;
             case "r":
             case "remaining":
                 wordle.showRemaining();
+                break;
+            case "p":
+            case "propose":
+                wordle.propose();
                 break;
             default:
                 IO.println("Unknown command: " + command);
