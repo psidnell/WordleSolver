@@ -5,4 +5,4 @@
 
 ## TODO
 - [X] Implement game itself
-- [ ] Keep track of solutions remaining
+- [ ] Keep track of solutions remaining# WordleSolver
