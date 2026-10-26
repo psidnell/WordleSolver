@@ -20,6 +20,9 @@ public class Main {
         boolean running = true;
 
         while (running) {
+
+            wordle.printStatus();
+
             IO.print("Enter command: ");
             String input = scanner.nextLine();
 
@@ -52,8 +55,6 @@ public class Main {
                 IO.println("Type 'help' for available commands.");
                 break;
         }
-
-        wordle.printStatus();
 
         return running;
     }

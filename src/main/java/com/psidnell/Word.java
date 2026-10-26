@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class Word {
     private final String word;
-    private Map<Character, Integer> occurrences = new HashMap<>();
+    private final Map<Character, Integer> occurrences = new HashMap<>();
 
     public Word(String word) {
         this.word = word;
@@ -30,5 +30,13 @@ public class Word {
             return 0;
         }
         return occurences;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Word) {
+            return ((Word) obj).word.equals(word);
+        }
+        return false;
     }
 }
