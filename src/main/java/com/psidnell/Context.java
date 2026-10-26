@@ -1,9 +1,27 @@
 package com.psidnell;
 
-public class Context {
-    private Dictionary dictionary;
+import java.util.HashMap;
+import java.util.Map;
 
-    public void setDictionary(Dictionary dictionary) {
-        this.dictionary = dictionary;
+public class Context {
+
+    private final Map<String, Component> components = new HashMap<String, Component>();
+
+    public Context() throws Exception {
+
+        components.put("dictionary", new Dictionary());
+        components.put("wordle", new Wordle());
+        components.put("solutions", new Solutions());
+
+        components.values().forEach((component) -> {
+            component.setContext(this);
+        });
+
+        components.values().forEach(Component::init);
+    }
+
+    public <T extends Component> T get(String name, Class<T> clazz) {
+        //noinspection unchecked
+        return (T) components.get(name);
     }
 }

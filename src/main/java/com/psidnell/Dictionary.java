@@ -5,20 +5,21 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class Dictionary {
-    private Set<String> words;
+public class Dictionary implements Component {
+    private final Map<String, Word> words;
 
     public Dictionary() throws IOException, URISyntaxException {
-        this.words = new HashSet<>();
-        loadDictionary();
+        words = loadDictionary();
     }
 
-    private void loadDictionary() throws IOException, URISyntaxException {
+    private Map<String, Word> loadDictionary() throws IOException, URISyntaxException {
         // Load the JSON file
         URL resource = getClass().getResource("/com/psidnell/Dictionary.json");
         if (resource == null) {
@@ -29,22 +30,28 @@ public class Dictionary {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode rootNode = mapper.readTree(content);
 
+        Map<String, Word> words = new HashMap<>();
+
         // Extract words from the JSON structure
         JsonNode wordsNode = rootNode.get("words");
         if (wordsNode.isArray()) {
             for (JsonNode wordNode : wordsNode) {
                 if (wordNode.isTextual()) {
-                    words.add(wordNode.asText().toLowerCase());
+                    String wordText = wordNode.asText().toLowerCase();
+                    Word word = new Word(wordText);
+                    words.put(wordText, word);
                 }
             }
         }
+
+        return Collections.unmodifiableMap(words);
     }
 
-    public Set<String> getWords() {
+    public Map<String, Word> getWords() {
         return words;
     }
 
-    public boolean contains(String word) {
-        return words.contains(word.toLowerCase());
+    public boolean isWord(String word) {
+        return words.keySet().contains(word);
     }
 }

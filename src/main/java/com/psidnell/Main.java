@@ -5,9 +5,13 @@ import java.net.URISyntaxException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException, URISyntaxException {
-        Context context = new Context();
-        context.setDictionary(new Dictionary());
+
+    private static Wordle wordle;
+
+    public static void main(String[] args) throws Exception {
+       final Context context = new Context();
+       wordle = context.get("wordle", Wordle.class);
+       wordle.setSolution("sleep");
 
         IO.println("Wordle Solver");
 
@@ -40,24 +44,17 @@ public class Main {
                 IO.println("Goodbye!");
                 running = false;
                 break;
-            case "help":
-                IO.println("Available commands:");
-                IO.println("  quit - Exit the program");
-                IO.println("  help - Show this help message");
-                IO.println("  solve - Start solving a wordle puzzle");
-                break;
-            case "solve":
-                if (parts.length > 1) {
-                    IO.println("Solving with pattern: " + parts[1]);
-                } else {
-                    IO.println("Solving wordle puzzle...");
-                }
+            case "guess":
+                wordle.guess(parts[1].toLowerCase());
                 break;
             default:
                 IO.println("Unknown command: " + command);
                 IO.println("Type 'help' for available commands.");
                 break;
         }
+
+        wordle.printStatus();
+
         return running;
     }
 }
