@@ -1,9 +1,14 @@
-package org.example;
+package com.psidnell;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, URISyntaxException {
+        Context context = new Context();
+        context.setDictionary(new Dictionary());
+
         IO.println("Wordle Solver");
 
         // Interactive terminal loop
