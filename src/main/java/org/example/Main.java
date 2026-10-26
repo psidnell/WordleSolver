@@ -2,13 +2,9 @@ package org.example;
 
 import java.util.Scanner;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        IO.println(String.format("Wordle Solver"));
+        IO.println("Wordle Solver");
 
         // Interactive terminal loop
         Scanner scanner = new Scanner(System.in);
@@ -25,16 +21,36 @@ public class Main {
     }
 
     private static boolean processLine(String input, boolean running) {
-        switch (input.toLowerCase()) {
+        if (input == null || input.trim().isEmpty()) {
+            return running;
+        }
+
+        // Extract the first word as the command
+        String[] parts = input.trim().split("\\s+", 2);
+        String command = parts[0].toLowerCase();
+
+        switch (command) {
             case "q":
             case "quit":
                 IO.println("Goodbye!");
                 running = false;
                 break;
+            case "help":
+                IO.println("Available commands:");
+                IO.println("  quit - Exit the program");
+                IO.println("  help - Show this help message");
+                IO.println("  solve - Start solving a wordle puzzle");
+                break;
+            case "solve":
+                if (parts.length > 1) {
+                    IO.println("Solving with pattern: " + parts[1]);
+                } else {
+                    IO.println("Solving wordle puzzle...");
+                }
+                break;
             default:
-                IO.println("You entered: " + input);
-                // Add your custom processing logic here
-                IO.println("Processing command...");
+                IO.println("Unknown command: " + command);
+                IO.println("Type 'help' for available commands.");
                 break;
         }
         return running;
