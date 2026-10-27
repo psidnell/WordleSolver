@@ -1,23 +1,12 @@
 package com.psidnell;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Word {
     private final String word;
-    private final Map<Character, Integer> occurrences = new HashMap<>();
 
     public Word(String word) {
         this.word = word;
-        for (int i = 0; i < 5; i++) {
-            Character c = word.charAt(i);
-            Integer count = occurrences.get(c);
-            if (count != null) {
-                occurrences.put(c, count + 1);
-            } else {
-                occurrences.put(c, 1);
-            }
-        }
     }
 
     public String getWord() {
@@ -25,11 +14,13 @@ public class Word {
     }
 
     public int occurencesOf(Character c) {
-        Integer occurences =  occurrences.get(c);
-        if (occurences == null) {
-            return 0;
+        int occurrences = 0;
+        for (int i = 0; i < word.length(); i++) {
+            if (word.charAt(i) == c) {
+                occurrences++;
+            }
         }
-        return occurences;
+        return occurrences;
     }
 
     @Override
@@ -38,6 +29,11 @@ public class Word {
             return ((Word) obj).word.equals(word);
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return word.hashCode();
     }
 
     @Override
@@ -53,5 +49,60 @@ public class Word {
             }
         }
         return false;
+    }
+
+
+
+    public Map<Character, Integer> charactersInCommon(Word other) {
+        Map<Character, Integer> result = new TreeMap<>();
+        for (int i = 0; i < 5; i++) {
+            Character c = word.charAt(i);
+            int occurrences = other.occurencesOf(c);
+            if (occurrences > 0) {
+                result.put(c, occurrences);
+            }
+        }
+        return result;
+    }
+
+    public String charactersMissing(Word other) {
+        StringBuilder result = new StringBuilder();
+        Set<Character> seen = new HashSet<>();
+        for (int i = 0; i < 5; i++) {
+            Character c = word.charAt(i);
+            if (other.occurencesOf(c) == 0 && !seen.contains(c)) {
+                result.append(c);
+                seen.add(c);
+            }
+        }
+        return result.toString();
+    }
+
+    public WordComparison compareWords(Word other) {
+        Boolean[] correctPositions = new Boolean[5];
+        Boolean[] incorrectPositions = new Boolean[5];
+        Boolean[] mismatches = new Boolean[5];
+
+        for (int i = 0; i < 5; i++) {
+            Character c1 = word.charAt(i);
+            Character c2 = other.word.charAt(i);
+
+            if (c1.equals(c2)) {
+                correctPositions[i] = true;
+            } else if (occurencesOf(c2) > 0){
+                correctPositions[i] = false;
+                incorrectPositions[i] = true;
+                mismatches[i] = false;
+            } else {
+                correctPositions[i] = false;
+                incorrectPositions[i] = false;
+                mismatches[i] = true;
+            }
+        }
+
+
+        String charactersMissing = charactersMissing(other);
+        Map<Character, Integer> commonFrequencies =  charactersInCommon(other);
+        return new WordComparison(commonFrequencies, charactersMissing, equals(other), correctPositions, incorrectPositions, mismatches);
     }
 }

@@ -1,11 +1,11 @@
 package com.psidnell;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Match {
     private MatchType matchTypes[] = new MatchType[5];
-    private Map<Character, Integer> mustHaveAtLeast = new HashMap<>();
+    private Map<Character, Integer> mustHaveAtLeast = new TreeMap<>();
+    private Set<Character> misses = new TreeSet<>();
     private Word guess;
     private boolean match;
 
@@ -16,44 +16,51 @@ public class Match {
     }
 
     public Match(Word guess, Word solution) {
+        WordComparison comparison = guess.compareWords(solution);
+
+        Map<Character, Integer> commonLetterFrequencies = comparison.getCommonLetterFrequency();
+
+
         this.guess = guess;
         String s = solution.getWord();
         String g = guess.getWord();
-        match = s.endsWith(g);
+        match = s.equals(g);
 
-        Map<Character, Integer> charGuessesRemaining = new HashMap<>();
-        for (char c : g.toCharArray()) {
-            Character character = c;
-            charGuessesRemaining.put(c, solution.occurencesOf(character));
-            mustHaveAtLeast.put(character, 0);
+
+
+        // Build a count for each characters occurences
+        // wo we can decrement as we find positional matches
+        Map<Character, Integer> occurrencesForCharactersRemaining = new HashMap<>();
+        for (int i = 0; i < 5; i++) {
+            Character gc = g.charAt(i);
+            int occurrences = solution.occurencesOf(gc);
+            occurrencesForCharactersRemaining.put(gc, occurrences);
         }
 
-        // First look for direct matches
         for (int i = 0; i < 5; i++) {
             Character gc = g.charAt(i);
             Character sc = s.charAt(i);
-            int remaining = charGuessesRemaining.get(gc);
-            int mustHaves = mustHaveAtLeast.get(gc);
+            int occurrencesRemaining = occurrencesForCharactersRemaining.get(gc);
             if (gc.equals(sc)) {
+                // Characters match
                 matchTypes[i] = MatchType.MATCH;
-                charGuessesRemaining.put(gc, remaining - 1);
-                mustHaveAtLeast.put(gc, mustHaves + 1);
-            }
-        }
-
-        // Then for different kinds of miss
-        for (int i = 0; i < 5; i++) {
-            Character gc = g.charAt(i);
-            Character sc = s.charAt(i);
-            int remaining = charGuessesRemaining.get(gc);
-            int mustHaves = mustHaveAtLeast.get(gc);
-            if (gc.equals(sc)) {
-                // Handled
-            } else if (remaining > 0) {
-                matchTypes[i] = MatchType.WRONG_PLACE;
-                charGuessesRemaining.put(gc, remaining - 1);
-                mustHaveAtLeast.put(gc, mustHaves + 1);
+                mustHaveAtLeast.put(gc, commonLetterFrequencies.get(sc));
+                // We have consumed one of these characters
+                occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
+            } else if (occurrencesRemaining > 0) {
+                // Character in wrong position
+                if (!mustHaveAtLeast.containsKey(gc)) {
+                    // We've found an additional unconsumed occurrence
+                    matchTypes[i] = MatchType.WRONG_PLACE;
+                    mustHaveAtLeast.put(gc, occurrencesRemaining);
+                    occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
+                } else {
+                    // TODO must have at most???
+                    matchTypes[i] = MatchType.WRONG_PLACE;
+                    occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
+                }
             } else {
+                // No match or consumed occurrences
                 matchTypes[i] = MatchType.NO_MATCH;
             }
         }
@@ -61,23 +68,24 @@ public class Match {
 
     @Override
     public String toString() {
-        StringBuilder output = new StringBuilder();
+        StringBuilder output = new StringBuilder(guess.getWord());
+        output.append(" ");
         for (int i = 0; i < 5; i++) {
+            char c = guess.getWord().charAt(i);
             switch (matchTypes[i]) {
                 case MATCH:
-                    output.append(" " + guess.getWord().charAt(i) + " ");
+                    output.append(c).append("M").append(" ");
                     break;
                 case WRONG_PLACE:
-                    output.append("?" + guess.getWord().charAt(i)+ " ");
+                    output.append(c).append("?").append(" ");
                     break;
                 default: // NO_MATCH
-                    output.append("!" + guess.getWord().charAt(i) + " ");
+                    output.append(c).append("X").append(" ");
                     break;
             }
         }
-
         mustHaveAtLeast.keySet().forEach(c
-                -> output.append(" ").append(c).append(">=").append(mustHaveAtLeast.get(c)));
+                -> output.append(c).append(">=").append(mustHaveAtLeast.get(c)).append(" "));
 
         return output.toString().trim().toUpperCase();
     }
@@ -114,5 +122,9 @@ public class Match {
 
     public boolean isMatch() {
         return match;
+    }
+
+    public Word getGuess() {
+        return guess;
     }
 }

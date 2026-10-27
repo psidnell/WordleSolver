@@ -12,6 +12,7 @@ public class Wordle extends ComponentImpl {
     private Solutions solutions;
     private final List<String> userGuesses = new ArrayList<>();
     private final List<Integer> userGuessSolutionsRemaining = new ArrayList<>();
+    private final List<Match> userMatches = new ArrayList<>();
 
 
     @Override
@@ -30,7 +31,7 @@ public class Wordle extends ComponentImpl {
     public void printStatus() {
         System.out.println("History:");
         for(int i=0; i < userGuesses.size(); i++) {
-            System.out.println("  - " + userGuesses.get(i) + " " +  userGuessSolutionsRemaining.get(i));
+            System.out.println("  - " + userGuesses.get(i) + " " +  userMatches.get(i) + " " + userGuessSolutionsRemaining.get(i));
         }
         System.out.println("Solutions: " + solutions.getSolutions().size());
         System.out.println("Guesses Remaining: " + guessesRemaining);
@@ -62,6 +63,7 @@ public class Wordle extends ComponentImpl {
         Match match = guess(guessWord, solution, solutions);
         userGuesses.add(guess);
         userGuessSolutionsRemaining.add(solutions.getSolutions().size());
+        userMatches.add(match);
 
         System.out.println(match);
 
@@ -102,9 +104,14 @@ public class Wordle extends ComponentImpl {
         int minSolutionSize = Integer.MAX_VALUE;
         Word bestWord = null;
 
+        int startSolutionSize = solutions.getSolutions().size();
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
         int percentDone = -1;
+
+        int maxWordsEliminated = 0;
+        Word bestEliminationWord = null;
+
         for (Word dictionaryGuess: dictionary.getWords().values()) {
 
             if (userGuesses.contains(dictionaryGuess.getWord())) {
@@ -112,35 +119,53 @@ public class Wordle extends ComponentImpl {
                 continue;
             }
 
+//            boolean conflictsWithPrevious = false;
+//            for(int i = 0; i < userMatches.size(); i++) {
+//                Match m = userMatches.get(i);
+//                if (m.wouldEliminateWord(dictionaryGuess)) {
+//                    System.out.println("Conflict: " +  dictionaryGuess + "/" + m.getGuess() + " " +m);
+//
+//                    conflictsWithPrevious = true;
+//                    break;
+//                }
+//            }
+//            if (conflictsWithPrevious) {
+//                continue;
+//            }
+
             //System.out.println("Best: " + bestWord + " Trying: " + dictionaryGuess);
 
             int totalSolutionSizeForGuess = 0;
-            int startSolutionSize = solutions.getSolutions().size();
+            int totalWordsEliminated = 0;
 //            int totalImprovementsForGuess = 0 ;
 //            int maxImprovementsForGuess = 0;
 
             for (Word posSolution : solutions.getSolutions()) {
                 // Can I bail early if words don't overlap?
                 // Put this condition around the rest?
-//                if (!dictionaryGuess.haveCommonCharacters(posSolution)) {
-//                    // If the words have nothing in common then we would learn nothing from guess
-//                    //System.out.println("No Overlap: " + dictionaryGuess + "/" + posSolution);
-//                    totalSolutionSizeForGuess += startSolutionSize;
-//                    continue;
-//                }
+                if (!dictionaryGuess.haveCommonCharacters(posSolution)) {
+                    // If the words have nothing in common then we would learn nothing from guess
+                    //System.out.println("No Overlap: " + dictionaryGuess + "/" + posSolution);
+                    totalSolutionSizeForGuess += startSolutionSize;
+                    continue;
+                }
 
                 Solutions nextSolutions = new Solutions(solutions);
                 guess(dictionaryGuess, posSolution, nextSolutions);
                 int guessSolutionsSize = nextSolutions.getSolutions().size();
 
+                int wordsEliminated = startSolutionSize - guessSolutionsSize;
+                totalWordsEliminated += wordsEliminated;
+                //System.out.println("Eliminated: " + dictionaryGuess + "/" + posSolution + " " + wordsEliminated);
 
-                totalSolutionSizeForGuess += guessSolutionsSize;
-                if (totalSolutionSizeForGuess > minSolutionSize) {
-                    // If we're never going to get under the minimum permutations
-                    // for this guess then abort
-                    //System.out.println("Too many solutions: " + dictionaryGuess + "/" + posSolution + " solutions: " + totalSolutionSizeForGuess);
-                    break;
-                }
+
+//                totalSolutionSizeForGuess += guessSolutionsSize;
+//                if (totalSolutionSizeForGuess > minSolutionSize) {
+//                    // If we're never going to get under the minimum permutations
+//                    // for this guess then abort
+//                    //System.out.println("Too many solutions: " + dictionaryGuess + "/" + posSolution + " solutions: " + totalSolutionSizeForGuess);
+//                    break;
+//                }
 
 
                 //System.out.println(totalSolutionSizeForGuess);
@@ -148,11 +173,16 @@ public class Wordle extends ComponentImpl {
 
             //System.out.println("Analysed: " + dictionaryGuess + " solutions: " + totalSolutionSizeForGuess);
 
-            if (totalSolutionSizeForGuess < minSolutionSize) {
-                System.out.println("Best word: " + dictionaryGuess + " solutions: " + totalSolutionSizeForGuess +
-                        " dropped: " + (minSolutionSize - totalSolutionSizeForGuess));
-                minSolutionSize = totalSolutionSizeForGuess;
+//            if (totalSolutionSizeForGuess < minSolutionSize) {
+//                System.out.println("Best word: " + dictionaryGuess + " solutions: " + totalSolutionSizeForGuess +
+//                        " dropped: " + (minSolutionSize - totalSolutionSizeForGuess));
+//                minSolutionSize = totalSolutionSizeForGuess;
+//                bestWord = dictionaryGuess;
+//            }
+            if (totalWordsEliminated > maxWordsEliminated) {
+                System.out.println("Best word: " + dictionaryGuess + " eliminated: " + totalWordsEliminated);
                 bestWord = dictionaryGuess;
+                maxWordsEliminated = totalWordsEliminated;
             }
 
             wordsDone++;

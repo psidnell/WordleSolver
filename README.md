@@ -18,3 +18,11 @@ g woody
 g leaky
 g spear
 g apgar
+
+History:
+- woody 1527
+- lanky 133
+- ousia 133 <<< Why am I guessing words with an A after this? Should I keep previous matches?
+- auloi 133
+- miaou 133
+- canso 133
