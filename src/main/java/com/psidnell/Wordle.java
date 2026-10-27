@@ -11,6 +11,8 @@ public class Wordle extends ComponentImpl {
     int guessesRemaining = 6;
     private Solutions solutions;
     private final List<String> userGuesses = new ArrayList<>();
+    private final List<Integer> userGuessSolutionsRemaining = new ArrayList<>();
+
 
     @Override
     public void init() {
@@ -27,7 +29,9 @@ public class Wordle extends ComponentImpl {
 
     public void printStatus() {
         System.out.println("History:");
-        userGuesses.forEach(guess -> System.out.println("  - " + guess));
+        for(int i=0; i < userGuesses.size(); i++) {
+            System.out.println("  - " + userGuesses.get(i) + " " +  userGuessSolutionsRemaining.get(i));
+        }
         System.out.println("Solutions: " + solutions.getSolutions().size());
         System.out.println("Guesses Remaining: " + guessesRemaining);
     }
@@ -57,6 +61,8 @@ public class Wordle extends ComponentImpl {
 
         Match match = guess(guessWord, solution, solutions);
         userGuesses.add(guess);
+        userGuessSolutionsRemaining.add(solutions.getSolutions().size());
+
         System.out.println(match);
 
 
@@ -116,12 +122,12 @@ public class Wordle extends ComponentImpl {
             for (Word posSolution : solutions.getSolutions()) {
                 // Can I bail early if words don't overlap?
                 // Put this condition around the rest?
-                if (!dictionaryGuess.haveCommonCharacters(posSolution)) {
-                    // If the words have nothing in common then we would learn nothing from guess
-                    //System.out.println("No Overlap: " + dictionaryGuess + "/" + posSolution);
-                    totalSolutionSizeForGuess += startSolutionSize;
-                    continue;
-                }
+//                if (!dictionaryGuess.haveCommonCharacters(posSolution)) {
+//                    // If the words have nothing in common then we would learn nothing from guess
+//                    //System.out.println("No Overlap: " + dictionaryGuess + "/" + posSolution);
+//                    totalSolutionSizeForGuess += startSolutionSize;
+//                    continue;
+//                }
 
                 Solutions nextSolutions = new Solutions(solutions);
                 guess(dictionaryGuess, posSolution, nextSolutions);

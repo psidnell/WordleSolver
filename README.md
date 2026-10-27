@@ -6,8 +6,10 @@
 ## TODO
 - [X] Implement game itself
 - [X] Keep track of solutions remaining# WordleSolver
+- [X] Predict best next guess
+- [ ] Horribly slow next guess unless a fuew guesses in
 - [ ] Enter guess results and parse to create match
-- [ ] Predict best next guess
+
 - [ ] Why when only 1 solution is proposal not the solution?
 
 # Test 
