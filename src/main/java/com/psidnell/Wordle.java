@@ -104,6 +104,11 @@ public class Wordle extends ComponentImpl {
         int percentDone = -1;
         int maxWordsEliminated = 0;
 
+        int worstCaseMatches = dictWords * solutions.getSolutions().size();
+        int bestSolutionSize = worstCaseMatches;
+
+        int totalSolutionsForWord = 0;
+
         for (Word dictionaryGuess: dictionary.getWords().values()) {
         //for (Word dictionaryGuess: solutions.getSolutions()) { //todo only consider guesses from remaining solutions?
 
@@ -122,19 +127,21 @@ public class Wordle extends ComponentImpl {
             for (Word posSolution : solutions.getSolutions()) {
                 // Can I bail early if words don't overlap?
                 // Put this condition around the rest?
-                //todo not hitting this?
-                if (!dictionaryGuess.haveCommonCharacters(posSolution)) {
-                    // If the words have nothing in common then we would learn nothing from guess
-                    System.out.println("No Overlap: " + dictionaryGuess + "/" + posSolution);
-                    //totalSolutionSizeForGuess += startSolutionSize;
-                    continue;
-                }
+                //todo not hitting this Why?
+//                if (!dictionaryGuess.haveCommonCharacters(posSolution)) {
+//                    // If the words have nothing in common then we would learn nothing from guess
+//                    System.out.println("No Overlap: " + dictionaryGuess + "/" + posSolution);
+//                    //totalSolutionSizeForGuess += startSolutionSize;
+//                    continue;
+//                }
+
 
                 // TODO Get the core working before optimise
                 Solutions nextSolutions = new Solutions(solutions);
                 int initialSolutionSize = solutions.getSolutions().size();
                 Match m = guess(dictionaryGuess, posSolution, nextSolutions);
                 int guessSolutionsSize = nextSolutions.getSolutions().size();
+                totalSolutionsForWord += guessSolutionsSize;
 
                 int wordsEliminated = initialSolutionSize - guessSolutionsSize;
                 totalWordsEliminated += wordsEliminated;
@@ -143,12 +150,12 @@ public class Wordle extends ComponentImpl {
                 //System.out.println("Eliminated: " + dictionaryGuess + "/" + posSolution + " " + wordsEliminated + " " + percent + "%");
 
 //                totalSolutionSizeForGuess += guessSolutionsSize;
-//                if (totalSolutionSizeForGuess > minSolutionSize) {
-//                    // If we're never going to get under the minimum permutations
-//                    // for this guess then abort
-//                    //System.out.println("Too many solutions: " + dictionaryGuess + "/" + posSolution + " solutions: " + totalSolutionSizeForGuess);
-//                    break;
-//                }
+                if (totalSolutionsForWord >= bestSolutionSize) {
+                    // If we're never going to get under the minimum permutations
+                    // for this guess then abort
+                    //System.out.println("Too many solutions: " + dictionaryGuess + " solutions: " + totalSolutionsForWord);
+                    break;
+                }
 
 
                 //System.out.println(totalSolutionSizeForGuess);
@@ -162,11 +169,11 @@ public class Wordle extends ComponentImpl {
 //                minSolutionSize = totalSolutionSizeForGuess;
 //                bestWord = dictionaryGuess;
 //            }
-            if (totalWordsEliminated > maxWordsEliminated) {
-                //int percentage = (totalWordsEliminated * 100) / startSolutionSize;
-                System.out.println("Best word so far: " + dictionaryGuess + " eliminated: " + totalWordsEliminated);
+            if (totalSolutionsForWord < bestSolutionSize) {
+                int percentage = (totalWordsEliminated * 100) / worstCaseMatches;
+                System.out.println("Best word so far: " + dictionaryGuess + " eliminated: " + totalSolutionsForWord);
                 bestWord = dictionaryGuess;
-                maxWordsEliminated = totalWordsEliminated;
+                bestSolutionSize = totalSolutionsForWord;
             }
 
             wordsDone++;
