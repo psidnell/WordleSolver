@@ -19,12 +19,28 @@ public class MatchTest
                 Arguments.of("geeky", "macho", "MACHO MX AX CX HX OX !A !C !H !M !O"),
                 Arguments.of("trace", "boast", "BOAST BX OX AM SX T? A>=1 T>=1 !B !O !S"),
                 Arguments.of("geeky", "weeee", "WEEEE WX EM EM EX EX E>=2 !W"),
-                Arguments.of("gleep", "weeee", "WEEEE WX EX EM EM EX E>=2 !W")
+                Arguments.of("aaaaa", "aazzz", "AAZZZ AM AM ZX ZX ZX A>=2 !Z")
         );
     }
     @ParameterizedTest
     @MethodSource("provideMatchData")
     void testMatches(String solution, String guess, String expected) {
         assertEquals(expected, new Match(new Word(guess), new Word(solution)).toString());
+    }
+
+    private static Stream<Arguments> provideEliminatehData() {
+        return Stream.of(
+                // solution, guess, elimWord, should eliminate
+                Arguments.of("geeky", "geeky", "geeky", false),
+                Arguments.of("geeky", "geeky", "feeky", true),
+                Arguments.of("xxxxx", "yyyyy", "zzzzz", false),
+                Arguments.of("aaaaa", "aazzz", "aabbb", false)
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("provideEliminatehData")
+    void testMWouldEliminate(String solution, String guess, String elimWord, boolean eliminated) {
+        Match m = new Match(new Word(guess), new Word(solution));
+        assertEquals(eliminated, m.wouldEliminateWord(new Word(elimWord)));
     }
 }

@@ -46,9 +46,19 @@ public class Match {
             }
         }
 
-        comparison.getCommonLetterFrequency().forEach((gc, count) -> {
-            mustHaveAtLeast.put(gc, count);
-        });
+        // Now we can assign minimum values for some characters
+        for (int i = 0; i < 5; i++) {
+            Character gc = guess.charAt(i);
+            switch(matchTypes[i]) {
+                case MATCH:
+                case WRONG_PLACE:
+                    if (mustHaveAtLeast.containsKey(gc)) {
+                        mustHaveAtLeast.put(gc, mustHaveAtLeast.get(gc) + 1);
+                    } else {
+                        mustHaveAtLeast.put(gc, 1);
+                    }
+            }
+        }
     }
 
     @Override

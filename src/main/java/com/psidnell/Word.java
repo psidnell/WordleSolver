@@ -65,6 +65,22 @@ public class Word {
         return result;
     }
 
+//    public Map<Character, Integer> charactersInCommon(Word other) {
+//        Map<Character, Integer> result = new TreeMap<>();
+//        for (int i = 0; i < 5; i++) {
+//            Character c1 = word.charAt(i);
+//            Character c2 = word.charAt(i);
+//            if (c1.equals(c2)) {
+//                if (result.containsKey(c1)) {
+//                    result.put(c1, result.get(c1) + 1);
+//                } else {
+//                    result.put(c1, 1);
+//                }
+//            }
+//        }
+//        return result;
+//    }
+
     public String charactersMissing(Word other) {
         StringBuilder result = new StringBuilder();
         Set<Character> seen = new HashSet<>();
