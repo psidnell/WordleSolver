@@ -14,12 +14,12 @@ public class MatchTest
     private static Stream<Arguments> provideMatchData() {
         return Stream.of(
                 // solution, guess, toString
-                Arguments.of("geeky", "geeky", "GEEKY GM EM EM KM YM E>=2 G>=1 K>=1 Y>=1"),
-                Arguments.of("geeky", "egyee", "EGYEE E? G? Y? E? EX E>=2 G>=1 Y>=1"),
-                Arguments.of("geeky", "macho", "MACHO MX AX CX HX OX !A !C !H !M !O"),
-                Arguments.of("trace", "boast", "BOAST BX OX AM SX T? A>=1 T>=1 !B !O !S"),
-                Arguments.of("geeky", "weeee", "WEEEE WX EM EM EX EX E>=2 !W"),
-                Arguments.of("aaaaa", "aazzz", "AAZZZ AM AM ZX ZX ZX A>=2 !Z")
+                Arguments.of("geeky", "geeky", "GM EM EM KM YM E>=2 G>=1 K>=1 Y>=1"),
+                Arguments.of("geeky", "egyee", "E? G? Y? E? EX E>=2 G>=1 Y>=1"),
+                Arguments.of("geeky", "macho", "MX AX CX HX OX !A !C !H !M !O"),
+                Arguments.of("trace", "boast", "BX OX AM SX T? A>=1 T>=1 !B !O !S"),
+                Arguments.of("geeky", "weeee", "WX EM EM EX EX E>=2 !W"),
+                Arguments.of("aaaaa", "aazzz", "AM AM ZX ZX ZX A>=2 !Z")
         );
     }
     @ParameterizedTest

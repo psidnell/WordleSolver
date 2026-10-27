@@ -12,6 +12,7 @@ public class Wordle extends ComponentImpl {
     private Solutions solutions;
     private final List<Integer> userGuessSolutionsRemaining = new ArrayList<>();
     private final List<Match> userMatches = new ArrayList<>();
+    private List<String> userGuesses = new ArrayList<>();
 
 
     @Override
@@ -30,7 +31,7 @@ public class Wordle extends ComponentImpl {
     public void printStatus() {
         System.out.println("History:");
         for(int i=0; i < userMatches.size(); i++) {
-            System.out.println("  - " + " " +  userMatches.get(i) + " " + userGuessSolutionsRemaining.get(i));
+            System.out.println("  - " + userGuesses.get(i).toUpperCase() + " " +  userMatches.get(i) + " " + userGuessSolutionsRemaining.get(i));
         }
         System.out.println("Solutions: " + solutions.getSolutions().size());
         System.out.println("Guesses Remaining: " + guessesRemaining);
@@ -57,6 +58,7 @@ public class Wordle extends ComponentImpl {
         }
 
         // We have a valid guess
+        userGuesses.add(guess);
         guessesRemaining--;
 
         Match match = guess(guessWord, solution, solutions);
@@ -112,7 +114,7 @@ public class Wordle extends ComponentImpl {
         for (Word dictionaryGuess: dictionary.getWords().values()) {
         //for (Word dictionaryGuess: solutions.getSolutions()) { //todo only consider guesses from remaining solutions?
 
-            if (conflictsWithPreviousMatches(dictionaryGuess)) {
+            if (conflictsWithPreviousTurns(dictionaryGuess)) {
                 //System.out.println("Conflict with prev guesses: " + dictionaryGuess);
                 continue;
             }
@@ -189,9 +191,12 @@ public class Wordle extends ComponentImpl {
         return bestWord.getWord();
     }
 
-    private boolean conflictsWithPreviousMatches(Word guess) {
+    private boolean conflictsWithPreviousTurns(Word guess) {
+        if (userGuesses.contains(guess.getWord())) {
+            return true;
+        }
         for (Match m : userMatches) {
-            if (m.getGuess().equals(guess) || m.wouldEliminateWord(guess)) {
+            if (m.wouldEliminateWord(guess)) {
                 return true;
             }
         }

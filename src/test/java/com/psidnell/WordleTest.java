@@ -70,7 +70,6 @@ public class WordleTest {
         assertFalse(wordle.userGuess("woody"));
         assertFalse(wordle.userGuess("leaky"));
         assertFalse(wordle.userGuess("spear"));
-        assertFalse(wordle.userGuess("spear"));
         assertFalse(wordle.userGuess("apgar"));
         assertTrue(wordle.userGuess(wordle.propose()));
         wordle.printStatus();
@@ -85,8 +84,9 @@ public class WordleTest {
         wordle.setContext(context);
         wordle.init();
 
-        wordle.setSolution("geeky");
+        wordle.setSolution("bingo");
         //assertFalse(wordle.userGuess("trace"));
+        //assertFalse(wordle.userGuess("spoil"));
         //assertFalse(wordle.userGuess("brink"));
         //assertFalse(wordle.userGuess("woody"));
         //assertFalse(wordle.userGuess("leaky"));

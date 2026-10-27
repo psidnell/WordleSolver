@@ -3,29 +3,37 @@ package com.psidnell;
 import java.util.*;
 
 public class Match {
-    private final MatchType matchTypes[] = new MatchType[5];
+    private final CharacterMatch matchTypes[] = new CharacterMatch[5];
     private final Map<Character, Integer> mustHaveAtLeast = new TreeMap<>();
     private final Set<Character> mustNotHave = new TreeSet<>();
-    private final Word guess;
     private final boolean match;
 
-    public enum MatchType {
+    private enum MatchType {
         MATCH,
         NO_MATCH,
         WRONG_PLACE
     }
 
+    private class CharacterMatch {
+        private final MatchType type;
+        private final Character ch;
+
+        CharacterMatch(MatchType type, Character ch) {
+            this.type = type;
+            this.ch = ch;
+        }
+    }
+
     public Match(Word guess, Word solution) {
         WordComparison comparison = guess.compareWords(solution);
         Map<Character, Integer> commonLettersRemaining = new HashMap<>(comparison.getCommonLetterFrequency());
-        this.guess = guess;
         match = comparison.isFullMatch();
 
         // Must do correct positions first and knock out occurrences
         for(int i = 0; i < 5; i++) {
             Character gc = guess.charAt(i);
             if (comparison.getCorrectPositions()[i]) {
-                matchTypes[i] = MatchType.MATCH;
+                matchTypes[i] = new CharacterMatch(MatchType.MATCH, gc);
                 commonLettersRemaining.put(gc, commonLettersRemaining.getOrDefault(gc, 0) - 1);
             }
         }
@@ -35,24 +43,24 @@ public class Match {
             if (comparison.getIncorrectPositions()[i]) {
                 Integer remaining = commonLettersRemaining.getOrDefault(gc, 0);
                 if (remaining > 0) {
-                    matchTypes[i] = MatchType.WRONG_PLACE;
+                    matchTypes[i] =  new CharacterMatch(MatchType.WRONG_PLACE, gc);
                     commonLettersRemaining.put(gc, remaining - 1);
                 } else {
-                    matchTypes[i] = MatchType.NO_MATCH;
+                    matchTypes[i] = new CharacterMatch(MatchType.NO_MATCH, gc);
                 }
             } else if (comparison.getMismatches()[i]) {
                 mustNotHave.add(gc);
-                matchTypes[i] = MatchType.NO_MATCH;
+                matchTypes[i] =  new CharacterMatch(MatchType.NO_MATCH, gc);
             }
         }
 
         // Now we can assign minimum values for some characters
         for (int i = 0; i < 5; i++) {
             Character gc = guess.charAt(i);
-            switch(matchTypes[i]) {
+            switch(matchTypes[i].type) {
                 case MATCH:
                 case WRONG_PLACE:
-                    if (mustHaveAtLeast.containsKey(gc)) {
+                    if (mustHaveAtLeast.containsKey(matchTypes[i].ch)) {
                         mustHaveAtLeast.put(gc, mustHaveAtLeast.get(gc) + 1);
                     } else {
                         mustHaveAtLeast.put(gc, 1);
@@ -63,19 +71,18 @@ public class Match {
 
     @Override
     public String toString() {
-        StringBuilder output = new StringBuilder(guess.getWord());
+        StringBuilder output = new StringBuilder();
         output.append(" ");
         for (int i = 0; i < 5; i++) {
-            char c = guess.getWord().charAt(i);
-            switch (matchTypes[i]) {
+            switch (matchTypes[i].type) {
                 case MATCH:
-                    output.append(c).append("M").append(" ");
+                    output.append(matchTypes[i].ch).append("M").append(" ");
                     break;
                 case WRONG_PLACE:
-                    output.append(c).append("?").append(" ");
+                    output.append(matchTypes[i].ch).append("?").append(" ");
                     break;
                 default: // NO_MATCH
-                    output.append(c).append("X").append(" ");
+                    output.append(matchTypes[i].ch).append("X").append(" ");
                     break;
             }
         }
@@ -91,14 +98,19 @@ public class Match {
 
     public boolean wouldEliminateWord(Word word) {
         for (int i = 0; i < 5; i++) {
-            Character guessLetter = guess.getWord().charAt(i);
             Character wordLetter = word.getWord().charAt(i);
-            switch (matchTypes[i]) {
+            switch (matchTypes[i].type) {
                 case MATCH:
                     // If we guessed a letter correctly and the candidate
                     // word does not have same letter in same place then it's
                     // not a match
-                    if (!guessLetter.equals(wordLetter)) {
+                    if (!matchTypes[i].ch.equals(wordLetter)) {
+                        return true;
+                    }
+                    break;
+                case NO_MATCH:
+                    // Must NOT have the letter in this position
+                    if (matchTypes[i].ch.equals(wordLetter)) {
                         return true;
                     }
                     break;
@@ -129,9 +141,5 @@ public class Match {
 
     public boolean isMatch() {
         return match;
-    }
-
-    public Word getGuess() {
-        return guess;
     }
 }
