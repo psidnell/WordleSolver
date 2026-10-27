@@ -32,4 +32,16 @@ public class WordComparison {
     public boolean isFullMatch() {
         return fullMatch;
     }
+
+    public Boolean[] getCorrectPositions() {
+        return correctPositions;
+    }
+
+    public Boolean[] getIncorrectPositions() {
+        return incorrectPositions;
+    }
+
+    public Boolean[] getMismatches() {
+        return mismatches;
+    }
 }

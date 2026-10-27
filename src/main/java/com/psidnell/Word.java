@@ -15,7 +15,7 @@ public class Word {
 
     public int occurencesOf(Character c) {
         int occurrences = 0;
-        for (int i = 0; i < word.length(); i++) {
+        for (int i = 0; i < 5; i++) {
             if (word.charAt(i) == c) {
                 occurrences++;
             }
@@ -89,7 +89,9 @@ public class Word {
 
             if (c1.equals(c2)) {
                 correctPositions[i] = true;
-            } else if (occurencesOf(c2) > 0){
+                incorrectPositions[i] = false;
+                mismatches[i] = false;
+            } else if (other.occurencesOf(c2) > 0){
                 correctPositions[i] = false;
                 incorrectPositions[i] = true;
                 mismatches[i] = false;
@@ -104,5 +106,9 @@ public class Word {
         String charactersMissing = charactersMissing(other);
         Map<Character, Integer> commonFrequencies =  charactersInCommon(other);
         return new WordComparison(commonFrequencies, charactersMissing, equals(other), correctPositions, incorrectPositions, mismatches);
+    }
+
+    public Character charAt(int i) {
+        return word.charAt(i);
     }
 }

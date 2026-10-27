@@ -17,53 +17,79 @@ public class Match {
 
     public Match(Word guess, Word solution) {
         WordComparison comparison = guess.compareWords(solution);
-
-        Map<Character, Integer> commonLetterFrequencies = comparison.getCommonLetterFrequency();
-
-
+        Map<Character, Integer> commonLettersRemaining = new HashMap<>(comparison.getCommonLetterFrequency());
         this.guess = guess;
-        String s = solution.getWord();
-        String g = guess.getWord();
-        match = s.equals(g);
+        match = comparison.isFullMatch();
 
-
-
-        // Build a count for each characters occurences
-        // wo we can decrement as we find positional matches
-        Map<Character, Integer> occurrencesForCharactersRemaining = new HashMap<>();
-        for (int i = 0; i < 5; i++) {
-            Character gc = g.charAt(i);
-            int occurrences = solution.occurencesOf(gc);
-            occurrencesForCharactersRemaining.put(gc, occurrences);
+        // Must do correct positions first and knock out occurrences
+        for(int i = 0; i < 5; i++) {
+            Character gc = guess.charAt(i);
+            if (comparison.getCorrectPositions()[i]) {
+                matchTypes[i] = MatchType.MATCH;
+                commonLettersRemaining.put(gc, commonLettersRemaining.getOrDefault(gc, 0) - 1);
+            }
         }
 
-        for (int i = 0; i < 5; i++) {
-            Character gc = g.charAt(i);
-            Character sc = s.charAt(i);
-            int occurrencesRemaining = occurrencesForCharactersRemaining.get(gc);
-            if (gc.equals(sc)) {
-                // Characters match
-                matchTypes[i] = MatchType.MATCH;
-                mustHaveAtLeast.put(gc, commonLetterFrequencies.get(sc));
-                // We have consumed one of these characters
-                occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
-            } else if (occurrencesRemaining > 0) {
-                // Character in wrong position
-                if (!mustHaveAtLeast.containsKey(gc)) {
-                    // We've found an additional unconsumed occurrence
+        for(int i = 0; i < 5; i++) {
+            Character gc = guess.charAt(i);
+            if (comparison.getIncorrectPositions()[i]) {
+                Integer remaining = commonLettersRemaining.getOrDefault(gc, 0);
+                if (remaining > 0) {
                     matchTypes[i] = MatchType.WRONG_PLACE;
-                    mustHaveAtLeast.put(gc, occurrencesRemaining);
-                    occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
+                    commonLettersRemaining.put(gc, remaining - 1);
                 } else {
-                    // TODO must have at most???
-                    matchTypes[i] = MatchType.WRONG_PLACE;
-                    occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
+                    matchTypes[i] = MatchType.NO_MATCH;
                 }
-            } else {
-                // No match or consumed occurrences
+            } else if (comparison.getMismatches()[i]) {
                 matchTypes[i] = MatchType.NO_MATCH;
             }
         }
+
+        comparison.getCommonLetterFrequency().forEach((gc, count) -> {
+            mustHaveAtLeast.put(gc, count);
+        });
+
+
+
+//
+//
+//
+//        // Build a count for each characters occurences
+//        // wo we can decrement as we find positional matches
+//        Map<Character, Integer> occurrencesForCharactersRemaining = new HashMap<>();
+//        for (int i = 0; i < 5; i++) {
+//            Character gc = g.charAt(i);
+//            int occurrences = solution.occurencesOf(gc);
+//            occurrencesForCharactersRemaining.put(gc, occurrences);
+//        }
+//
+//        for (int i = 0; i < 5; i++) {
+//            Character gc = g.charAt(i);
+//            Character sc = s.charAt(i);
+//            int occurrencesRemaining = occurrencesForCharactersRemaining.get(gc);
+//            if (gc.equals(sc)) {
+//                // Characters match
+//                matchTypes[i] = MatchType.MATCH;
+//                mustHaveAtLeast.put(gc, commonLetterFrequencies.get(sc));
+//                // We have consumed one of these characters
+//                occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
+//            } else if (occurrencesRemaining > 0) {
+//                // Character in wrong position
+//                if (!mustHaveAtLeast.containsKey(gc)) {
+//                    // We've found an additional unconsumed occurrence
+//                    matchTypes[i] = MatchType.WRONG_PLACE;
+//                    mustHaveAtLeast.put(gc, occurrencesRemaining);
+//                    occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
+//                } else {
+//                    // TODO must have at most???
+//                    matchTypes[i] = MatchType.WRONG_PLACE;
+//                    occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
+//                }
+//            } else {
+//                // No match or consumed occurrences
+//                matchTypes[i] = MatchType.NO_MATCH;
+//            }
+//        }
     }
 
     @Override
