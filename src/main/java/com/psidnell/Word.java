@@ -91,7 +91,7 @@ public class Word {
                 correctPositions[i] = true;
                 incorrectPositions[i] = false;
                 mismatches[i] = false;
-            } else if (other.occurencesOf(c2) > 0){
+            } else if (other.occurencesOf(c1) > 0){
                 correctPositions[i] = false;
                 incorrectPositions[i] = true;
                 mismatches[i] = false;

@@ -1,6 +1,7 @@
 package com.psidnell;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Solutions {
 
@@ -18,12 +19,15 @@ public class Solutions {
         return (Collection<Word>) solutions.values();
     }
 
-    public void prune(Match match) {
+    public int prune(Match match) {
         Collection<Word> wordsRemaining = new HashSet<>(solutions.values());
+        AtomicInteger count = new AtomicInteger(0);
         wordsRemaining.forEach(word -> {
             if (match.wouldEliminateWord(word)) {
                 solutions.remove(word.getWord());
+                count.incrementAndGet();
             }
         });
+        return count.get();
     }
 }

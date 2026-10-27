@@ -86,10 +86,12 @@ public class WordleTest {
         wordle.init();
 
         wordle.setSolution("geeky");
-        assertFalse(wordle.userGuess("woody"));
-        assertFalse(wordle.userGuess("leaky"));
+        assertFalse(wordle.userGuess("trace"));
+        assertFalse(wordle.userGuess("brink"));
+        //assertFalse(wordle.userGuess("woody"));
+        //assertFalse(wordle.userGuess("leaky"));
         //assertFalse(wordle.userGuess("lanky"));
-
+        wordle.printStatus();
         String proposal = wordle.propose();
         while (wordle.getGuessesRemaining() > 0 && !wordle.userGuess(proposal)) {
             wordle.printStatus();

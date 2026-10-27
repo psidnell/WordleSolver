@@ -3,11 +3,11 @@ package com.psidnell;
 import java.util.*;
 
 public class Match {
-    private MatchType matchTypes[] = new MatchType[5];
-    private Map<Character, Integer> mustHaveAtLeast = new TreeMap<>();
-    private Set<Character> misses = new TreeSet<>();
-    private Word guess;
-    private boolean match;
+    private final MatchType matchTypes[] = new MatchType[5];
+    private final Map<Character, Integer> mustHaveAtLeast = new TreeMap<>();
+    private final Set<Character> mustNotHave = new TreeSet<>();
+    private final Word guess;
+    private final boolean match;
 
     public enum MatchType {
         MATCH,
@@ -41,6 +41,7 @@ public class Match {
                     matchTypes[i] = MatchType.NO_MATCH;
                 }
             } else if (comparison.getMismatches()[i]) {
+                mustNotHave.add(gc);
                 matchTypes[i] = MatchType.NO_MATCH;
             }
         }
@@ -48,48 +49,6 @@ public class Match {
         comparison.getCommonLetterFrequency().forEach((gc, count) -> {
             mustHaveAtLeast.put(gc, count);
         });
-
-
-
-//
-//
-//
-//        // Build a count for each characters occurences
-//        // wo we can decrement as we find positional matches
-//        Map<Character, Integer> occurrencesForCharactersRemaining = new HashMap<>();
-//        for (int i = 0; i < 5; i++) {
-//            Character gc = g.charAt(i);
-//            int occurrences = solution.occurencesOf(gc);
-//            occurrencesForCharactersRemaining.put(gc, occurrences);
-//        }
-//
-//        for (int i = 0; i < 5; i++) {
-//            Character gc = g.charAt(i);
-//            Character sc = s.charAt(i);
-//            int occurrencesRemaining = occurrencesForCharactersRemaining.get(gc);
-//            if (gc.equals(sc)) {
-//                // Characters match
-//                matchTypes[i] = MatchType.MATCH;
-//                mustHaveAtLeast.put(gc, commonLetterFrequencies.get(sc));
-//                // We have consumed one of these characters
-//                occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
-//            } else if (occurrencesRemaining > 0) {
-//                // Character in wrong position
-//                if (!mustHaveAtLeast.containsKey(gc)) {
-//                    // We've found an additional unconsumed occurrence
-//                    matchTypes[i] = MatchType.WRONG_PLACE;
-//                    mustHaveAtLeast.put(gc, occurrencesRemaining);
-//                    occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
-//                } else {
-//                    // TODO must have at most???
-//                    matchTypes[i] = MatchType.WRONG_PLACE;
-//                    occurrencesForCharactersRemaining.put(gc, occurrencesRemaining - 1);
-//                }
-//            } else {
-//                // No match or consumed occurrences
-//                matchTypes[i] = MatchType.NO_MATCH;
-//            }
-//        }
     }
 
     @Override
@@ -110,8 +69,12 @@ public class Match {
                     break;
             }
         }
+
         mustHaveAtLeast.keySet().forEach(c
                 -> output.append(c).append(">=").append(mustHaveAtLeast.get(c)).append(" "));
+
+        mustNotHave.forEach(c
+                -> output.append("!").append(c).append(" "));
 
         return output.toString().trim().toUpperCase();
     }
@@ -139,6 +102,14 @@ public class Match {
             int atLeast = mustHaveAtLeast.get(c);
             int actual = word.occurencesOf(c);
             if (actual < atLeast) {
+                return true;
+            }
+        }
+
+        for (Character c : mustNotHave ) {
+            // Does the have letters we've eliminated?
+            int count = word.occurencesOf(c);
+            if (count > 0) {
                 return true;
             }
         }
