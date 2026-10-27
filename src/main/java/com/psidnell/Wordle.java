@@ -104,8 +104,8 @@ public class Wordle extends ComponentImpl {
         int percentDone = -1;
         int maxWordsEliminated = 0;
 
-        //for (Word dictionaryGuess: dictionary.getWords().values()) {
-        for (Word dictionaryGuess: solutions.getSolutions()) { //todo only consider guesses from remaining solutions?
+        for (Word dictionaryGuess: dictionary.getWords().values()) {
+        //for (Word dictionaryGuess: solutions.getSolutions()) { //todo only consider guesses from remaining solutions?
 
             if (conflictsWithPreviousMatches(dictionaryGuess)) {
                 //System.out.println("Conflict with prev guesses: " + dictionaryGuess);
@@ -122,12 +122,13 @@ public class Wordle extends ComponentImpl {
             for (Word posSolution : solutions.getSolutions()) {
                 // Can I bail early if words don't overlap?
                 // Put this condition around the rest?
-//                if (!dictionaryGuess.haveCommonCharacters(posSolution)) {
-//                    // If the words have nothing in common then we would learn nothing from guess
-//                    //System.out.println("No Overlap: " + dictionaryGuess + "/" + posSolution);
-//                    totalSolutionSizeForGuess += startSolutionSize;
-//                    continue;
-//                }
+                //todo not hitting this?
+                if (!dictionaryGuess.haveCommonCharacters(posSolution)) {
+                    // If the words have nothing in common then we would learn nothing from guess
+                    System.out.println("No Overlap: " + dictionaryGuess + "/" + posSolution);
+                    //totalSolutionSizeForGuess += startSolutionSize;
+                    continue;
+                }
 
                 // TODO Get the core working before optimise
                 Solutions nextSolutions = new Solutions(solutions);
