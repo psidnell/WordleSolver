@@ -1,5 +1,6 @@
 package com.psidnell;
 
+import com.psidnell.rules.Rule;
 import com.psidnell.rules.RuleSet;
 import com.psidnell.util.ComponentImpl;
 
@@ -120,28 +121,30 @@ public class Wordle extends ComponentImpl {
 
         int totalSolutionsForWord = 0;
 
-        for (Word dictionaryGuess: dictionary.getWords().values()) {
-            if (previousGuesses.contains(dictionaryGuess.getWord())) {
+        for (Word dictionaryWord: dictionary.getWords().values()) {
+            if (previousGuesses.contains(dictionaryWord.getWord())) {
                 continue;
             }
 
-            for (Word posSolution : solutions.getSolutions()) {
+            for (Word wordFromSolutions : solutions.getSolutions()) {
 
-                if (combinedRuleSet.match(posSolution)) {
+                RuleSet match = new RuleSet(dictionaryWord, wordFromSolutions).combineRuleSet(combinedRuleSet);
+
+                if (match.match(wordFromSolutions)) {
                     totalSolutionsForWord++;
                 }
 
                 if (totalSolutionsForWord >= bestSolutionSize) {
-                    //System.out.println("Bailing on: " + dictionaryGuess + " solutions: " + totalSolutionsForWord + ">=" +bestSolutionSize);
+                    System.out.println("Bailing on: " + dictionaryWord + " solutions: " + totalSolutionsForWord + ">=" +bestSolutionSize);
                     break;
                 }
             }
 
-            //System.out.println("Analysed: " + dictionaryGuess + " solutions: " + totalSolutionsForWord);
+            System.out.println("Analysed: " + dictionaryWord + " solutions: " + totalSolutionsForWord);
 
             if (totalSolutionsForWord < bestSolutionSize) {
-                System.out.println("Best word so far: " + dictionaryGuess + " eliminated: " + totalSolutionsForWord);
-                bestWord = dictionaryGuess;
+                System.out.println("Best word so far: " + dictionaryWord + " eliminated: " + totalSolutionsForWord);
+                bestWord = dictionaryWord;
                 bestSolutionSize = totalSolutionsForWord;
             }
 
@@ -149,7 +152,7 @@ public class Wordle extends ComponentImpl {
             int nextPercentDome = (100 * wordsDone) / dictWords;
             if (percentDone != nextPercentDome) {
                 percentDone = nextPercentDome;
-                System.out.println("PercentDone: " + percentDone);
+                //System.out.println("PercentDone: " + percentDone);
             }
 
         }
@@ -157,19 +160,6 @@ public class Wordle extends ComponentImpl {
         System.out.println("Best word: " + bestWord + " solutions: " + bestSolutionSize);
         return bestWord.getWord();
     }
-
-//    private boolean compatibleWithPreviousTurns(Word guess) {
-//        if (previousGuesses.contains(guess.getWord())) {
-//            return false;
-//        }
-//        // todo Is this sane?
-////        for (RuleSet m : previousRuleSets) {
-////            if (!m.match(guess)) {
-////                return false;
-////            }
-////        }
-//        return true;
-//    }
 
     public int getGuessesRemaining() {
         return guessesRemaining;
