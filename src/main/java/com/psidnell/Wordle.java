@@ -105,7 +105,7 @@ public class Wordle extends ComponentImpl {
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
         int percentDone = -1;
-        int maxWordsEliminated = 0;
+
 
         int worstCaseMatches = dictWords * solutions.getSolutions().size();
         int bestSolutionSize = worstCaseMatches;
@@ -113,9 +113,8 @@ public class Wordle extends ComponentImpl {
         int totalSolutionsForWord = 0;
 
         for (Word dictionaryGuess: dictionary.getWords().values()) {
-        //for (Word dictionaryGuess: solutions.getSolutions()) { //todo only consider guesses from remaining solutions?
 
-            if (conflictsWithPreviousTurns(dictionaryGuess)) {
+            if (!compatibleWithPreviousTurns(dictionaryGuess)) {
                 //System.out.println("Conflict with prev guesses: " + dictionaryGuess);
                 continue;
             }
@@ -192,19 +191,23 @@ public class Wordle extends ComponentImpl {
         return bestWord.getWord();
     }
 
-    private boolean conflictsWithPreviousTurns(Word guess) {
+    private boolean compatibleWithPreviousTurns(Word guess) {
         if (userGuesses.contains(guess.getWord())) {
-            return true;
+            return false;
         }
         for (RuleSet m : userMatches) {
             if (!m.match(guess)) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     public int getGuessesRemaining() {
         return guessesRemaining;
+    }
+
+    public Solutions getSolutions() {
+        return solutions;
     }
 }

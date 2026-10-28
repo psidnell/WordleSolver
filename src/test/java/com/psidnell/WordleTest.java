@@ -3,8 +3,7 @@ package com.psidnell;
 import com.psidnell.util.Context;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class WordleTest {
 
@@ -61,7 +60,7 @@ public class WordleTest {
     }
 
     @Test
-    public void testScenario() throws Exception {
+    public void testScenario1() throws Exception {
         Context context = new Context();
         Wordle wordle = new Wordle();
         wordle.setContext(context);
@@ -79,7 +78,7 @@ public class WordleTest {
     }
 
     @Test
-    public void testProposal() throws Exception {
+    public void testScenrio2() throws Exception {
         Context context = new Context();
         Wordle wordle = new Wordle();
         wordle.setContext(context);
@@ -95,12 +94,39 @@ public class WordleTest {
         //assertFalse(wordle.userGuess("leaky"));
         //assertFalse(wordle.userGuess("lanky"));
         wordle.printStatus();
+        solve(wordle);
+        assertTrue(wordle.getGuessesRemaining() > 0);
+    }
+
+    @Test
+    public void testScenario3() throws Exception {
+        Context context = new Context();
+        Wordle wordle = new Wordle();
+        wordle.setContext(context);
+        wordle.init();
+        Solutions solutions = wordle.getSolutions();
+
+        wordle.setSolution("grist");
+        assertFalse(wordle.userGuess("trace"));
+        assertEquals(43, solutions.getSolutions().size());
+
+        // Why is the result (9) so much worse that my guess?
+        String suggestion = wordle.propose();
+        wordle.userGuess(suggestion);
+        assertEquals(9, solutions.getSolutions().size());
+
+        //assertFalse(wordle.userGuess("swing"));
+        //assertEquals(2, solutions.getSolutions().size());
+
+
+    }
+
+    private static void solve(Wordle wordle) {
         String proposal = wordle.propose();
         while (wordle.getGuessesRemaining() > 0 && !wordle.userGuess(proposal)) {
             wordle.printStatus();
             proposal = wordle.propose();
         }
         wordle.printStatus();
-        assertTrue(wordle.getGuessesRemaining() > 0);
     }
 }
