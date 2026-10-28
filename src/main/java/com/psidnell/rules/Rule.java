@@ -43,7 +43,7 @@ public class Rule implements Comparable<Rule> {
         return switch (type) {
             case MATCH -> word.charAt(position).equals(ch);
             case NO_MATCH -> !word.charAt(position).equals(ch);
-            case WRONG_PLACE -> word.charAt(position) != ch && word.occurencesOf(ch) > 0; //todo 2nd term necessary? we added a rule for that
+            case WRONG_PLACE -> !word.charAt(position).equals(ch) && word.occurencesOf(ch) > 0; //todo 2nd term necessary? we added a rule for that
             case MUST_NOT_HAVE -> word.occurencesOf(ch) == 0;
             case MUST_HAVE_AT_LEAST -> word.occurencesOf(ch) >= amount;
         };

@@ -62,13 +62,11 @@ public class RuleSet {
     }
 
     public boolean match(Word word) {
-
         for (Rule rule : rules) {
             if (!rule.match(word)) {
                 return false;
             }
         }
-
         return true;
     }
 

@@ -131,6 +131,8 @@ public class Wordle extends ComponentImpl {
                 RuleSet match = new RuleSet(dictionaryWord, wordFromSolutions).combineRuleSet(combinedRuleSet);
 
                 if (match.match(wordFromSolutions)) {
+                    System.out.println("Compatible: " + dictionaryWord + "/" + wordFromSolutions + " with " +match);
+
                     totalSolutionsForWord++;
                 }
 
