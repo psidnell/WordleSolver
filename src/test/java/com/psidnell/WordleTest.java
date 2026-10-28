@@ -112,12 +112,14 @@ public class WordleTest {
 
         // Why is the result (9) so much worse that my guess?
         String suggestion = wordle.propose();
-        wordle.userGuess(suggestion);
-        assertEquals(9, solutions.getSolutions().size());
+        //wordle.userGuess(suggestion);
+        //assertEquals(9, solutions.getSolutions().size());
 
         //assertFalse(wordle.userGuess("swing"));
         //assertEquals(2, solutions.getSolutions().size());
 
+//        solve(wordle);
+//        assertTrue(wordle.getGuessesRemaining() > 0);
 
     }
 

@@ -43,7 +43,7 @@ public class Rule implements Comparable<Rule> {
         return switch (type) {
             case MATCH -> word.charAt(position).equals(ch);
             case NO_MATCH -> !word.charAt(position).equals(ch);
-            case WRONG_PLACE -> word.charAt(position) != ch && word.occurencesOf(ch) > 0;
+            case WRONG_PLACE -> word.charAt(position) != ch && word.occurencesOf(ch) > 0; //todo 2nd term necessary? we added a rule for that
             case MUST_NOT_HAVE -> word.occurencesOf(ch) == 0;
             case MUST_HAVE_AT_LEAST -> word.occurencesOf(ch) >= amount;
         };
@@ -69,9 +69,9 @@ public class Rule implements Comparable<Rule> {
     public String toString() {
         Character chUpper = Character.toUpperCase(ch);
         return switch (type) {
-            case MATCH -> chUpper + "M";
-            case NO_MATCH -> chUpper +"X";
-            case WRONG_PLACE -> chUpper + "?";
+            case MATCH -> chUpper + "M[" + position + "]";
+            case NO_MATCH -> chUpper +"X[" + position + "]";
+            case WRONG_PLACE -> chUpper + "?[" + position + "]";
             case MUST_NOT_HAVE -> chUpper + "!";
             case MUST_HAVE_AT_LEAST -> chUpper + ">=" + amount;
         };

@@ -12,8 +12,9 @@ public class Wordle extends ComponentImpl {
     int guessesRemaining = 6;
     private Solutions solutions;
     private final List<Integer> userGuessSolutionsRemaining = new ArrayList<>();
-    private final List<RuleSet> userMatches = new ArrayList<>();
-    private final List<String> userGuesses = new ArrayList<>();
+    private final List<RuleSet> previousRuleSets = new ArrayList<>();
+    private final RuleSet combinedRuleSet = new RuleSet();
+    private final List<String> previousGuesses = new ArrayList<>();
 
 
     @Override
@@ -31,8 +32,8 @@ public class Wordle extends ComponentImpl {
 
     public void printStatus() {
         System.out.println("History:");
-        for(int i=0; i < userMatches.size(); i++) {
-            System.out.println("  - " + userGuesses.get(i).toUpperCase() + " " +  userMatches.get(i) + " " + userGuessSolutionsRemaining.get(i));
+        for(int i = 0; i < previousRuleSets.size(); i++) {
+            System.out.println("  - " + previousGuesses.get(i).toUpperCase() + " " +  previousRuleSets.get(i) + " " + userGuessSolutionsRemaining.get(i));
         }
         System.out.println("Solutions: " + solutions.getSolutions().size());
         System.out.println("Guesses Remaining: " + guessesRemaining);
@@ -59,12 +60,12 @@ public class Wordle extends ComponentImpl {
         }
 
         // We have a valid guess
-        userGuesses.add(guess);
+        previousGuesses.add(guess);
         guessesRemaining--;
 
         RuleSet match = guess(guessWord, solution, solutions);
         userGuessSolutionsRemaining.add(solutions.getSolutions().size());
-        userMatches.add(match);
+        previousRuleSets.add(match);
 
         System.out.println(match);
 
@@ -87,6 +88,12 @@ public class Wordle extends ComponentImpl {
         for (Word word : solutions.getSolutions()) {
             System.out.println(word);
         }
+    }
+
+    public Solutions hypothesize (Word guessWord, Word solution) {
+        Solutions reducedSolutions = new Solutions(solutions);
+        guess(guessWord, solution, reducedSolutions);
+        return reducedSolutions;
     }
 
     public String propose() {
@@ -139,10 +146,11 @@ public class Wordle extends ComponentImpl {
 
 
                 // TODO Get the core working before optimise
-                Solutions nextSolutions = new Solutions(solutions);
                 int initialSolutionSize = solutions.getSolutions().size();
-                RuleSet m = guess(dictionaryGuess, posSolution, nextSolutions);
-                int guessSolutionsSize = nextSolutions.getSolutions().size();
+
+                Solutions reducedSolutions = hypothesize(dictionaryGuess, posSolution);
+
+                int guessSolutionsSize = reducedSolutions.getSolutions().size();
                 totalSolutionsForWord += guessSolutionsSize;
 
                 int wordsEliminated = initialSolutionSize - guessSolutionsSize;
@@ -163,7 +171,7 @@ public class Wordle extends ComponentImpl {
                 //System.out.println(totalSolutionSizeForGuess);
             }
 
-            //System.out.println("Analysed: " + dictionaryGuess + " solutions: " + totalSolutionSizeForGuess);
+            System.out.println("Analysed: " + dictionaryGuess + " solutions: " + totalSolutionsForWord);
 
 //            if (totalSolutionSizeForGuess < minSolutionSize) {
 //                System.out.println("Best word: " + dictionaryGuess + " solutions: " + totalSolutionSizeForGuess +
@@ -192,10 +200,11 @@ public class Wordle extends ComponentImpl {
     }
 
     private boolean compatibleWithPreviousTurns(Word guess) {
-        if (userGuesses.contains(guess.getWord())) {
+        if (previousGuesses.contains(guess.getWord())) {
             return false;
         }
-        for (RuleSet m : userMatches) {
+        // todo Is this sane?
+        for (RuleSet m : previousRuleSets) {
             if (!m.match(guess)) {
                 return false;
             }

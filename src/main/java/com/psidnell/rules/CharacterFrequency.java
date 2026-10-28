@@ -14,8 +14,6 @@ public class CharacterFrequency {
         frequencies = new TreeMap<>(other.frequencies);
     }
     
-    //todo constructor that takes a string
-    
     public void increase(Character c) {
         int count = frequencies.getOrDefault(c, 0);
         frequencies.put(c, count + 1);

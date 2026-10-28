@@ -8,6 +8,9 @@ import java.util.*;
 public class RuleSet {
     private final Set<Rule> rules = new TreeSet<>();
 
+    public RuleSet() {
+    }
+
     public RuleSet(Word guess, Word solution) {
         WordComparison comparison = guess.compareWords(solution);
         CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
@@ -18,7 +21,10 @@ public class RuleSet {
             if (comparison.getCorrectPositions()[i]) {
                 rules.add(Rule.createMatch(gc, i));
                 mustHaveAtLeast.increase(gc);
-                commonLettersRemaining.decrease(gc);
+                // We might have already consumed all the letters in a wrong place match
+                if (commonLettersRemaining.occurrences(gc) > 0) {
+                    commonLettersRemaining.decrease(gc);
+                }
             } else if (comparison.getIncorrectPositions()[i]) {
                 int remaining = commonLettersRemaining.occurrences(gc);
                 if (remaining > 0) {
@@ -60,5 +66,9 @@ public class RuleSet {
         }
 
         return true;
+    }
+
+    public void addRuleSet(RuleSet other) {
+        rules.addAll(other.rules);
     }
 }
