@@ -10,19 +10,21 @@ public class RuleSet {
 
     public RuleSet(Word guess, Word solution) {
         WordComparison comparison = guess.compareWords(solution);
-        Map<Character, Integer> commonLettersRemaining = new HashMap<>(comparison.getCommonLetterFrequency());
-
+        CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
+        CharacterFrequency mustHaveAtLeast = new CharacterFrequency();
         // Handle basic character matches and misses
         for(int i = 0; i < 5; i++) {
             Character gc = guess.charAt(i);
             if (comparison.getCorrectPositions()[i]) {
                 rules.add(Rule.createMatch(gc, i));
-                commonLettersRemaining.put(gc, commonLettersRemaining.getOrDefault(gc, 0) - 1);
+                mustHaveAtLeast.increase(gc);
+                commonLettersRemaining.decrease(gc);
             } else if (comparison.getIncorrectPositions()[i]) {
-                Integer remaining = commonLettersRemaining.getOrDefault(gc, 0);
+                int remaining = commonLettersRemaining.occurrences(gc);
                 if (remaining > 0) {
                     rules.add(Rule.createWrongPlace(gc, i));
-                    commonLettersRemaining.put(gc, remaining - 1);
+                    mustHaveAtLeast.increase(gc);
+                    commonLettersRemaining.decrease(gc);
                 } else {
                     rules.add(Rule.createNoMatch(gc, i));
                 }
@@ -33,21 +35,7 @@ public class RuleSet {
         }
 
         // Derive character occurrence minimums from rules we've already created
-        // TODO can I fold this into the loop above?
-        Map<Character, Integer> mustHaveAtLeast = new TreeMap<>();
-        rules.forEach((rule) -> {
-            switch(rule.getType()) {
-                case MATCH:
-                case WRONG_PLACE:
-                    Character gc = guess.charAt(rule.getPosition());
-                    if (mustHaveAtLeast.containsKey(rule.getCharacter())) {
-                        mustHaveAtLeast.put(gc, mustHaveAtLeast.get(gc) + 1);
-                    } else {
-                        mustHaveAtLeast.put(gc, 1);
-                    }
-            }
-        });
-        mustHaveAtLeast.forEach((ch, min) -> {
+        mustHaveAtLeast.getFrequencies().forEach((ch, min) -> {
             rules.add(Rule.createMustHaveAtLeast(ch, min));
         });
     }

@@ -1,5 +1,7 @@
 package com.psidnell;
 
+import com.psidnell.rules.CharacterFrequency;
+
 import java.util.*;
 
 public class Word {
@@ -53,13 +55,13 @@ public class Word {
 
 
 
-    public Map<Character, Integer> charactersInCommon(Word other) {
-        Map<Character, Integer> result = new TreeMap<>();
+    public CharacterFrequency charactersInCommon(Word other) {
+        CharacterFrequency result = new CharacterFrequency();
         for (int i = 0; i < 5; i++) {
             Character c = word.charAt(i);
             int occurrences = other.occurencesOf(c);
             if (occurrences > 0) {
-                result.put(c, occurrences);
+                result.set(c, occurrences);
             }
         }
         return result;
@@ -120,7 +122,7 @@ public class Word {
 
 
         String charactersMissing = charactersMissing(other);
-        Map<Character, Integer> commonFrequencies =  charactersInCommon(other);
+        CharacterFrequency commonFrequencies =  charactersInCommon(other);
         return new WordComparison(commonFrequencies, charactersMissing, equals(other), correctPositions, incorrectPositions, mismatches);
     }
 

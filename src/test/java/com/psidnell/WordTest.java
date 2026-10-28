@@ -41,14 +41,14 @@ public class WordTest
         Word word1 = new Word("abcde");
         Word word2 = new Word("defghi");
         WordComparison wordComparison = word1.compareWords(word2);
-        assertEquals(2, wordComparison.getCommonLetterFrequency().size());
-        assertEquals(1, wordComparison.getCommonLetterFrequency().get((char) 'd'));
+        assertEquals(2, wordComparison.getCommonLetterFrequency().getFrequencies().size());
+        assertEquals(1, wordComparison.getCommonLetterFrequency().getFrequencies().get((char) 'd'));
 
         word1 = new Word("aaxxx");
         word2 = new Word("zzaazz");
         wordComparison = word1.compareWords(word2);
-        assertEquals(1, wordComparison.getCommonLetterFrequency().size());
-        assertEquals(2, wordComparison.getCommonLetterFrequency().get((char) 'a'));
+        assertEquals(1, wordComparison.getCommonLetterFrequency().getFrequencies().size());
+        assertEquals(2, wordComparison.getCommonLetterFrequency().getFrequencies().get((char) 'a'));
     }
 
     @Test

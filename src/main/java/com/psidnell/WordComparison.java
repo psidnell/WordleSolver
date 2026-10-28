@@ -1,17 +1,19 @@
 package com.psidnell;
 
+import com.psidnell.rules.CharacterFrequency;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class WordComparison {
-    private final Map<Character, Integer> commonLetterFrequency;
+    private final CharacterFrequency commonLetterFrequency;
     private final String lettersMissing;
     private final boolean fullMatch;
     private final Boolean[] correctPositions;
     private final Boolean[] incorrectPositions;
     private final Boolean[] mismatches;
 
-    public WordComparison(Map<Character, Integer> commonLetterFrequency, String lettersMissing, boolean fullMatch,
+    public WordComparison(CharacterFrequency commonLetterFrequency, String lettersMissing, boolean fullMatch,
                           Boolean[] correctPositions, Boolean[] incorrectPositions, Boolean[] mismatches) {
         this.commonLetterFrequency = commonLetterFrequency;
         this.lettersMissing = lettersMissing;
@@ -21,7 +23,7 @@ public class WordComparison {
         this.mismatches = mismatches;
     }
 
-    public Map<Character, Integer> getCommonLetterFrequency() {
+    public CharacterFrequency getCommonLetterFrequency() {
         return commonLetterFrequency;
     }
 
