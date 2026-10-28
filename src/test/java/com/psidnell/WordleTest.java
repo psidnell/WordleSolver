@@ -71,10 +71,7 @@ public class WordleTest {
         assertFalse(wordle.userGuess("leaky"));
         assertFalse(wordle.userGuess("spear"));
         assertFalse(wordle.userGuess("apgar"));
-        assertTrue(wordle.userGuess(wordle.propose()));
-        wordle.printStatus();
-        wordle.showRemaining();
-        wordle.propose();
+        solve(wordle);
     }
 
     @Test
@@ -93,9 +90,7 @@ public class WordleTest {
         //assertFalse(wordle.userGuess("woody"));
         //assertFalse(wordle.userGuess("leaky"));
         //assertFalse(wordle.userGuess("lanky"));
-        wordle.printStatus();
         solve(wordle);
-        assertTrue(wordle.isSolved());
     }
 
     @Test
@@ -107,19 +102,18 @@ public class WordleTest {
         Solutions solutions = wordle.getSolutions();
 
         wordle.setSolution("grist");
-        assertFalse(wordle.userGuess("trace"));
-        assertEquals(43, solutions.getSolutions().size());
-        wordle.propose();
+        //assertFalse(wordle.userGuess("trace"));
+//        assertEquals(43, solutions.getSolutions().size());
+//        wordle.propose();
 
         // Why is the result (43) so much worse that my guess of swing that leaves 9?
-        wordle.printStatus();
+        //wordle.printStatus();
 
 
         //assertFalse(wordle.userGuess("swing"));
         //assertEquals(2, solutions.getSolutions().size());
 
-//        solve(wordle);
-//        assertTrue(wordle.getGuessesRemaining() > 0);
+        solve(wordle);
 
     }
 

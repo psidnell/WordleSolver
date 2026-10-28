@@ -40,6 +40,12 @@ public class Wordle extends ComponentImpl {
         System.out.println("Knowledge: " + combinedRuleSet.toString());
         System.out.println("Solutions: " + solutions.getSolutions().size());
         System.out.println("Guesses Remaining: " + guessesRemaining);
+        if (isSolved()) {
+            System.out.println("Solved: " + previousGuesses.get(previousGuesses.size() - 1).toUpperCase());
+        } else {
+            System.out.println("Not Solved:");
+        }
+
     }
 
     // TODO Move all of the tests snd printing here
@@ -128,21 +134,23 @@ public class Wordle extends ComponentImpl {
 
             for (Word wordFromSolutions : solutions.getSolutions()) {
 
-                RuleSet match = new RuleSet(dictionaryWord, wordFromSolutions).combineRuleSet(combinedRuleSet);
+                RuleSet ruleSet = new RuleSet(dictionaryWord, wordFromSolutions).combineRuleSet(combinedRuleSet);
+                boolean matches = ruleSet.match(wordFromSolutions);
 
-                if (match.match(wordFromSolutions)) {
-                    System.out.println("Compatible: " + dictionaryWord + "/" + wordFromSolutions + " with " +match);
-
+                if (matches) {
+                    //System.out.println("Compatible: " + dictionaryWord + "/" + wordFromSolutions + " with " +ruleSet);
                     totalSolutionsForWord++;
+                } else {
+                    //System.out.println("Incompatible: " + dictionaryWord + "/" + wordFromSolutions + " with " +ruleSet);
                 }
 
                 if (totalSolutionsForWord >= bestSolutionSize) {
-                    System.out.println("Bailing on: " + dictionaryWord + " solutions: " + totalSolutionsForWord + ">=" +bestSolutionSize);
+                    //System.out.println("Bailing on: " + dictionaryWord + " solutions: " + totalSolutionsForWord + ">=" +bestSolutionSize);
                     break;
                 }
             }
 
-            System.out.println("Analysed: " + dictionaryWord + " solutions: " + totalSolutionsForWord);
+            //System.out.println("Analysed: " + dictionaryWord + " solutions: " + totalSolutionsForWord);
 
             if (totalSolutionsForWord < bestSolutionSize) {
                 System.out.println("Best word so far: " + dictionaryWord + " eliminated: " + totalSolutionsForWord);
@@ -172,6 +180,9 @@ public class Wordle extends ComponentImpl {
     }
 
     public boolean isSolved() {
-        return solutions.getSolutions().size() == 1;
+        return
+                solution != null &&
+                !previousGuesses.isEmpty() &&
+                previousGuesses.getLast().equals(solution.getWord());
     }
 }
