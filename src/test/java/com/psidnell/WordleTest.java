@@ -95,7 +95,7 @@ public class WordleTest {
         //assertFalse(wordle.userGuess("lanky"));
         wordle.printStatus();
         solve(wordle);
-        assertTrue(wordle.getGuessesRemaining() > 0);
+        assertTrue(wordle.isSolved());
     }
 
     @Test
@@ -124,11 +124,12 @@ public class WordleTest {
     }
 
     private static void solve(Wordle wordle) {
-        String proposal = wordle.propose();
-        while (wordle.getGuessesRemaining() > 0 && !wordle.userGuess(proposal)) {
+        while (wordle.getGuessesRemaining() > 0 && !wordle.isSolved()) {
+            String proposal = wordle.propose();
+            wordle.userGuess(proposal);
             wordle.printStatus();
-            proposal = wordle.propose();
         }
         wordle.printStatus();
+        assertTrue(wordle.isSolved());
     }
 }

@@ -11,6 +11,10 @@ public class RuleSet {
     public RuleSet() {
     }
 
+    public RuleSet(RuleSet other) {
+        this.rules.addAll(other.rules);
+    }
+
     public RuleSet(Word guess, Word solution) {
         WordComparison comparison = guess.compareWords(solution);
         CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
@@ -68,7 +72,9 @@ public class RuleSet {
         return true;
     }
 
-    public void addRuleSet(RuleSet other) {
-        rules.addAll(other.rules);
+    public RuleSet combineRuleSet(RuleSet other) {
+        RuleSet result = new RuleSet(this);
+        result.rules.addAll(other.rules);
+        return result;
     }
 }

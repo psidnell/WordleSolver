@@ -5,6 +5,7 @@ import com.psidnell.util.ComponentImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Wordle extends ComponentImpl {
 
@@ -13,7 +14,7 @@ public class Wordle extends ComponentImpl {
     private Solutions solutions;
     private final List<Integer> userGuessSolutionsRemaining = new ArrayList<>();
     private final List<RuleSet> previousRuleSets = new ArrayList<>();
-    private final RuleSet combinedRuleSet = new RuleSet();
+    private RuleSet combinedRuleSet = new RuleSet();
     private final List<String> previousGuesses = new ArrayList<>();
 
 
@@ -64,7 +65,10 @@ public class Wordle extends ComponentImpl {
         previousGuesses.add(guess);
         guessesRemaining--;
 
-        RuleSet match = guess(guessWord, solution, solutions, combinedRuleSet);
+        AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
+        RuleSet match = guess(guessWord, solution, solutions, rulesSoFarRef);
+        combinedRuleSet = rulesSoFarRef.get();
+
         userGuessSolutionsRemaining.add(solutions.getSolutions().size());
         previousRuleSets.add(match);
 
@@ -79,10 +83,10 @@ public class Wordle extends ComponentImpl {
         return false;
     }
 
-    public RuleSet guess(Word guess, Word solution, Solutions solutions, RuleSet rulesSoFar) {
+    public RuleSet guess(Word guess, Word solution, Solutions solutions, AtomicReference<RuleSet> rulesSoFarRef) {
         RuleSet match = new RuleSet(guess, solution);
-        rulesSoFar.addRuleSet(match);
-        solutions.prune(rulesSoFar);
+        rulesSoFarRef.set(match.combineRuleSet(rulesSoFarRef.get()));
+        solutions.prune(rulesSoFarRef.get());
         return match;
     }
 
@@ -94,7 +98,7 @@ public class Wordle extends ComponentImpl {
 
     public Solutions hypothesize (Word guessWord, Word solution, RuleSet rulesSoFar) {
         Solutions reducedSolutions = new Solutions(solutions);
-        RuleSet m = guess(guessWord, solution, reducedSolutions, rulesSoFar);
+        RuleSet m = guess(guessWord, solution, reducedSolutions, new AtomicReference<>(rulesSoFar));
         return reducedSolutions;
     }
 
@@ -107,84 +111,35 @@ public class Wordle extends ComponentImpl {
             return solutions.getSolutions().stream().findFirst().get().getWord();
         }
 
-        int minSolutionSize = Integer.MAX_VALUE;
         Word bestWord = null;
-
-        //int startSolutionSize = solutions.getSolutions().size();
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
         int percentDone = -1;
 
-
-        int worstCaseMatches = dictWords * solutions.getSolutions().size();
-        int bestSolutionSize = worstCaseMatches;
+        int bestSolutionSize = Integer.MAX_VALUE;
 
         int totalSolutionsForWord = 0;
 
         for (Word dictionaryGuess: dictionary.getWords().values()) {
-
-            if (!compatibleWithPreviousTurns(dictionaryGuess)) {
-                //System.out.println("Conflict with prev guesses: " + dictionaryGuess);
+            if (previousGuesses.contains(dictionaryGuess.getWord())) {
                 continue;
             }
 
-            //System.out.println("Best: " + bestWord + " Trying: " + dictionaryGuess);
-
-            int totalSolutionSizeForGuess = 0;
-            int totalWordsEliminated = 0;
-//            int totalImprovementsForGuess = 0 ;
-//            int maxImprovementsForGuess = 0;
-
             for (Word posSolution : solutions.getSolutions()) {
-                // Can I bail early if words don't overlap?
-                // Put this condition around the rest?
-                //todo not hitting this Why?
-//                if (!dictionaryGuess.haveCommonCharacters(posSolution)) {
-//                    // If the words have nothing in common then we would learn nothing from guess
-//                    System.out.println("No Overlap: " + dictionaryGuess + "/" + posSolution);
-//                    //totalSolutionSizeForGuess += startSolutionSize;
-//                    continue;
-//                }
 
-
-                // TODO Get the core working before optimise
-                int initialSolutionSize = solutions.getSolutions().size();
-
-                RuleSet ruleSetForGuess = new RuleSet();
-                ruleSetForGuess.addRuleSet(combinedRuleSet);
-                Solutions reducedSolutions = hypothesize(dictionaryGuess, posSolution, ruleSetForGuess);
-
-                int guessSolutionsSize = reducedSolutions.getSolutions().size();
-                totalSolutionsForWord += guessSolutionsSize;
-
-                int wordsEliminated = initialSolutionSize - guessSolutionsSize;
-                totalWordsEliminated += wordsEliminated;
-
-                int percent = (100 * wordsEliminated) / initialSolutionSize;
-                //System.out.println("Eliminated: " + dictionaryGuess + "/" + posSolution + " " + wordsEliminated + " " + percent + "%");
-
-//                totalSolutionSizeForGuess += guessSolutionsSize;
-                if (totalSolutionsForWord >= bestSolutionSize) {
-                    // If we're never going to get under the minimum permutations
-                    // for this guess then abort
-                    //System.out.println("Too many solutions: " + dictionaryGuess + " solutions: " + totalSolutionsForWord);
-                    break;
+                if (combinedRuleSet.match(posSolution)) {
+                    totalSolutionsForWord++;
                 }
 
-
-                //System.out.println(totalSolutionSizeForGuess);
+                if (totalSolutionsForWord >= bestSolutionSize) {
+                    //System.out.println("Bailing on: " + dictionaryGuess + " solutions: " + totalSolutionsForWord + ">=" +bestSolutionSize);
+                    break;
+                }
             }
 
-            System.out.println("Analysed: " + dictionaryGuess + " solutions: " + totalSolutionsForWord);
+            //System.out.println("Analysed: " + dictionaryGuess + " solutions: " + totalSolutionsForWord);
 
-//            if (totalSolutionSizeForGuess < minSolutionSize) {
-//                System.out.println("Best word: " + dictionaryGuess + " solutions: " + totalSolutionSizeForGuess +
-//                        " dropped: " + (minSolutionSize - totalSolutionSizeForGuess));
-//                minSolutionSize = totalSolutionSizeForGuess;
-//                bestWord = dictionaryGuess;
-//            }
             if (totalSolutionsForWord < bestSolutionSize) {
-                int percentage = (totalWordsEliminated * 100) / worstCaseMatches;
                 System.out.println("Best word so far: " + dictionaryGuess + " eliminated: " + totalSolutionsForWord);
                 bestWord = dictionaryGuess;
                 bestSolutionSize = totalSolutionsForWord;
@@ -199,22 +154,22 @@ public class Wordle extends ComponentImpl {
 
         }
 
-        System.out.println("Best word: " + bestWord + " solutions: " + minSolutionSize);
+        System.out.println("Best word: " + bestWord + " solutions: " + bestSolutionSize);
         return bestWord.getWord();
     }
 
-    private boolean compatibleWithPreviousTurns(Word guess) {
-        if (previousGuesses.contains(guess.getWord())) {
-            return false;
-        }
-        // todo Is this sane?
-        for (RuleSet m : previousRuleSets) {
-            if (!m.match(guess)) {
-                return false;
-            }
-        }
-        return true;
-    }
+//    private boolean compatibleWithPreviousTurns(Word guess) {
+//        if (previousGuesses.contains(guess.getWord())) {
+//            return false;
+//        }
+//        // todo Is this sane?
+////        for (RuleSet m : previousRuleSets) {
+////            if (!m.match(guess)) {
+////                return false;
+////            }
+////        }
+//        return true;
+//    }
 
     public int getGuessesRemaining() {
         return guessesRemaining;
@@ -222,5 +177,9 @@ public class Wordle extends ComponentImpl {
 
     public Solutions getSolutions() {
         return solutions;
+    }
+
+    public boolean isSolved() {
+        return solutions.getSolutions().size() == 1;
     }
 }
