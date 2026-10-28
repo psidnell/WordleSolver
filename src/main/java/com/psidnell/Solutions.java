@@ -1,5 +1,7 @@
 package com.psidnell;
 
+import com.psidnell.rules.RuleSet;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -19,7 +21,7 @@ public class Solutions {
         return (Collection<Word>) solutions.values();
     }
 
-    public int prune(Match match) {
+    public int prune(RuleSet match) {
         Collection<Word> wordsRemaining = new HashSet<>(solutions.values());
         AtomicInteger count = new AtomicInteger(0);
         wordsRemaining.forEach(word -> {

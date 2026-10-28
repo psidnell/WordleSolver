@@ -1,5 +1,6 @@
 package com.psidnell;
 
+import com.psidnell.util.Context;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -84,7 +85,9 @@ public class WordleTest {
         wordle.setContext(context);
         wordle.init();
 
-        wordle.setSolution("bingo");
+        wordle.setSolution("grist");
+        assertFalse(wordle.userGuess("trace"));
+        assertFalse(wordle.userGuess("swing"));
         //assertFalse(wordle.userGuess("trace"));
         //assertFalse(wordle.userGuess("spoil"));
         //assertFalse(wordle.userGuess("brink"));

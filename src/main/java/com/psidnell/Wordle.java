@@ -1,9 +1,10 @@
 package com.psidnell;
 
+import com.psidnell.rules.RuleSet;
+import com.psidnell.util.ComponentImpl;
+
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class Wordle extends ComponentImpl {
 
@@ -11,8 +12,8 @@ public class Wordle extends ComponentImpl {
     int guessesRemaining = 6;
     private Solutions solutions;
     private final List<Integer> userGuessSolutionsRemaining = new ArrayList<>();
-    private final List<Match> userMatches = new ArrayList<>();
-    private List<String> userGuesses = new ArrayList<>();
+    private final List<RuleSet> userMatches = new ArrayList<>();
+    private final List<String> userGuesses = new ArrayList<>();
 
 
     @Override
@@ -61,7 +62,7 @@ public class Wordle extends ComponentImpl {
         userGuesses.add(guess);
         guessesRemaining--;
 
-        Match match = guess(guessWord, solution, solutions);
+        RuleSet match = guess(guessWord, solution, solutions);
         userGuessSolutionsRemaining.add(solutions.getSolutions().size());
         userMatches.add(match);
 
@@ -76,8 +77,8 @@ public class Wordle extends ComponentImpl {
         return false;
     }
 
-    public Match guess(Word guess, Word solution, Solutions solutions) {
-        Match match = new Match(guess, solution);
+    public RuleSet guess(Word guess, Word solution, Solutions solutions) {
+        RuleSet match = new RuleSet(guess, solution);
         int pruned = solutions.prune(match);
         return match;
     }
@@ -141,7 +142,7 @@ public class Wordle extends ComponentImpl {
                 // TODO Get the core working before optimise
                 Solutions nextSolutions = new Solutions(solutions);
                 int initialSolutionSize = solutions.getSolutions().size();
-                Match m = guess(dictionaryGuess, posSolution, nextSolutions);
+                RuleSet m = guess(dictionaryGuess, posSolution, nextSolutions);
                 int guessSolutionsSize = nextSolutions.getSolutions().size();
                 totalSolutionsForWord += guessSolutionsSize;
 
@@ -195,7 +196,7 @@ public class Wordle extends ComponentImpl {
         if (userGuesses.contains(guess.getWord())) {
             return true;
         }
-        for (Match m : userMatches) {
+        for (RuleSet m : userMatches) {
             if (m.wouldEliminateWord(guess)) {
                 return true;
             }

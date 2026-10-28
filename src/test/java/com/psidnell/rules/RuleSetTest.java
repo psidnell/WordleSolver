@@ -1,6 +1,6 @@
-package com.psidnell;
+package com.psidnell.rules;
 
-import org.junit.jupiter.api.Test;
+import com.psidnell.Word;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MatchTest
+public class RuleSetTest
 {
     private static Stream<Arguments> provideMatchData() {
         return Stream.of(
@@ -25,7 +25,7 @@ public class MatchTest
     @ParameterizedTest
     @MethodSource("provideMatchData")
     void testMatches(String solution, String guess, String expected) {
-        assertEquals(expected, new Match(new Word(guess), new Word(solution)).toString());
+        assertEquals(expected, new RuleSet(new Word(guess), new Word(solution)).toString());
     }
 
     private static Stream<Arguments> provideEliminatehData() {
@@ -40,7 +40,7 @@ public class MatchTest
     @ParameterizedTest
     @MethodSource("provideEliminatehData")
     void testMWouldEliminate(String solution, String guess, String elimWord, boolean eliminated) {
-        Match m = new Match(new Word(guess), new Word(solution));
+        RuleSet m = new RuleSet(new Word(guess), new Word(solution));
         assertEquals(eliminated, m.wouldEliminateWord(new Word(elimWord)));
     }
 }

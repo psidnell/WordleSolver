@@ -1,5 +1,7 @@
 package com.psidnell;
 
+import com.psidnell.util.Context;
+
 import java.util.Scanner;
 
 public class Main {

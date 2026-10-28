@@ -1,4 +1,4 @@
-package com.psidnell;
+package com.psidnell.util;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

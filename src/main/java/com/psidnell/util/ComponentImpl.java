@@ -1,4 +1,6 @@
-package com.psidnell;
+package com.psidnell.util;
+
+import com.psidnell.Dictionary;
 
 public class ComponentImpl implements Component {
     private Context context;
