@@ -1,7 +1,13 @@
 package com.psidnell;
 
+import com.psidnell.rules.Rule;
 import com.psidnell.util.Context;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -115,6 +121,25 @@ public class WordleTest {
 
         solve(wordle);
 
+    }
+
+    private static Stream<Arguments> provideSolutions() {
+        return Stream.of(
+                Arguments.of("grist"),
+                Arguments.of("align")
+                //Arguments.of("aloft")
+                //Arguments.of("grump")
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("provideSolutions")
+    void testSolving(String solution) throws Exception {
+        Context context = new Context();
+        Wordle wordle = new Wordle();
+        wordle.setContext(context);
+        wordle.init();
+        wordle.setSolution(solution);
+        solve(wordle);
     }
 
     private static void solve(Wordle wordle) {

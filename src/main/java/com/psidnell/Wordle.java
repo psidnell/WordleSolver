@@ -43,9 +43,8 @@ public class Wordle extends ComponentImpl {
         if (isSolved()) {
             System.out.println("Solved: " + previousGuesses.get(previousGuesses.size() - 1).toUpperCase());
         } else {
-            System.out.println("Not Solved:");
+            System.out.println("Not Solved");
         }
-
     }
 
     // TODO Move all of the tests snd printing here
