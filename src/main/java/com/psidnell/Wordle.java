@@ -69,7 +69,7 @@ public class Wordle extends ComponentImpl {
         System.out.println(match);
 
 
-        if (match.isMatch()) {
+        if (guessWord.equals(solution)) {
             System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses" );
             return true;
         }
@@ -197,7 +197,7 @@ public class Wordle extends ComponentImpl {
             return true;
         }
         for (RuleSet m : userMatches) {
-            if (m.wouldEliminateWord(guess)) {
+            if (!m.match(guess)) {
                 return true;
             }
         }

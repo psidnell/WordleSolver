@@ -25,7 +25,7 @@ public class Solutions {
         Collection<Word> wordsRemaining = new HashSet<>(solutions.values());
         AtomicInteger count = new AtomicInteger(0);
         wordsRemaining.forEach(word -> {
-            if (match.wouldEliminateWord(word)) {
+            if (!match.match(word)) {
                 solutions.remove(word.getWord());
                 count.incrementAndGet();
             }

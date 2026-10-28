@@ -16,10 +16,10 @@ public class RuleSetTest
                 // solution, guess, toString
                 Arguments.of("geeky", "geeky", "GM EM EM KM YM E>=2 G>=1 K>=1 Y>=1"),
                 Arguments.of("geeky", "egyee", "E? G? Y? E? EX E>=2 G>=1 Y>=1"),
-                Arguments.of("geeky", "macho", "MX AX CX HX OX !A !C !H !M !O"),
-                Arguments.of("trace", "boast", "BX OX AM SX T? A>=1 T>=1 !B !O !S"),
-                Arguments.of("geeky", "weeee", "WX EM EM EX EX E>=2 !W"),
-                Arguments.of("aaaaa", "aazzz", "AM AM ZX ZX ZX A>=2 !Z")
+                Arguments.of("geeky", "macho", "MX AX CX HX OX A! C! H! M! O!"),
+                Arguments.of("trace", "boast", "BX OX AM SX T? B! O! S! A>=1 T>=1"),
+                Arguments.of("geeky", "weeee", "WX EM EM EX EX W! E>=2"),
+                Arguments.of("aaaaa", "aazzz", "AM AM ZX ZX ZX Z! A>=2")
         );
     }
     @ParameterizedTest
@@ -41,6 +41,6 @@ public class RuleSetTest
     @MethodSource("provideEliminatehData")
     void testMWouldEliminate(String solution, String guess, String elimWord, boolean eliminated) {
         RuleSet m = new RuleSet(new Word(guess), new Word(solution));
-        assertEquals(eliminated, m.wouldEliminateWord(new Word(elimWord)));
+        assertEquals(eliminated, !m.match(new Word(elimWord)));
     }
 }
