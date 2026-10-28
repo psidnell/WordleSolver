@@ -4,6 +4,8 @@ import com.psidnell.Word;
 
 import java.util.Objects;
 
+//todo wrap constructor with static method for rule
+
 public class Rule implements Comparable<Rule> {
     private final RuleType type;
     private final Character ch;
@@ -45,12 +47,13 @@ public class Rule implements Comparable<Rule> {
 
     @Override
     public String toString() {
+        Character chUpper = Character.toUpperCase(ch);
         return switch (type) {
-            case MATCH -> ch + "M";
-            case NO_MATCH -> ch +"X";
-            case WRONG_PLACE -> ch + "?";
-            case MUST_NOT_HAVE -> ch + "!";
-            case MUST_HAVE_AT_LEAST -> ch + ">=" + amount;
+            case MATCH -> chUpper + "M";
+            case NO_MATCH -> chUpper +"X";
+            case WRONG_PLACE -> chUpper + "?";
+            case MUST_NOT_HAVE -> chUpper + "!";
+            case MUST_HAVE_AT_LEAST -> chUpper + ">=" + amount;
         };
     }
 
