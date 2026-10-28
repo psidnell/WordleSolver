@@ -64,10 +64,9 @@ public class Wordle extends ComponentImpl {
         previousGuesses.add(guess);
         guessesRemaining--;
 
-        RuleSet match = guess(guessWord, solution, solutions);
+        RuleSet match = guess(guessWord, solution, solutions, combinedRuleSet);
         userGuessSolutionsRemaining.add(solutions.getSolutions().size());
         previousRuleSets.add(match);
-        combinedRuleSet.addRuleSet(match);
 
         System.out.println(match);
 
@@ -80,9 +79,10 @@ public class Wordle extends ComponentImpl {
         return false;
     }
 
-    public RuleSet guess(Word guess, Word solution, Solutions solutions) {
+    public RuleSet guess(Word guess, Word solution, Solutions solutions, RuleSet rulesSoFar) {
         RuleSet match = new RuleSet(guess, solution);
-        solutions.prune(match);
+        rulesSoFar.addRuleSet(match);
+        solutions.prune(rulesSoFar);
         return match;
     }
 
@@ -94,8 +94,7 @@ public class Wordle extends ComponentImpl {
 
     public Solutions hypothesize (Word guessWord, Word solution, RuleSet rulesSoFar) {
         Solutions reducedSolutions = new Solutions(solutions);
-        RuleSet m = guess(guessWord, solution, reducedSolutions);
-        rulesSoFar.addRuleSet(m);
+        RuleSet m = guess(guessWord, solution, reducedSolutions, rulesSoFar);
         return reducedSolutions;
     }
 

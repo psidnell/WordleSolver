@@ -109,6 +109,7 @@ public class WordleTest {
         wordle.setSolution("grist");
         assertFalse(wordle.userGuess("trace"));
         assertEquals(43, solutions.getSolutions().size());
+        wordle.propose();
 
         // Why is the result (43) so much worse that my guess of swing that leaves 9?
         wordle.printStatus();
