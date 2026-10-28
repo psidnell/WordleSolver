@@ -4,6 +4,7 @@ import com.psidnell.Word;
 import com.psidnell.WordComparison;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class RuleSet {
     private final Set<Rule> rules = new TreeSet<>();
@@ -50,6 +51,27 @@ public class RuleSet {
         });
     }
 
+    public String reconstructWordFromRules() {
+        StringBuilder output = new StringBuilder();
+
+        for (int i = 0; i < 5; i++) {
+            final int index = i;
+            final AtomicReference<Character> knownChar = new AtomicReference<>();
+            rules.stream().filter(r -> (r.getPosition() == index)).forEach(r -> {
+                switch (r.getType()) {
+                    case MATCH -> knownChar.set(r.getCharacter());
+                }
+            });
+            if (knownChar.get() != null) {
+                output.append(Character.toUpperCase(knownChar.get()));
+            } else {
+                output.append('_');
+            }
+        }
+
+        return output.toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder output = new StringBuilder();
@@ -74,5 +96,17 @@ public class RuleSet {
         RuleSet result = new RuleSet(this);
         result.rules.addAll(other.rules);
         return result;
+    }
+
+    //todo better name?
+    public int getUncertainty() {
+        // Lower uncertainty means more likely we are correct
+        int uncertainty = 5;
+        for (Rule rule : rules) {
+            switch (rule.getType()) {
+                case MATCH -> uncertainty--;
+            }
+        }
+        return uncertainty;
     }
 }

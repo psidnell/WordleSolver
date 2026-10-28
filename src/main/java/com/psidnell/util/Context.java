@@ -11,9 +11,16 @@ public class Context {
     private final Map<String, Component> components = new HashMap<String, Component>();
 
     public Context() throws Exception {
+        this(new Dictionary(), new Wordle());
+    }
 
-        components.put("dictionary", new Dictionary());
-        components.put("wordle", new Wordle());
+    public Context(
+            Dictionary dictionary,
+            Wordle wordle
+    ) throws Exception {
+
+        components.put("dictionary", dictionary);
+        components.put("wordle", wordle);
 
         for (Component component : components.values()) {
             component.setContext(this);

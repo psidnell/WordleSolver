@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
@@ -15,12 +16,22 @@ import com.psidnell.util.Component;
 import com.psidnell.util.Context;
 
 public class Dictionary implements Component {
-    private  Map<String, Word> words;
+    private  Map<String, Word> words = null;
+
+    public Dictionary() {
+    }
+
+    public Dictionary(String[] testWords) {
+        words = new TreeMap<>();
+        Arrays.stream(testWords).forEach(word -> words.put(word, new Word(word)));
+    }
 
     @Override
     public void setContext(Context context) throws Exception {
         Component.super.setContext(context);
-        words = loadDictionary();
+        if (words == null) {
+            words = loadDictionary();
+        }
     }
 
     private Map<String, Word> loadDictionary() throws IOException, URISyntaxException {

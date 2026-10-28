@@ -17,6 +17,7 @@ public class Wordle extends ComponentImpl {
     private final List<RuleSet> previousRuleSets = new ArrayList<>();
     private RuleSet combinedRuleSet = new RuleSet();
     private final List<String> previousGuesses = new ArrayList<>();
+    private final List<String> previousReconstructions = new ArrayList<>();
 
 
     @Override
@@ -33,9 +34,15 @@ public class Wordle extends ComponentImpl {
     }
 
     public void printStatus() {
+        if (solution != null) {
+            System.out.println("Solution Known: " + solution.getWord().toUpperCase());
+        }
+        System.out.println("Dictionary Size:" + dictionary.getWords().size());
         System.out.println("History:");
         for(int i = 0; i < previousRuleSets.size(); i++) {
-            System.out.println("  - " + previousGuesses.get(i).toUpperCase() + " " +  previousRuleSets.get(i) + " " + userGuessSolutionsRemaining.get(i));
+            System.out.println("  - " + previousGuesses.get(i).toUpperCase() + " " +
+                    previousReconstructions.get(i) + " " +
+                    previousRuleSets.get(i) + " " + userGuessSolutionsRemaining.get(i));
         }
         System.out.println("Knowledge: " + combinedRuleSet.toString());
         System.out.println("Solutions: " + solutions.getSolutions().size());
@@ -74,6 +81,7 @@ public class Wordle extends ComponentImpl {
         AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
         RuleSet match = guess(guessWord, solution, solutions, rulesSoFarRef);
         combinedRuleSet = rulesSoFarRef.get();
+        previousReconstructions.add(combinedRuleSet.reconstructWordFromRules());
 
         userGuessSolutionsRemaining.add(solutions.getSolutions().size());
         previousRuleSets.add(match);
@@ -83,6 +91,7 @@ public class Wordle extends ComponentImpl {
 
         if (guessWord.equals(solution)) {
             System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses" );
+
             return true;
         }
 
@@ -122,39 +131,37 @@ public class Wordle extends ComponentImpl {
         int wordsDone = 0;
         int percentDone = -1;
 
-        int bestSolutionSize = Integer.MAX_VALUE;
-
-        int totalSolutionsForWord = 0;
+        int bestUncertainty = Integer.MAX_VALUE;
 
         for (Word dictionaryWord: dictionary.getWords().values()) {
             if (previousGuesses.contains(dictionaryWord.getWord())) {
                 continue;
             }
 
+            int totalUncertaintyForWord = 0;
+
             for (Word wordFromSolutions : solutions.getSolutions()) {
 
                 RuleSet ruleSet = new RuleSet(dictionaryWord, wordFromSolutions).combineRuleSet(combinedRuleSet);
-                boolean matches = ruleSet.match(wordFromSolutions);
 
-                if (matches) {
-                    //System.out.println("Compatible: " + dictionaryWord + "/" + wordFromSolutions + " with " +ruleSet);
-                    totalSolutionsForWord++;
-                } else {
-                    //System.out.println("Incompatible: " + dictionaryWord + "/" + wordFromSolutions + " with " +ruleSet);
-                }
+                int uncertainty = ruleSet.getUncertainty();
+                totalUncertaintyForWord += uncertainty;
 
-                if (totalSolutionsForWord >= bestSolutionSize) {
-                    //System.out.println("Bailing on: " + dictionaryWord + " solutions: " + totalSolutionsForWord + ">=" +bestSolutionSize);
+                //System.out.println("Uncertainty: " + dictionaryWord + "/" + wordFromSolutions + " with " + uncertainty);
+
+
+                if (totalUncertaintyForWord >= bestUncertainty) {
+                    // System.out.println("Bailing on: " + dictionaryWord + " uncertainty: " + totalUncertaintyForWord);
                     break;
                 }
             }
 
-            //System.out.println("Analysed: " + dictionaryWord + " solutions: " + totalSolutionsForWord);
+            //System.out.println("Analysed: " + dictionaryWord + " solutions: " + totalUncertaintyForWord);
 
-            if (totalSolutionsForWord < bestSolutionSize) {
-                System.out.println("Best word so far: " + dictionaryWord + " eliminated: " + totalSolutionsForWord);
+            if (totalUncertaintyForWord < bestUncertainty) {
+                System.out.println("Best word so far: " + dictionaryWord + " uncertainty: " + totalUncertaintyForWord);
                 bestWord = dictionaryWord;
-                bestSolutionSize = totalSolutionsForWord;
+                bestUncertainty = totalUncertaintyForWord;
             }
 
             wordsDone++;
@@ -166,7 +173,7 @@ public class Wordle extends ComponentImpl {
 
         }
 
-        System.out.println("Best word: " + bestWord + " solutions: " + bestSolutionSize);
+        System.out.println("Best word: " + bestWord + " solutions: " + bestUncertainty);
         return bestWord.getWord();
     }
 

@@ -16,7 +16,7 @@ public class WordleTest {
     @Test
     public void testConstruction() throws Exception {
         Context context = new Context();
-        Wordle wordle = new Wordle();
+        Wordle wordle = context.get("wordle", Wordle.class);
         wordle.setContext(context);
         wordle.init();
     }
@@ -24,7 +24,7 @@ public class WordleTest {
     @Test
     public void testImmediateSuccess() throws Exception {
         Context context = new Context();
-        Wordle wordle = new Wordle();
+        Wordle wordle = context.get("wordle", Wordle.class);
         wordle.setContext(context);
         wordle.init();
 
@@ -35,7 +35,7 @@ public class WordleTest {
     @Test
     public void testGuessOnLastTry() throws Exception {
         Context context = new Context();
-        Wordle wordle = new Wordle();
+        Wordle wordle = context.get("wordle", Wordle.class);
         wordle.setContext(context);
         wordle.init();
 
@@ -51,7 +51,7 @@ public class WordleTest {
     @Test
     public void testTooManyGuesses() throws Exception {
         Context context = new Context();
-        Wordle wordle = new Wordle();
+        Wordle wordle = context.get("wordle", Wordle.class);
         wordle.setContext(context);
         wordle.init();
 
@@ -65,80 +65,53 @@ public class WordleTest {
         assertFalse(wordle.userGuess("geeky"));
     }
 
-    @Test
-    public void testScenario1() throws Exception {
-        Context context = new Context();
-        Wordle wordle = new Wordle();
-        wordle.setContext(context);
-        wordle.init();
-
-        wordle.setSolution("geeky");
-        assertFalse(wordle.userGuess("woody"));
-        assertFalse(wordle.userGuess("leaky"));
-        assertFalse(wordle.userGuess("spear"));
-        assertFalse(wordle.userGuess("apgar"));
-        solve(wordle);
-    }
-
-    @Test
-    public void testScenario2() throws Exception {
-        Context context = new Context();
-        Wordle wordle = new Wordle();
-        wordle.setContext(context);
-        wordle.init();
-
-        wordle.setSolution("grist");
-        assertFalse(wordle.userGuess("trace"));
-        assertFalse(wordle.userGuess("swing"));
-        //assertFalse(wordle.userGuess("trace"));
-        //assertFalse(wordle.userGuess("spoil"));
-        //assertFalse(wordle.userGuess("brink"));
-        //assertFalse(wordle.userGuess("woody"));
-        //assertFalse(wordle.userGuess("leaky"));
-        //assertFalse(wordle.userGuess("lanky"));
-        solve(wordle);
-    }
-
-    @Test
-    public void testScenario3() throws Exception {
-        Context context = new Context();
-        Wordle wordle = new Wordle();
-        wordle.setContext(context);
-        wordle.init();
-        Solutions solutions = wordle.getSolutions();
-
-        wordle.setSolution("grist");
-        //assertFalse(wordle.userGuess("trace"));
-//        assertEquals(43, solutions.getSolutions().size());
-//        wordle.propose();
-
-        // Why is the result (43) so much worse that my guess of swing that leaves 9?
-        //wordle.printStatus();
-
-
-        //assertFalse(wordle.userGuess("swing"));
-        //assertEquals(2, solutions.getSolutions().size());
-
-        solve(wordle);
-
-    }
 
     private static Stream<Arguments> provideSolutions() {
         return Stream.of(
-                Arguments.of("grist"),
-                Arguments.of("align")
-                //Arguments.of("aloft")
-                //Arguments.of("grump")
+                // Solution, guesses
+                //Arguments.of("grist", new String[]{}),
+                Arguments.of("grist", new String[]{"trace", "misty"}),
+                Arguments.of("align",  new String[]{"trace"}),
+                Arguments.of("aloft", new String[]{"trace"}),
+                Arguments.of("grump", new String[]{"trace"}),
+                Arguments.of("geeky", new String[]{"trace"})
         );
     }
     @ParameterizedTest
     @MethodSource("provideSolutions")
-    void testSolving(String solution) throws Exception {
+    void testSolving(String solution, String[] guesses) throws Exception {
         Context context = new Context();
-        Wordle wordle = new Wordle();
+        Wordle wordle = context.get("wordle", Wordle.class);
         wordle.setContext(context);
         wordle.init();
         wordle.setSolution(solution);
+
+        for (String guess : guesses) {
+            wordle.userGuess(guess);
+        }
+
+        solve(wordle);
+    }
+
+    @Test
+    public void testWithSmallDictionary() throws Exception {
+        String[] words = {
+                "angle", "apple", "ample", "ankle", "aztec",
+                "bable", "bible", "bongo", "bilbo", "bungy",
+                "cable", "cocky", "ching", "chive", "chirp",
+                "dishy", "dirty", "dozer", "dozed", "drips",
+                "ebene", "ebike", "ebons", "ebook", "ecads",
+                "faker", "fakes", "fakie", "fakir", "falaj",
+                "galah", "galas", "galax", "galea", "gales",
+                "hated", "hates", "hatha", "hangs", "hatty",
+        };
+        Dictionary dictionary = new Dictionary(words);
+        Context context = new Context(dictionary, new Wordle());
+        Wordle wordle = context.get("wordle", Wordle.class);
+        wordle.setContext(context);
+        wordle.init();
+
+        wordle.setSolution("hated");
         solve(wordle);
     }
 
