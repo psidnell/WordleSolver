@@ -35,6 +35,7 @@ public class Wordle extends ComponentImpl {
         for(int i = 0; i < previousRuleSets.size(); i++) {
             System.out.println("  - " + previousGuesses.get(i).toUpperCase() + " " +  previousRuleSets.get(i) + " " + userGuessSolutionsRemaining.get(i));
         }
+        System.out.println("Knowledge: " + combinedRuleSet.toString());
         System.out.println("Solutions: " + solutions.getSolutions().size());
         System.out.println("Guesses Remaining: " + guessesRemaining);
     }
@@ -66,6 +67,7 @@ public class Wordle extends ComponentImpl {
         RuleSet match = guess(guessWord, solution, solutions);
         userGuessSolutionsRemaining.add(solutions.getSolutions().size());
         previousRuleSets.add(match);
+        combinedRuleSet.addRuleSet(match);
 
         System.out.println(match);
 
@@ -80,7 +82,7 @@ public class Wordle extends ComponentImpl {
 
     public RuleSet guess(Word guess, Word solution, Solutions solutions) {
         RuleSet match = new RuleSet(guess, solution);
-        int pruned = solutions.prune(match);
+        solutions.prune(match);
         return match;
     }
 
@@ -90,9 +92,10 @@ public class Wordle extends ComponentImpl {
         }
     }
 
-    public Solutions hypothesize (Word guessWord, Word solution) {
+    public Solutions hypothesize (Word guessWord, Word solution, RuleSet rulesSoFar) {
         Solutions reducedSolutions = new Solutions(solutions);
-        guess(guessWord, solution, reducedSolutions);
+        RuleSet m = guess(guessWord, solution, reducedSolutions);
+        rulesSoFar.addRuleSet(m);
         return reducedSolutions;
     }
 
@@ -148,7 +151,9 @@ public class Wordle extends ComponentImpl {
                 // TODO Get the core working before optimise
                 int initialSolutionSize = solutions.getSolutions().size();
 
-                Solutions reducedSolutions = hypothesize(dictionaryGuess, posSolution);
+                RuleSet ruleSetForGuess = new RuleSet();
+                ruleSetForGuess.addRuleSet(combinedRuleSet);
+                Solutions reducedSolutions = hypothesize(dictionaryGuess, posSolution, ruleSetForGuess);
 
                 int guessSolutionsSize = reducedSolutions.getSolutions().size();
                 totalSolutionsForWord += guessSolutionsSize;

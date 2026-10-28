@@ -78,7 +78,7 @@ public class WordleTest {
     }
 
     @Test
-    public void testScenrio2() throws Exception {
+    public void testScenario2() throws Exception {
         Context context = new Context();
         Wordle wordle = new Wordle();
         wordle.setContext(context);
@@ -110,10 +110,9 @@ public class WordleTest {
         assertFalse(wordle.userGuess("trace"));
         assertEquals(43, solutions.getSolutions().size());
 
-        // Why is the result (9) so much worse that my guess?
-        String suggestion = wordle.propose();
-        //wordle.userGuess(suggestion);
-        //assertEquals(9, solutions.getSolutions().size());
+        // Why is the result (43) so much worse that my guess of swing that leaves 9?
+        wordle.printStatus();
+
 
         //assertFalse(wordle.userGuess("swing"));
         //assertEquals(2, solutions.getSolutions().size());
