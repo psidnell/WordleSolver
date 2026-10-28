@@ -16,23 +16,24 @@ public class RuleSet {
         for(int i = 0; i < 5; i++) {
             Character gc = guess.charAt(i);
             if (comparison.getCorrectPositions()[i]) {
-                rules.add(new Rule(RuleType.MATCH, gc, i, -1));
+                rules.add(Rule.createMatch(gc, i));
                 commonLettersRemaining.put(gc, commonLettersRemaining.getOrDefault(gc, 0) - 1);
             } else if (comparison.getIncorrectPositions()[i]) {
                 Integer remaining = commonLettersRemaining.getOrDefault(gc, 0);
                 if (remaining > 0) {
-                    rules.add(new Rule(RuleType.WRONG_PLACE, gc, i, -1));
+                    rules.add(Rule.createWrongPlace(gc, i));
                     commonLettersRemaining.put(gc, remaining - 1);
                 } else {
-                    rules.add(new Rule(RuleType.NO_MATCH, gc, i, -1));
+                    rules.add(Rule.createNoMatch(gc, i));
                 }
             } else if (comparison.getMismatches()[i]) {
-                rules.add(new Rule(RuleType.MUST_NOT_HAVE, gc, -1, -1));
-                rules.add(new Rule(RuleType.NO_MATCH, gc, i, -1));
+                rules.add(Rule.createMustNotHave(gc));
+                rules.add(Rule.createNoMatch(gc, i));
             }
         }
 
         // Derive character occurrence minimums from rules we've already created
+        // TODO can I fold this into the loop above?
         Map<Character, Integer> mustHaveAtLeast = new TreeMap<>();
         rules.forEach((rule) -> {
             switch(rule.getType()) {
@@ -47,7 +48,7 @@ public class RuleSet {
             }
         });
         mustHaveAtLeast.forEach((ch, min) -> {
-            rules.add(new Rule(RuleType.MUST_HAVE_AT_LEAST, ch, -1, min));
+            rules.add(Rule.createMustHaveAtLeast(ch, min));
         });
     }
 

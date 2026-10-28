@@ -22,7 +22,7 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideMatchData")
     void testMatch(Character c, int pos, String word, boolean match) {
-        assertEquals(match, new Rule(RuleType.MATCH, c, pos, 0).match(new Word(word)));
+        assertEquals(match, Rule.createMatch(c, pos).match(new Word(word)));
     }
 
     private static Stream<Arguments> provideNoMatchData() {
@@ -35,7 +35,7 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideNoMatchData")
     void testNoMatch(Character c, int pos, String word, boolean match) {
-        assertEquals(match, new Rule(RuleType.NO_MATCH, c, pos, 0).match(new Word(word)));
+        assertEquals(match, Rule.createNoMatch(c, pos).match(new Word(word)));
     }
 
     private static Stream<Arguments> provideWrongPlaceData() {
@@ -49,7 +49,7 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideWrongPlaceData")
     void testWrongPlace(Character c, int pos, String word, boolean match) {
-        assertEquals(match, new Rule(RuleType.WRONG_PLACE, c, pos, 0).match(new Word(word)));
+        assertEquals(match, Rule.createWrongPlace(c, pos).match(new Word(word)));
     }
 
     private static Stream<Arguments> provideMustNotHaveData() {
@@ -62,6 +62,6 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideMustNotHaveData")
     void testMustNotHave(Character c, int pos, String word, boolean match) {
-        assertEquals(match, new Rule(RuleType.MUST_NOT_HAVE, c, pos, 0).match(new Word(word)));
+        assertEquals(match, Rule.createMustNotHave(c).match(new Word(word)));
     }
 }

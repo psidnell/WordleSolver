@@ -12,7 +12,27 @@ public class Rule implements Comparable<Rule> {
     private final int position;
     private final int amount;
 
-    public Rule(RuleType type, Character ch, int position, int amount) {
+    public static Rule createMatch(Character ch, int position) {
+        return new Rule(RuleType.MATCH, ch, position, -1);
+    }
+
+    public static Rule createNoMatch(Character ch, int position) {
+        return new Rule(RuleType.NO_MATCH, ch, position, -1);
+    }
+
+    public static Rule createWrongPlace(Character ch, int position) {
+        return new Rule(RuleType.WRONG_PLACE, ch, position, -1);
+    }
+
+    public static Rule createMustNotHave(Character ch) {
+        return new Rule(RuleType.MUST_NOT_HAVE, ch, -1, -1);
+    }
+
+    public static Rule createMustHaveAtLeast(Character ch,  int amount) {
+        return new Rule(RuleType.MUST_HAVE_AT_LEAST, ch, -1, amount);
+    }
+
+    private Rule(RuleType type, Character ch, int position, int amount) {
         this.type = type;
         this.ch = ch;
         this.position = position;
