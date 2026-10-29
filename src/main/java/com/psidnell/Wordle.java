@@ -1,6 +1,5 @@
 package com.psidnell;
 
-import com.psidnell.rules.Rule;
 import com.psidnell.rules.RuleSet;
 import com.psidnell.util.ComponentImpl;
 
@@ -131,37 +130,37 @@ public class Wordle extends ComponentImpl {
         int wordsDone = 0;
         int percentDone = -1;
 
-        int bestUncertainty = Integer.MAX_VALUE;
+        int bestCertainty = 0;
 
         for (Word dictionaryWord: dictionary.getWords().values()) {
             if (previousGuesses.contains(dictionaryWord.getWord())) {
                 continue;
             }
 
-            int totalUncertaintyForWord = 0;
+            int totalCertaintyForWord = 0;
 
             for (Word wordFromSolutions : solutions.getSolutions()) {
 
                 RuleSet ruleSet = new RuleSet(dictionaryWord, wordFromSolutions).combineRuleSet(combinedRuleSet);
 
-                int uncertainty = ruleSet.getUncertainty();
-                totalUncertaintyForWord += uncertainty;
+                int certainty = ruleSet.getCertainty();
+                totalCertaintyForWord += certainty;
 
                 //System.out.println("Uncertainty: " + dictionaryWord + "/" + wordFromSolutions + " with " + uncertainty);
 
-
-                if (totalUncertaintyForWord >= bestUncertainty) {
-                    // System.out.println("Bailing on: " + dictionaryWord + " uncertainty: " + totalUncertaintyForWord);
-                    break;
-                }
+                // Marginal improvement
+//                if (totalUncertaintyForWord >= bestUncertainty) {
+//                    // System.out.println("Bailing on: " + dictionaryWord + " uncertainty: " + totalUncertaintyForWord);
+//                    break;
+//                }
             }
 
             //System.out.println("Analysed: " + dictionaryWord + " solutions: " + totalUncertaintyForWord);
 
-            if (totalUncertaintyForWord < bestUncertainty) {
-                System.out.println("Best word so far: " + dictionaryWord + " uncertainty: " + totalUncertaintyForWord);
+            if (totalCertaintyForWord > bestCertainty) {
+                System.out.println("Best word so far: " + dictionaryWord + " certainty: " + totalCertaintyForWord);
                 bestWord = dictionaryWord;
-                bestUncertainty = totalUncertaintyForWord;
+                bestCertainty = totalCertaintyForWord;
             }
 
             wordsDone++;
@@ -173,7 +172,7 @@ public class Wordle extends ComponentImpl {
 
         }
 
-        System.out.println("Best word: " + bestWord + " solutions: " + bestUncertainty);
+        System.out.println("Best word: " + bestWord + " solutions: " + bestCertainty);
         return bestWord.getWord();
     }
 
