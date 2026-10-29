@@ -39,16 +39,16 @@ public class RuleSet {
             Character gc = guess.charAt(i);
             if (comparison.getCorrectPositions()[i]) {
                 addRule(Rule.createMatch(gc, i));
-                mustHaveAtLeast.increase(gc);
                 // We might have already consumed all the letters in a wrong place match
                 if (commonLettersRemaining.occurrences(gc) > 0) {
+                    mustHaveAtLeast.increase(gc); // todo <<<<<<<<<<<<
                     commonLettersRemaining.decrease(gc);
                 }
             } else if (comparison.getIncorrectPositions()[i]) {
                 int remaining = commonLettersRemaining.occurrences(gc);
                 if (remaining > 0) {
                     addRule(Rule.createWrongPlace(gc, i));
-                    mustHaveAtLeast.increase(gc);
+                    mustHaveAtLeast.increase(gc); // todo <<<<<<<<<<<<<<<<<<<<
                     commonLettersRemaining.decrease(gc);
                 } else {
                     addRule(Rule.createNoMatch(gc, i));

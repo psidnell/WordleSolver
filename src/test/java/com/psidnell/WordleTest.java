@@ -65,44 +65,8 @@ public class WordleTest {
         assertFalse(wordle.userGuess("geeky"));
     }
 
-    //todo
-
-//    private static Stream<Arguments> provideSolutions() {
-//        return Stream.of(
-//                // Solution, guesses
-//                //Arguments.of("grist", new String[]{}),
-//                Arguments.of("grist", new String[]{"trace", "misty"}),
-//                Arguments.of("align",  new String[]{"trace"}),
-//                Arguments.of("aloft", new String[]{"trace"}),
-//                Arguments.of("grump", new String[]{"trace"}),
-//                Arguments.of("geeky", new String[]{"trace"})
-//        );
-//    }
-//    @ParameterizedTest
-//    @MethodSource("provideSolutions")
-//    void testSolving(String solution, String[] guesses) throws Exception {
-//        Context context = new Context();
-//        Wordle wordle = context.get("wordle", Wordle.class);
-//        wordle.setContext(context);
-//        wordle.init();
-//        wordle.setSolution(solution);
-//
-//        for (String guess : guesses) {
-//            wordle.userGuess(guess);
-//        }
-//
-//        solve(wordle);
-//    }
-
-    private static Stream<Arguments> provideSolutions() {
-        return Stream.of(
-                // Solution, guesses
-                Arguments.of("hated", new String[]{"gales", "dozed"})
-        );
-    }
-    @ParameterizedTest
-    @MethodSource("provideSolutions")
-    void testCurrentBug(String solution, String[] guesses) throws Exception {
+    @Test
+    public void testWithSmallDictionary() throws Exception {
         String[] words = {
                 "angle", "apple", "ample", "ankle", "aztec",
                 "bable", "bible", "bongo", "bilbo", "bungy",
@@ -119,37 +83,37 @@ public class WordleTest {
         wordle.setContext(context);
         wordle.init();
 
+        wordle.setSolution("hated");
+        solve(wordle);
+    }
+
+    //todo try and solve ALL dictionary words - when performance improved
+    private static Stream<Arguments> provideSolutions() {
+        return Stream.of(
+                // Solution, guesses
+                //Arguments.of("grist", new String[]{}),
+                Arguments.of("grist", new String[]{"trace", "misty"}),
+                Arguments.of("align",  new String[]{"trace", "spoil"}),
+                Arguments.of("aloft", new String[]{"trace", "spoil"}),
+                Arguments.of("grump", new String[]{"trace", "spoil"}),
+                Arguments.of("geeky", new String[]{"trace", "spoil"})
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("provideSolutions")
+    void testSolving(String solution, String[] guesses) throws Exception {
+        Context context = new Context();
+        Wordle wordle = context.get("wordle", Wordle.class);
+        wordle.setContext(context);
+        wordle.init();
         wordle.setSolution(solution);
 
         for (String guess : guesses) {
             wordle.userGuess(guess);
-            wordle.printStatus();
         }
 
         solve(wordle);
     }
-
-//    @Test
-//    public void testWithSmallDictionary() throws Exception {
-//        String[] words = {
-//                "angle", "apple", "ample", "ankle", "aztec",
-//                "bable", "bible", "bongo", "bilbo", "bungy",
-//                "cable", "cocky", "ching", "chive", "chirp",
-//                "dishy", "dirty", "dozer", "dozed", "drips",
-//                "ebene", "ebike", "ebons", "ebook", "ecads",
-//                "faker", "fakes", "fakie", "fakir", "falaj",
-//                "galah", "galas", "galax", "galea", "gales",
-//                "hated", "hates", "hatha", "hangs", "hatty",
-//        };
-//        Dictionary dictionary = new Dictionary(words);
-//        Context context = new Context(dictionary, new Wordle());
-//        Wordle wordle = context.get("wordle", Wordle.class);
-//        wordle.setContext(context);
-//        wordle.init();
-//
-//        wordle.setSolution("hated");
-//        solve(wordle);
-//    }
 
     private static void solve(Wordle wordle) {
         while (wordle.getGuessesRemaining() > 0 && !wordle.isSolved()) {

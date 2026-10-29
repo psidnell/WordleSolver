@@ -86,6 +86,8 @@ public class Wordle extends ComponentImpl {
             previousGuesses.add(guess);
             guessesRemaining--;
 
+            System.out.println("Pre Cumulative: " + combinedRuleSet);
+
             int solutionsBefore = solutions.getSolutions().size();
             AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
             RuleSet match = guess(guessWord, solution, solutions, rulesSoFarRef);
@@ -94,8 +96,8 @@ public class Wordle extends ComponentImpl {
             previousRuleSets.add(combinedRuleSet);
             int solutionsAfter = solutions.getSolutions().size();
 
-            System.out.println("Derived Match: " + match);
-            System.out.println("Cumulative:    " + combinedRuleSet);
+            System.out.println("Derived Match:   " + match);
+            System.out.println("Post Cumulative: " + combinedRuleSet);
             System.out.println("Solutions dropped from " + solutionsBefore + " to " + solutionsAfter);
 
 

@@ -1,6 +1,7 @@
 package com.psidnell.rules;
 
 import com.psidnell.Word;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -19,7 +20,8 @@ public class RuleSetTest
                 Arguments.of("geeky", "macho", "Matched{_____} WrongPlace{_,_,_,_,_} NoMatch{M,A,C,H,O} MustNotHave{ACHMO} MustHaveAtLeast{}"),
                 Arguments.of("trace", "boast", "Matched{__A__} WrongPlace{_,_,_,_,T} NoMatch{B,O,_,S,_} MustNotHave{BOS} MustHaveAtLeast{A:1,T:1}"),
                 Arguments.of("geeky", "weeee", "Matched{_EE__} WrongPlace{_,_,_,_,_} NoMatch{W,_,_,E,E} MustNotHave{W} MustHaveAtLeast{E:2}"),
-                Arguments.of("aaaaa", "aazzz", "Matched{AA___} WrongPlace{_,_,_,_,_} NoMatch{_,_,Z,Z,Z} MustNotHave{Z} MustHaveAtLeast{A:2}")
+                Arguments.of("aaaaa", "aazzz", "Matched{AA___} WrongPlace{_,_,_,_,_} NoMatch{_,_,Z,Z,Z} MustNotHave{Z} MustHaveAtLeast{A:2}"),
+                Arguments.of("hated", "dozed", "Matched{___ED} WrongPlace{D,_,_,_,_} NoMatch{_,O,Z,_,_} MustNotHave{OZ} MustHaveAtLeast{D:1,E:1}")
         );
     }
     @ParameterizedTest
