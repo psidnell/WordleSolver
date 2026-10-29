@@ -94,8 +94,15 @@ public class WordleTest {
 //        solve(wordle);
 //    }
 
-    @Test
-    public void testWithSmallDictionary() throws Exception {
+    private static Stream<Arguments> provideSolutions() {
+        return Stream.of(
+                // Solution, guesses
+                Arguments.of("hated", new String[]{"gales", "dozed"})
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("provideSolutions")
+    void testCurrentBug(String solution, String[] guesses) throws Exception {
         String[] words = {
                 "angle", "apple", "ample", "ankle", "aztec",
                 "bable", "bible", "bongo", "bilbo", "bungy",
@@ -112,9 +119,37 @@ public class WordleTest {
         wordle.setContext(context);
         wordle.init();
 
-        wordle.setSolution("hated");
+        wordle.setSolution(solution);
+
+        for (String guess : guesses) {
+            wordle.userGuess(guess);
+            wordle.printStatus();
+        }
+
         solve(wordle);
     }
+
+//    @Test
+//    public void testWithSmallDictionary() throws Exception {
+//        String[] words = {
+//                "angle", "apple", "ample", "ankle", "aztec",
+//                "bable", "bible", "bongo", "bilbo", "bungy",
+//                "cable", "cocky", "ching", "chive", "chirp",
+//                "dishy", "dirty", "dozer", "dozed", "drips",
+//                "ebene", "ebike", "ebons", "ebook", "ecads",
+//                "faker", "fakes", "fakie", "fakir", "falaj",
+//                "galah", "galas", "galax", "galea", "gales",
+//                "hated", "hates", "hatha", "hangs", "hatty",
+//        };
+//        Dictionary dictionary = new Dictionary(words);
+//        Context context = new Context(dictionary, new Wordle());
+//        Wordle wordle = context.get("wordle", Wordle.class);
+//        wordle.setContext(context);
+//        wordle.init();
+//
+//        wordle.setSolution("hated");
+//        solve(wordle);
+//    }
 
     private static void solve(Wordle wordle) {
         while (wordle.getGuessesRemaining() > 0 && !wordle.isSolved()) {

@@ -31,16 +31,18 @@ public class RuleSetTest
     private static Stream<Arguments> provideEliminatehData() {
         return Stream.of(
                 // solution, guess, elimWord, should eliminate
-                Arguments.of("geeky", "geeky", "geeky", false),
-                Arguments.of("geeky", "geeky", "feeky", true),
-                Arguments.of("xxxxx", "yyyyy", "zzzzz", false),
-                Arguments.of("aaaaa", "aazzz", "aabbb", false)
+                Arguments.of("geeky", "geeky", "geeky", true),
+                Arguments.of("geeky", "geeky", "feeky", false),
+                Arguments.of("xxxxx", "yyyyy", "zzzzz", true),
+                Arguments.of("aaaaa", "aazzz", "aabbb", true),
+                Arguments.of("aabbc", "bbxxx", "zzzbb", true),
+                Arguments.of("abcde", "bcdea", "cdeab", true)
         );
     }
     @ParameterizedTest
     @MethodSource("provideEliminatehData")
     void testMWouldEliminate(String solution, String guess, String elimWord, boolean eliminated) {
         RuleSet m = new RuleSet(new Word(guess), new Word(solution));
-        assertEquals(eliminated, !m.match(new Word(elimWord)));
+        assertEquals(eliminated, m.match(new Word(elimWord)));
     }
 }

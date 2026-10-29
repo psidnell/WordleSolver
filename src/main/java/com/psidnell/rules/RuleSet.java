@@ -24,6 +24,12 @@ public class RuleSet {
         other.allRules.forEach(this::addRule);
     }
 
+    /**
+     * When we provide a guess against a know solution, create a rule set
+     * that encapsulates what we learned from the guess.
+     * @param guess
+     * @param solution
+     */
     public RuleSet(Word guess, Word solution) {
         WordComparison comparison = guess.compareWords(solution);
         CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());

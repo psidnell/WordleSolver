@@ -1,11 +1,13 @@
 package com.psidnell;
 
+import com.psidnell.rules.Rule;
 import com.psidnell.rules.RuleSet;
 import com.psidnell.util.ComponentImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class Wordle extends ComponentImpl {
 
@@ -31,65 +33,86 @@ public class Wordle extends ComponentImpl {
     }
 
     public void printStatus() {
+        System.out.println("==============================");
         if (solution != null) {
             System.out.println("Solution Known: " + solution.getWord().toUpperCase());
         }
         System.out.println("Dictionary Size:" + dictionary.getWords().size());
         System.out.println("History:");
-        for(int i = 0; i < previousRuleSets.size(); i++) {
+        for (int i = 0; i < previousRuleSets.size(); i++) {
             System.out.println("  - " + previousGuesses.get(i).toUpperCase() + " " +
                     previousRuleSets.get(i) + " " + userGuessSolutionsRemaining.get(i));
         }
         System.out.println("Knowledge: " + combinedRuleSet.toString());
-        System.out.println("Solutions: " + solutions.getSolutions().size());
         System.out.println("Guesses Remaining: " + guessesRemaining);
         if (isSolved()) {
             System.out.println("Solved: " + previousGuesses.get(previousGuesses.size() - 1).toUpperCase());
         } else {
             System.out.println("Not Solved");
         }
+
+        System.out.println("Solutions: " + solutions.getSolutions().size());
+        if (solutions.getSolutions().size() <= 10) {
+            System.out.print("Solutions Remaining:");
+            System.out.println(solutions.getSolutions().stream().map(Word::toString).collect(Collectors.joining(",")));
+        }
+        System.out.println("==============================");
+
     }
 
     // TODO Move all of the tests snd printing here
     public boolean userGuess(String guess) {
+        System.out.println("*******************************");
+        try {
+            System.out.println("Turn " + (7 - guessesRemaining) + ": Guessing " + guess);
+            if (guessesRemaining == 0) {
+                System.out.println("FAILED! No more guesses!");
+                return false;
+            }
 
-        if (guessesRemaining == 0) {
-            System.out.println("FAILED! No more guesses!");
+            Word guessWord = new Word(guess);
+
+            if (guess.length() != 5) {
+                System.out.println("Guess must be 5 characters");
+                return false;
+            }
+
+            if (!dictionary.hasWord(guess)) {
+                System.out.println("Unknown word");
+                return false;
+            }
+
+            // We have a valid guess
+            previousGuesses.add(guess);
+            guessesRemaining--;
+
+            int solutionsBefore = solutions.getSolutions().size();
+            AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
+            RuleSet match = guess(guessWord, solution, solutions, rulesSoFarRef);
+            combinedRuleSet = rulesSoFarRef.get();
+            userGuessSolutionsRemaining.add(solutions.getSolutions().size());
+            previousRuleSets.add(combinedRuleSet);
+            int solutionsAfter = solutions.getSolutions().size();
+
+            System.out.println("Derived Match: " + match);
+            System.out.println("Cumulative:    " + combinedRuleSet);
+            System.out.println("Solutions dropped from " + solutionsBefore + " to " + solutionsAfter);
+
+
+            if (guessWord.equals(solution)) {
+                System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses");
+
+                return true;
+            }
+
+            if (solutions.getSolutions().isEmpty()) {
+                throw new IllegalArgumentException("Solutions are empty");
+            }
+
             return false;
+        } finally {
+            System.out.println("*******************************");
         }
-
-        Word guessWord = new Word(guess);
-
-        if (guess.length() != 5) {
-            System.out.println("Guess must be 5 characters");
-            return false;
-        }
-
-        if (!dictionary.hasWord(guess)) {
-            System.out.println("Unknown word");
-            return false;
-        }
-
-        // We have a valid guess
-        previousGuesses.add(guess);
-        guessesRemaining--;
-
-        AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
-        RuleSet match = guess(guessWord, solution, solutions, rulesSoFarRef);
-        combinedRuleSet = rulesSoFarRef.get();
-        userGuessSolutionsRemaining.add(solutions.getSolutions().size());
-        previousRuleSets.add(combinedRuleSet);
-
-        System.out.println(match);
-
-
-        if (guessWord.equals(solution)) {
-            System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses" );
-
-            return true;
-        }
-
-        return false;
     }
 
 
@@ -122,56 +145,39 @@ public class Wordle extends ComponentImpl {
             return solutions.getSolutions().stream().findFirst().orElseThrow().getWord();
         }
 
-        Word bestWord = solutions.getSolutions().stream().findFirst().orElseThrow();
+        Word bestWord = null;
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
         int percentDone = -1;
 
         int lowestSolutionsCount = Integer.MAX_VALUE;
 
-        for (Word dictionaryWord: dictionary.getWords().values()) {
-            if (previousGuesses.contains(dictionaryWord.getWord())) {
+        for (Word dictionaryWordGuess: dictionary.getWords().values()) {
+            if (previousGuesses.contains(dictionaryWordGuess.getWord())) {
                 continue;
             }
 
             int totalSolutionsForWord = 0;
 
-            // For each dictionary word, if I used that as a guess how many solutions would I be left with?
             for (Word wordFromSolutions : solutions.getSolutions()) {
-                RuleSet match = new RuleSet(dictionaryWord, wordFromSolutions);
-                if (match.match(dictionaryWord)) {
-                    System.out.println("Match: " + dictionaryWord + "/" + wordFromSolutions + " using " + match);
-                    totalSolutionsForWord++;
-                } else {
-                    System.out.println("No Match: " + dictionaryWord + "/" + wordFromSolutions + " using " + match);
-                }
+                // If the solution was this word and I guessed with a word from the dictionary
+                // How good is the resulting rule set and slicing through the remaining words?
+                RuleSet r = combinedRuleSet.combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
+
+                int originalSize = solutions.getSolutions().size();
+                Solutions tmpSolutions = new Solutions(solutions);
+                tmpSolutions.prune(r);
+                int prunedSize = tmpSolutions.getSolutions().size();
+                int reduction = originalSize - prunedSize;
+                //System.out.println("Analysed: " + dictionaryWordGuess + "/" + wordFromSolutions + " reduction:" + reduction);
+                totalSolutionsForWord += prunedSize;
             }
 
-
-
-//            float totalCertaintyForWord = 0;
-
-//            for (Word wordFromSolutions : solutions.getSolutions()) {
-//
-//                RuleSet ruleSet = new RuleSet(dictionaryWord, wordFromSolutions).combineRuleSet(combinedRuleSet);
-//
-//                float certainty = ruleSet.getCertainty();
-//                totalCertaintyForWord += certainty;
-//
-//                //System.out.println("Uncertainty: " + dictionaryWord + "/" + wordFromSolutions + " with " + uncertainty);
-//
-//                // Marginal improvement
-////                if (totalUncertaintyForWord >= bestUncertainty) {
-////                    // System.out.println("Bailing on: " + dictionaryWord + " uncertainty: " + totalUncertaintyForWord);
-////                    break;
-////                }
-//            }
-
-            //System.out.println("Analysed: " + dictionaryWord + " solutions: " + totalUncertaintyForWord);
+            //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
             if (totalSolutionsForWord < lowestSolutionsCount) {
-                System.out.println("Best word so far: " + dictionaryWord + " solutions: " + totalSolutionsForWord);
-                bestWord = dictionaryWord;
+                System.out.println("Best word so far: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
+                bestWord = dictionaryWordGuess;
                 lowestSolutionsCount = totalSolutionsForWord;
             }
 
@@ -182,6 +188,10 @@ public class Wordle extends ComponentImpl {
                 //System.out.println("PercentDone: " + percentDone);
             }
 
+        }
+
+        if (bestWord == null) {
+            throw new IllegalStateException("No best word found");
         }
 
         System.out.println("Best word: " + bestWord + " solutions: " + lowestSolutionsCount);
