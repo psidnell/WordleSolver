@@ -139,10 +139,9 @@ public class Wordle extends ComponentImpl {
     }
 
     public String propose() {
-        // Create a new wordle instance and guess with every dictionary word
-        // Remember the one with the smallest resultant solutions number
+        // Try every dictionary word against all the remaining words and see which
+        // best reduces the solution size
 
-        // Shouldn't be necessary
         if (solutions.getSolutions().size() == 1) {
             return solutions.getSolutions().stream().findFirst().orElseThrow().getWord();
         }
@@ -162,17 +161,21 @@ public class Wordle extends ComponentImpl {
             int totalSolutionsForWord = 0;
 
             for (Word wordFromSolutions : solutions.getSolutions()) {
-                // If the solution was this word and I guessed with a word from the dictionary
-                // How good is the resulting rule set and slicing through the remaining words?
+
                 RuleSet r = combinedRuleSet.combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
 
                 int originalSize = solutions.getSolutions().size();
                 Solutions tmpSolutions = new Solutions(solutions);
                 tmpSolutions.prune(r);
                 int prunedSize = tmpSolutions.getSolutions().size();
-                int reduction = originalSize - prunedSize;
+                //int reduction = originalSize - prunedSize;
                 //System.out.println("Analysed: " + dictionaryWordGuess + "/" + wordFromSolutions + " reduction:" + reduction);
                 totalSolutionsForWord += prunedSize;
+
+                if (totalSolutionsForWord > lowestSolutionsCount) {
+                    // This is never going to be the best word - bail to save time
+                    break;
+                }
             }
 
             //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
