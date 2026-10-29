@@ -130,20 +130,20 @@ public class Wordle extends ComponentImpl {
         int wordsDone = 0;
         int percentDone = -1;
 
-        int bestCertainty = 0;
+        float bestCertainty = 0;
 
         for (Word dictionaryWord: dictionary.getWords().values()) {
             if (previousGuesses.contains(dictionaryWord.getWord())) {
                 continue;
             }
 
-            int totalCertaintyForWord = 0;
+            float totalCertaintyForWord = 0;
 
             for (Word wordFromSolutions : solutions.getSolutions()) {
 
                 RuleSet ruleSet = new RuleSet(dictionaryWord, wordFromSolutions).combineRuleSet(combinedRuleSet);
 
-                int certainty = ruleSet.getCertainty();
+                float certainty = ruleSet.getCertainty();
                 totalCertaintyForWord += certainty;
 
                 //System.out.println("Uncertainty: " + dictionaryWord + "/" + wordFromSolutions + " with " + uncertainty);

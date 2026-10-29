@@ -99,9 +99,9 @@ public class RuleSet {
     }
 
     //todo better name?
-    public int getCertainty() {
+    public float getCertainty() {
         // Lower uncertainty means more likely we are correct
-        int certainty = 0;
+        float certainty = 0;
         for (Rule rule : rules) {
             switch (rule.getType()) {
                 case MATCH -> certainty++;
