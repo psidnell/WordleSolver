@@ -5,16 +5,23 @@ import com.psidnell.WordComparison;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 public class RuleSet {
-    private final Set<Rule> rules = new TreeSet<>();
+
+    private Rule[] matches = new Rule[5];
+    private Rule[] wrongPlaces = new Rule[5];
+    private Rule[] noMatches = new Rule[5];;
+    private Rule mustNotHave = null;
+    private Map<Character, Rule> mustHaveAtLeast = new TreeMap<>();
+
+    // todo Necessary?
+    private final Set<Rule> allRules = new TreeSet<>();
 
     public RuleSet() {
     }
 
     public RuleSet(RuleSet other) {
-        this.rules.addAll(other.rules);
+        other.allRules.forEach(this::addRule);
     }
 
     public RuleSet(Word guess, Word solution) {
@@ -25,7 +32,7 @@ public class RuleSet {
         for(int i = 0; i < 5; i++) {
             Character gc = guess.charAt(i);
             if (comparison.getCorrectPositions()[i]) {
-                rules.add(Rule.createMatch(gc, i));
+                addRule(Rule.createMatch(gc, i));
                 mustHaveAtLeast.increase(gc);
                 // We might have already consumed all the letters in a wrong place match
                 if (commonLettersRemaining.occurrences(gc) > 0) {
@@ -34,22 +41,46 @@ public class RuleSet {
             } else if (comparison.getIncorrectPositions()[i]) {
                 int remaining = commonLettersRemaining.occurrences(gc);
                 if (remaining > 0) {
-                    rules.add(Rule.createWrongPlace(gc, i));
+                    addRule(Rule.createWrongPlace(gc, i));
                     mustHaveAtLeast.increase(gc);
                     commonLettersRemaining.decrease(gc);
                 } else {
-                    rules.add(Rule.createNoMatch(gc, i));
+                    addRule(Rule.createNoMatch(gc, i));
                 }
             } else if (comparison.getMismatches()[i]) {
-                rules.add(Rule.createMustNotHave(gc));
-                rules.add(Rule.createNoMatch(gc, i));
+                addRule(Rule.createMustNotHave(gc));
+                addRule(Rule.createNoMatch(gc, i));
             }
         }
 
         // Derive character occurrence minimums from rules we've already created
         mustHaveAtLeast.getFrequencies().forEach((ch, min) -> {
-            rules.add(Rule.createMustHaveAtLeast(ch, min));
+            addRule(Rule.createMustHaveAtLeast(ch, min));
         });
+    }
+
+    private Rule combine (Rule r1, Rule r2) {
+        if (r1 == null) {
+            return r2;
+        }
+        if (r2 == null) {
+            return r1;
+        }
+        return r1.combine(r2);
+    }
+
+    private void addRule(Rule r) {
+        switch(r.getType()) {
+            case MATCH -> matches[r.getPosition()] =  combine(r, matches[r.getPosition()]);
+            case WRONG_PLACE ->  wrongPlaces[r.getPosition()] = combine(r, wrongPlaces[r.getPosition()]);
+            case NO_MATCH -> noMatches[r.getPosition()] = combine(r, noMatches[r.getPosition()]);
+            case MUST_NOT_HAVE -> mustNotHave = combine(r, mustNotHave);
+            case MUST_HAVE_AT_LEAST -> {
+                char firstAndOnlyChar = r.getCharactersAsString().charAt(0);
+                mustHaveAtLeast.put(firstAndOnlyChar, combine(r, mustHaveAtLeast.get(firstAndOnlyChar)));
+            }
+        }
+        allRules.add(r);
     }
 
     public String toString() {
@@ -57,64 +88,55 @@ public class RuleSet {
 
         final String[] matchedChars = new String[]{"_", "_", "_", "_", "_"};
         for (int i = 0; i < 5; i++) {
-            final int index = i;
-            rules.stream().filter(r -> (r.getPosition() == index)).forEach(r -> {
-                if (Objects.requireNonNull(r.getType()) == RuleType.MATCH) {
-                    matchedChars[index] = r.getCharactersAsString().toUpperCase();
-                }
-            });
+            Rule r = matches[i];
+            if (r != null) {
+                matchedChars[i] = r.getCharactersAsString().toUpperCase();
+            }
         }
         output.append ("Matched{");
         Arrays.stream(matchedChars).forEach(output::append);
         output.append("} WrongPlace{");
 
-        final String[] wrongPlaces = new String[]{"_", "_", "_", "_", "_"};
+        final String[] wrongPlacesArr = new String[]{"_", "_", "_", "_", "_"};
         for (int i = 0; i < 5; i++) {
-            final int index = i;
-            rules.stream().filter(r -> (r.getPosition() == index)).forEach(r -> {
-                if (r.getType() == RuleType.WRONG_PLACE) {
-                    wrongPlaces[index] = r.getCharactersAsString().toUpperCase();
-                }
-            });
+            Rule r = wrongPlaces[i];
+            if (r != null) {
+                wrongPlacesArr[i] = r.getCharactersAsString().toUpperCase();
+            }
         }
-        output.append(String.join(",", wrongPlaces));
+        output.append(String.join(",", wrongPlacesArr));
 
         output.append("} NoMatch{");
 
-        final String[] noMatches = new String[]{"_", "_", "_", "_", "_"};
+        final String[] noMatchesArr = new String[]{"_", "_", "_", "_", "_"};
         for (int i = 0; i < 5; i++) {
-            final int index = i;
-            rules.stream().filter(r -> (r.getPosition() == index)).forEach(r -> {
-                if (r.getType() == RuleType.NO_MATCH) {
-                    noMatches[index] = r.getCharactersAsString().toUpperCase();
-                }
-            });
+            Rule r = noMatches[i];
+            if (r != null) {
+                noMatchesArr[i] = r.getCharactersAsString().toUpperCase();
+            }
         }
-        output.append(String.join(",", noMatches));
+        output.append(String.join(",", noMatchesArr));
 
         output.append("} MustNotHave{");
 
-        final TreeSet<Character> mustNotHave = new TreeSet<>();
-        rules.forEach(r -> {
-            if (r.getType() == RuleType.MUST_NOT_HAVE) {
-                mustNotHave.addAll(r.getCharacters());
-            }
-        });
-        mustNotHave.forEach(ch -> {
-            output.append(Character.toUpperCase(ch));
-        });
+        if (mustNotHave != null) {
+            mustNotHave.getCharacters().forEach(ch -> {
+                output.append(Character.toUpperCase(ch));
+            });
+        }
         output.append("} MustHaveAtLeast{");
 
-        CharacterFrequency mustHaveAtLeast = new CharacterFrequency();
-        rules.forEach(r -> {
-            if (r.getType() == RuleType.MUST_HAVE_AT_LEAST) {
-                // Will only be one char for this rule
-                Character ch = r.getCharactersAsString().charAt(0);
-                mustHaveAtLeast.set(ch, Math.max(mustHaveAtLeast.occurrences(ch), r.getAmount()));
-            }
+        CharacterFrequency mustHaveAtLeastFreq = new CharacterFrequency();
+        mustHaveAtLeast.forEach((ch, r) -> {
+            mustHaveAtLeastFreq.set(ch, Math.max(mustHaveAtLeastFreq.occurrences(ch), r.getAmount()));
         });
+
+        mustHaveAtLeast.forEach((ch, r) -> {
+            mustHaveAtLeastFreq.set(ch, Math.max(mustHaveAtLeastFreq.occurrences(ch), r.getAmount()));
+        });
+
         AtomicBoolean first = new AtomicBoolean(true);
-        mustHaveAtLeast.getFrequencies().forEach((ch, atLeast) -> {
+        mustHaveAtLeastFreq.getFrequencies().forEach((ch, atLeast) -> {
             if (!first.get()) {
                 output.append(",");
             }
@@ -126,23 +148,8 @@ public class RuleSet {
         return output.toString();
     }
 
-//    @Override
-//    public String toString() {
-//        StringBuilder output = new StringBuilder();
-//
-//        output.append(reconstructWordFromRules());
-//
-//        output.append(' ');
-//
-//        for (Rule rule : rules) {
-//            output.append(rule).append(" ");
-//        }
-//
-//        return output.toString().trim();
-//    }
-
     public boolean match(Word word) {
-        for (Rule rule : rules) {
+        for (Rule rule : allRules) {
             if (!rule.match(word)) {
                 return false;
             }
@@ -152,7 +159,7 @@ public class RuleSet {
 
     public RuleSet combineRuleSet(RuleSet other) {
         RuleSet result = new RuleSet(this);
-        result.rules.addAll(other.rules);
+        other.allRules.forEach(result::addRule);
         return result;
     }
 
@@ -160,7 +167,7 @@ public class RuleSet {
     public float getCertainty() {
         // Lower uncertainty means more likely we are correct
         float certainty = 0;
-        for (Rule rule : rules) {
+        for (Rule rule : allRules) {
             switch (rule.getType()) {
                 case MATCH -> certainty++;
             }

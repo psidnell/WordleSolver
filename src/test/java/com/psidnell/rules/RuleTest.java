@@ -1,14 +1,14 @@
 package com.psidnell.rules;
 
 import com.psidnell.Word;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RuleTest {
 
@@ -63,5 +63,71 @@ public class RuleTest {
     @MethodSource("provideMustNotHaveData")
     void testMustNotHave(Character c, int pos, String word, boolean match) {
         assertEquals(match, Rule.createMustNotHave(c).match(new Word(word)));
+    }
+
+    @Test()
+    void testCombineDifferentTypes() {
+        Rule r = Rule.createMustNotHave('X');
+        assertThrows(IllegalArgumentException.class, () -> r.combine(Rule.createNoMatch('X', 1)));
+    }
+
+    @Test()
+    void testCombineMatch() {
+        Rule r = Rule.createMatch('a', 3);
+        Rule combined = r.combine(Rule.createMatch('a', 3));
+        assertEquals("a", combined.getCharactersAsString());
+        assertEquals (3, combined.getPosition());
+    }
+
+    void testCombineMatchWithDifferentChars() {
+        Rule r = Rule.createMatch('a', 3);
+        Rule combined = r.combine(Rule.createNoMatch('b', 3));
+        assertEquals("a", combined.getCharactersAsString());
+        assertEquals (3, combined.getPosition());
+    }
+
+    @Test()
+    void testCombineNoMatchWithDifferentChars() {
+        Rule r = Rule.createNoMatch('a', 3);
+        Rule combined = r.combine(Rule.createNoMatch('b', 3));
+        assertEquals("ab", combined.getCharactersAsString());
+        assertEquals (3, combined.getPosition());
+    }
+
+    @Test()
+    void testCombineNoMatchWithSameChars() {
+        Rule r = Rule.createNoMatch('a', 3);
+        Rule combined = r.combine(Rule.createNoMatch('a', 3));
+        assertEquals("a", combined.getCharactersAsString());
+        assertEquals (3, combined.getPosition());
+    }
+
+    @Test()
+    void testCombineNoMatchMismatchedPositions() {
+        Rule r = Rule.createNoMatch('a', 3);
+        assertThrows(IllegalArgumentException.class, () -> r.combine(Rule.createNoMatch('b', 4)));
+    }
+
+    @Test()
+    void testCombineMustNotHave() {
+        Rule r = Rule.createMustNotHave('a');
+        Rule combined = r.combine(Rule.createMustNotHave('b'));
+        assertEquals("ab", combined.getCharactersAsString());
+        assertEquals (-1, combined.getPosition());
+    }
+
+    @Test()
+    void testCombineMustHaveAtLeast() {
+        Rule r = Rule.createMustHaveAtLeast('a', 1);
+        Rule combined = r.combine(Rule.createMustHaveAtLeast('a', 2));
+        assertEquals("a", combined.getCharactersAsString());
+        assertEquals(2, combined.getAmount());
+        assertEquals (-1, combined.getPosition());
+
+        r = Rule.createMustHaveAtLeast('a', 2);
+        combined = r.combine(Rule.createMustHaveAtLeast('a', 1));
+        assertEquals("a", combined.getCharactersAsString());
+        assertEquals(2, combined.getAmount());
+        assertEquals (-1, combined.getPosition());
     }
 }

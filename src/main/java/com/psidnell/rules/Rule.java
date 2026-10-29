@@ -2,12 +2,12 @@ package com.psidnell.rules;
 
 import com.psidnell.Word;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
-//todo wrap constructor with static method for rule
-
+//todo differing subclasses for types?
 public class Rule implements Comparable<Rule> {
     private final RuleType type;
     private final Set<Character> chars = new TreeSet<>();
@@ -41,6 +41,56 @@ public class Rule implements Comparable<Rule> {
         this.position = position;
         this.amount = amount;
         this.charsAsString = ch.toString();
+    }
+
+    private Rule(RuleType type, Set<Character> chars, int position, int amount) {
+        this.type = type;
+        this.chars.addAll(chars);
+        this.position = position;
+        this.amount = amount;
+        StringBuilder b = new StringBuilder();
+        chars.forEach(b::append);
+        this.charsAsString = b.toString();
+    }
+
+    public Rule combine(Rule other) {
+        if (!this.type.equals(other.type)) {
+            throw new IllegalArgumentException("Cannot combine with different types " + type + " and " + other.type);
+        }
+        if (this.position != other.position) {
+            throw new IllegalArgumentException("Cannot combine with different positions " + position + " and " + other.position);
+        }
+
+        switch(type) {
+            case MATCH:
+                if (!charsAsString.equals(other.charsAsString)) {
+                    throw new IllegalArgumentException("Cannot combine different matches " + charsAsString + " and " + other.charsAsString);
+                }
+                return createMatch(charsAsString.charAt(0), position);
+            case NO_MATCH: {
+                Set<Character> combinedChars = new HashSet<>(chars);
+                combinedChars.addAll(other.chars);
+                return new Rule(RuleType.NO_MATCH, combinedChars, position, amount);
+            }
+            case WRONG_PLACE: {
+                Set<Character> combinedChars = new HashSet<>(chars);
+                combinedChars.addAll(other.chars);
+                return new Rule(RuleType.WRONG_PLACE, combinedChars, position, amount);
+            }
+            case MUST_NOT_HAVE: {
+                Set<Character> combinedChars = new HashSet<>(chars);
+                combinedChars.addAll(other.chars);
+                return new Rule(RuleType.MUST_NOT_HAVE, combinedChars, position, amount);
+            }
+            case MUST_HAVE_AT_LEAST: {
+                if (!charsAsString.equals(other.charsAsString)) {
+                    throw new IllegalArgumentException("Cannot combine two " + type + " with differing chars " + charsAsString + ", " + other.charsAsString);
+                }
+                return new Rule(RuleType.MUST_HAVE_AT_LEAST, chars, position, Math.max(amount, other.amount));
+            }
+            default:
+                throw new IllegalArgumentException("Unkown rule type: " + type);
+        }
     }
 
     public boolean match(Word word) {
