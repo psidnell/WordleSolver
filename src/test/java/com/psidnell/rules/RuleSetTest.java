@@ -14,12 +14,12 @@ public class RuleSetTest
     private static Stream<Arguments> provideMatchData() {
         return Stream.of(
                 // solution, guess, toString
-                Arguments.of("geeky", "geeky", "GM[0] EM[1] EM[2] KM[3] YM[4] E>=2 G>=1 K>=1 Y>=1"),
-                Arguments.of("geeky", "egyee", "E?[0] G?[1] Y?[2] E?[3] EX[4] E>=2 G>=1 Y>=1"),
-                Arguments.of("geeky", "macho", "MX[0] AX[1] CX[2] HX[3] OX[4] A! C! H! M! O!"),
-                Arguments.of("trace", "boast", "BX[0] OX[1] AM[2] SX[3] T?[4] B! O! S! A>=1 T>=1"),
-                Arguments.of("geeky", "weeee", "WX[0] EM[1] EM[2] EX[3] EX[4] W! E>=2"),
-                Arguments.of("aaaaa", "aazzz", "AM[0] AM[1] ZX[2] ZX[3] ZX[4] Z! A>=2")
+                Arguments.of("geeky", "geeky", "Matched{GEEKY} WrongPlace{_,_,_,_,_} NoMatch{_,_,_,_,_} MustNotHave{} MustHaveAtLeast{E:2,G:1,K:1,Y:1}"),
+                Arguments.of("geeky", "egyee", "Matched{_____} WrongPlace{E,G,Y,E,_} NoMatch{_,_,_,_,E} MustNotHave{} MustHaveAtLeast{E:2,G:1,Y:1}"),
+                Arguments.of("geeky", "macho", "Matched{_____} WrongPlace{_,_,_,_,_} NoMatch{M,A,C,H,O} MustNotHave{ACHMO} MustHaveAtLeast{}"),
+                Arguments.of("trace", "boast", "Matched{__A__} WrongPlace{_,_,_,_,T} NoMatch{B,O,_,S,_} MustNotHave{BOS} MustHaveAtLeast{A:1,T:1}"),
+                Arguments.of("geeky", "weeee", "Matched{_EE__} WrongPlace{_,_,_,_,_} NoMatch{W,_,_,E,E} MustNotHave{W} MustHaveAtLeast{E:2}"),
+                Arguments.of("aaaaa", "aazzz", "Matched{AA___} WrongPlace{_,_,_,_,_} NoMatch{_,_,Z,Z,Z} MustNotHave{Z} MustHaveAtLeast{A:2}")
         );
     }
     @ParameterizedTest

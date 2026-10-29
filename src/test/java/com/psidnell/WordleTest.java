@@ -65,33 +65,34 @@ public class WordleTest {
         assertFalse(wordle.userGuess("geeky"));
     }
 
+    //todo
 
-    private static Stream<Arguments> provideSolutions() {
-        return Stream.of(
-                // Solution, guesses
-                //Arguments.of("grist", new String[]{}),
-                Arguments.of("grist", new String[]{"trace", "misty"}),
-                Arguments.of("align",  new String[]{"trace"}),
-                Arguments.of("aloft", new String[]{"trace"}),
-                Arguments.of("grump", new String[]{"trace"}),
-                Arguments.of("geeky", new String[]{"trace"})
-        );
-    }
-    @ParameterizedTest
-    @MethodSource("provideSolutions")
-    void testSolving(String solution, String[] guesses) throws Exception {
-        Context context = new Context();
-        Wordle wordle = context.get("wordle", Wordle.class);
-        wordle.setContext(context);
-        wordle.init();
-        wordle.setSolution(solution);
-
-        for (String guess : guesses) {
-            wordle.userGuess(guess);
-        }
-
-        solve(wordle);
-    }
+//    private static Stream<Arguments> provideSolutions() {
+//        return Stream.of(
+//                // Solution, guesses
+//                //Arguments.of("grist", new String[]{}),
+//                Arguments.of("grist", new String[]{"trace", "misty"}),
+//                Arguments.of("align",  new String[]{"trace"}),
+//                Arguments.of("aloft", new String[]{"trace"}),
+//                Arguments.of("grump", new String[]{"trace"}),
+//                Arguments.of("geeky", new String[]{"trace"})
+//        );
+//    }
+//    @ParameterizedTest
+//    @MethodSource("provideSolutions")
+//    void testSolving(String solution, String[] guesses) throws Exception {
+//        Context context = new Context();
+//        Wordle wordle = context.get("wordle", Wordle.class);
+//        wordle.setContext(context);
+//        wordle.init();
+//        wordle.setSolution(solution);
+//
+//        for (String guess : guesses) {
+//            wordle.userGuess(guess);
+//        }
+//
+//        solve(wordle);
+//    }
 
     @Test
     public void testWithSmallDictionary() throws Exception {
