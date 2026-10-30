@@ -91,12 +91,14 @@ public class WordleTest {
     private static Stream<Arguments> provideSolutions() {
         return Stream.of(
                 // Solution, guesses
-                //Arguments.of("grist", new String[]{})
-                Arguments.of("grist", new String[]{"trace", "misty"}),
-                Arguments.of("align",  new String[]{"trace", "spoil"}),
-                Arguments.of("aloft", new String[]{"trace", "spoil"}),
-                Arguments.of("grump", new String[]{"trace", "spoil"}),
-                Arguments.of("geeky", new String[]{"trace", "spoil"})
+//                Arguments.of("grist", new String[]{})
+                Arguments.of("grist", new String[]{"trace"}),
+                Arguments.of("align",  new String[]{"trace"}),
+                Arguments.of("aloft", new String[]{"trace"}),
+                Arguments.of("grump", new String[]{"trace"}),
+                Arguments.of("geeky", new String[]{"trace"}),
+                Arguments.of("slide", new String[]{"trace"}),
+                Arguments.of("motor", new String[]{"trace"})
                 //Arguments.of("slide", new String[]{}),
                 //Arguments.of("motor", new String[]{})
         );

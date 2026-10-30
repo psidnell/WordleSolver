@@ -4,8 +4,7 @@ import com.psidnell.rules.Rule;
 import com.psidnell.rules.RuleSet;
 import com.psidnell.util.ComponentImpl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -141,6 +140,27 @@ public class Wordle extends ComponentImpl {
     public String propose() {
         // Try every dictionary word against all the remaining words and see which
         // best reduces the solution size
+        int totalSolutionsForFirstGo = dictionary.getWords().size() * dictionary.getWords().size();
+        int totalSolutionsForThisGo = dictionary.getWords().size() * solutions.getSolutions().size();
+
+        // Max of a massive reduction on the full dictionary or 2/3 of the solutions
+        // Don't go too small, or we never find a word
+        int[] thresholds = new int[] {
+                // When the solutions are the entire dictionary, expect a look for a massive reduction
+                // so we crunch through the words quickly
+                //totalSolutionsForFirstGo / 10000000, // about 20
+                //Math.min(2 * totalSolutionsForThisGo / 3, 10)
+                8000
+        };
+
+        int solutionThreshold = Arrays.stream(thresholds)
+                .max()
+                .getAsInt();
+
+        System.out.println("Solutions: " + solutions.getSolutions().size());
+        System.out.println("Total solution/guess space: " + totalSolutionsForFirstGo);
+        System.out.println("Total solution/guess combinations to try: " + totalSolutionsForThisGo);
+        System.out.println("Applying threshold: " + solutionThreshold);
 
         if (solutions.getSolutions().size() == 1) {
             return solutions.getSolutions().stream().findFirst().orElseThrow().getWord();
@@ -152,6 +172,9 @@ public class Wordle extends ComponentImpl {
         int percentDone = -1;
         int lowestSolutionsCount = Integer.MAX_VALUE;
 
+        int threshold = 200;
+
+        // Would I go faster (but not better( if just considering solution words?
         for (Word dictionaryWordGuess: dictionary.getWords().values()) {
             if (previousGuesses.contains(dictionaryWordGuess.getWord())) {
                 continue;
@@ -160,19 +183,27 @@ public class Wordle extends ComponentImpl {
             int totalSolutionsForWord = 0;
 
             for (Word wordFromSolutions : solutions.getSolutions()) {
-//                if (!dictionaryWordGuess.haveCommonCharacters(wordFromSolutions)) {
-//                    //System.out.println("No common letters " +dictionaryWordGuess +"/" +wordFromSolutions);
-//                    continue;
-//                }
+                int originalSize = solutions.getSolutions().size();
+
+                if (!dictionaryWordGuess.haveCommonCharacters(wordFromSolutions)) {
+                    //System.out.println("No common letters " +dictionaryWordGuess +"/" +wordFromSolutions);
+                    totalSolutionsForWord += originalSize;
+                    continue;
+                }
 
                 RuleSet r = combinedRuleSet.combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
 
-                int originalSize = solutions.getSolutions().size();
+
                 int removed = solutions.wordsNotMatching(r);
                 int prunedSize = originalSize - removed;
                 totalSolutionsForWord += prunedSize;
 
                 if (totalSolutionsForWord > lowestSolutionsCount) {
+                    // This is never going to be the best word - bail to save time
+                    break;
+                }
+
+                if (totalSolutionsForWord > threshold) {
                     // This is never going to be the best word - bail to save time
                     break;
                 }
@@ -190,9 +221,8 @@ public class Wordle extends ComponentImpl {
             int nextPercentDome = (100 * wordsDone) / dictWords;
             if (percentDone != nextPercentDome) {
                 percentDone = nextPercentDome;
-                System.out.println("PercentDone: " + percentDone);
+                //System.out.println("PercentDone: " + percentDone);
             }
-
         }
 
         if (bestWord == null) {
