@@ -33,15 +33,20 @@ public class RuleSet {
         CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
         CharacterFrequency mustHaveAtLeast = new CharacterFrequency();
         CharacterFrequency mustHaveAtMost = new CharacterFrequency();
+        CharacterFrequency seenSoFar = new CharacterFrequency();
         // Handle basic character matches and misses
         for(int i = 0; i < 5; i++) {
             Character gc = guess.charAt(i);
+            seenSoFar.increase(gc);
             if (comparison.getCorrectPositions()[i]) {
                 addRule(Rule.createMatch(gc, i));
                 // We might have already consumed all the letters in a wrong place match
-                if (commonLettersRemaining.occurrences(gc) > 0) {
+                int remaining = commonLettersRemaining.occurrences(gc);
+                if (remaining > 0) {
                     mustHaveAtLeast.increase(gc);
                     commonLettersRemaining.decrease(gc);
+                } else {
+                    addRule(Rule.createMustHaveAtMost(gc, seenSoFar.occurrences(gc) - 1));
                 }
             } else if (comparison.getIncorrectPositions()[i]) {
                 int remaining = commonLettersRemaining.occurrences(gc);
@@ -51,6 +56,7 @@ public class RuleSet {
                     commonLettersRemaining.decrease(gc);
                 } else {
                     addRule(Rule.createNoMatch(gc, i));
+                    addRule(Rule.createMustHaveAtMost(gc, seenSoFar.occurrences(gc) - 1));
                 }
             } else if (comparison.getMismatches()[i]) {
                 addRule(Rule.createMustNotHave(gc));
@@ -58,15 +64,10 @@ public class RuleSet {
             }
         }
 
-        // Derive character occurrence max/min
-
+        //Can derive this
         mustHaveAtLeast.getFrequencies().forEach((ch, min) -> {
             addRule(Rule.createMustHaveAtLeast(ch, min));
         });
-
-//        commonLettersRemaining.getFrequencies().forEach((ch, max) -> {
-//            addRule(Rule.createMustHaveAtMost(ch, max));
-//        });
     }
 
     private Rule combine (Rule r1, Rule r2) {
@@ -197,18 +198,6 @@ public class RuleSet {
         return result;
     }
 
-    //todo better name?
-    public float getCertainty() {
-        // Lower uncertainty means more likely we are correct
-        float certainty = 0;
-        for (Rule rule : allRules()) {
-            switch (rule.getType()) {
-                case MATCH -> certainty++;
-            }
-        }
-        return certainty;
-    }
-
     private void addNotNull(Rule r, Set<Rule> rules) {
         if (r != null) {
             rules.add(r);
@@ -222,7 +211,7 @@ public class RuleSet {
         Arrays.asList(noMatches).forEach(r -> addNotNull(r, result));
         addNotNull(mustNotHave, result);
         result.addAll(mustHaveAtLeast.values());
-        result.addAll( mustHaveAtMost.values());
+        result.addAll(mustHaveAtMost.values());
         return result;
     }
 }
