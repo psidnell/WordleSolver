@@ -41,4 +41,8 @@ public class CharacterFrequency {
     public Map<Character, Integer>  getFrequencies() {
         return frequencies;
     }
+
+    public int overlapSize() {
+       return frequencies.values().stream().mapToInt(Integer::intValue).sum();
+    }
 }

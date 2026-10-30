@@ -150,7 +150,6 @@ public class Wordle extends ComponentImpl {
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
         int percentDone = -1;
-
         int lowestSolutionsCount = Integer.MAX_VALUE;
 
         for (Word dictionaryWordGuess: dictionary.getWords().values()) {
@@ -161,15 +160,16 @@ public class Wordle extends ComponentImpl {
             int totalSolutionsForWord = 0;
 
             for (Word wordFromSolutions : solutions.getSolutions()) {
+//                if (!dictionaryWordGuess.haveCommonCharacters(wordFromSolutions)) {
+//                    //System.out.println("No common letters " +dictionaryWordGuess +"/" +wordFromSolutions);
+//                    continue;
+//                }
 
                 RuleSet r = combinedRuleSet.combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
 
                 int originalSize = solutions.getSolutions().size();
-                Solutions tmpSolutions = new Solutions(solutions);
-                tmpSolutions.prune(r);
-                int prunedSize = tmpSolutions.getSolutions().size();
-                //int reduction = originalSize - prunedSize;
-                //System.out.println("Analysed: " + dictionaryWordGuess + "/" + wordFromSolutions + " reduction:" + reduction);
+                int removed = solutions.wordsNotMatching(r);
+                int prunedSize = originalSize - removed;
                 totalSolutionsForWord += prunedSize;
 
                 if (totalSolutionsForWord > lowestSolutionsCount) {
@@ -190,7 +190,7 @@ public class Wordle extends ComponentImpl {
             int nextPercentDome = (100 * wordsDone) / dictWords;
             if (percentDone != nextPercentDome) {
                 percentDone = nextPercentDome;
-                //System.out.println("PercentDone: " + percentDone);
+                System.out.println("PercentDone: " + percentDone);
             }
 
         }

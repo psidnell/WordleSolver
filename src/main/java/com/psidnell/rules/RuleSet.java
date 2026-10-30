@@ -8,20 +8,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RuleSet {
 
-    private Rule[] matches = new Rule[5];
-    private Rule[] wrongPlaces = new Rule[5];
-    private Rule[] noMatches = new Rule[5];;
+    private final Rule[] matches = new Rule[5];
+    private final Rule[] wrongPlaces = new Rule[5];
+    private final Rule[] noMatches = new Rule[5];;
     private Rule mustNotHave = null;
-    private Map<Character, Rule> mustHaveAtLeast = new TreeMap<>();
-
-    // todo Necessary?
-    private final Set<Rule> allRules = new TreeSet<>();
+    private final Map<Character, Rule> mustHaveAtLeast = new TreeMap<>();
+    private final Map<Character, Rule> mustHaveAtMost = new TreeMap<>();
 
     public RuleSet() {
     }
 
     public RuleSet(RuleSet other) {
-        other.allRules.forEach(this::addRule);
+        other.allRules().forEach(this::addRule);
     }
 
     /**
@@ -34,6 +32,7 @@ public class RuleSet {
         WordComparison comparison = guess.compareWords(solution);
         CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
         CharacterFrequency mustHaveAtLeast = new CharacterFrequency();
+        CharacterFrequency mustHaveAtMost = new CharacterFrequency();
         // Handle basic character matches and misses
         for(int i = 0; i < 5; i++) {
             Character gc = guess.charAt(i);
@@ -41,14 +40,14 @@ public class RuleSet {
                 addRule(Rule.createMatch(gc, i));
                 // We might have already consumed all the letters in a wrong place match
                 if (commonLettersRemaining.occurrences(gc) > 0) {
-                    mustHaveAtLeast.increase(gc); // todo <<<<<<<<<<<<
+                    mustHaveAtLeast.increase(gc);
                     commonLettersRemaining.decrease(gc);
                 }
             } else if (comparison.getIncorrectPositions()[i]) {
                 int remaining = commonLettersRemaining.occurrences(gc);
                 if (remaining > 0) {
                     addRule(Rule.createWrongPlace(gc, i));
-                    mustHaveAtLeast.increase(gc); // todo <<<<<<<<<<<<<<<<<<<<
+                    mustHaveAtLeast.increase(gc);
                     commonLettersRemaining.decrease(gc);
                 } else {
                     addRule(Rule.createNoMatch(gc, i));
@@ -59,10 +58,15 @@ public class RuleSet {
             }
         }
 
-        // Derive character occurrence minimums from rules we've already created
+        // Derive character occurrence max/min
+
         mustHaveAtLeast.getFrequencies().forEach((ch, min) -> {
             addRule(Rule.createMustHaveAtLeast(ch, min));
         });
+
+//        commonLettersRemaining.getFrequencies().forEach((ch, max) -> {
+//            addRule(Rule.createMustHaveAtMost(ch, max));
+//        });
     }
 
     private Rule combine (Rule r1, Rule r2) {
@@ -85,8 +89,11 @@ public class RuleSet {
                 char firstAndOnlyChar = r.getCharactersAsString().charAt(0);
                 mustHaveAtLeast.put(firstAndOnlyChar, combine(r, mustHaveAtLeast.get(firstAndOnlyChar)));
             }
+            case MUST_HAVE_AT_MOST -> {
+                char firstAndOnlyChar = r.getCharactersAsString().charAt(0);
+                mustHaveAtMost.put(firstAndOnlyChar, combine(r, mustHaveAtMost.get(firstAndOnlyChar)));
+            }
         }
-        allRules.add(r);
     }
 
     public String toString() {
@@ -123,14 +130,14 @@ public class RuleSet {
         }
         output.append(String.join(",", noMatchesArr));
 
-        output.append("} MustNotHave{");
+        output.append("} None{");
 
         if (mustNotHave != null) {
             mustNotHave.getCharacters().forEach(ch -> {
                 output.append(Character.toUpperCase(ch));
             });
         }
-        output.append("} MustHaveAtLeast{");
+        output.append("} AtLeast{");
 
         CharacterFrequency mustHaveAtLeastFreq = new CharacterFrequency();
         mustHaveAtLeast.forEach((ch, r) -> {
@@ -150,12 +157,33 @@ public class RuleSet {
             first.set(false);
         });
 
-        output.append("}");
-        return output.toString();
+        output.append("} AtMost{");
+
+        CharacterFrequency mustHaveAtMostFreq = new CharacterFrequency();
+        mustHaveAtMost.forEach((ch, r) -> {
+            mustHaveAtMostFreq.set(ch, Math.max(mustHaveAtMostFreq.occurrences(ch), r.getAmount()));
+        });
+
+        mustHaveAtMost.forEach((ch, r) -> {
+            mustHaveAtMostFreq.set(ch, Math.max(mustHaveAtMostFreq.occurrences(ch), r.getAmount()));
+        });
+
+
+        first.set(true);
+        mustHaveAtMostFreq.getFrequencies().forEach((ch, atMost) -> {
+            if (!first.get()) {
+                output.append(",");
+            }
+            output.append(Character.toUpperCase(ch)).append(':').append(atMost);
+            first.set(false);
+        });
+
+
+        return output.append('}').toString();
     }
 
     public boolean match(Word word) {
-        for (Rule rule : allRules) {
+        for (Rule rule : allRules()) {
             if (!rule.match(word)) {
                 return false;
             }
@@ -165,7 +193,7 @@ public class RuleSet {
 
     public RuleSet combineRuleSet(RuleSet other) {
         RuleSet result = new RuleSet(this);
-        other.allRules.forEach(result::addRule);
+        other.allRules().forEach(result::addRule);
         return result;
     }
 
@@ -173,11 +201,28 @@ public class RuleSet {
     public float getCertainty() {
         // Lower uncertainty means more likely we are correct
         float certainty = 0;
-        for (Rule rule : allRules) {
+        for (Rule rule : allRules()) {
             switch (rule.getType()) {
                 case MATCH -> certainty++;
             }
         }
         return certainty;
+    }
+
+    private void addNotNull(Rule r, Set<Rule> rules) {
+        if (r != null) {
+            rules.add(r);
+        }
+    }
+
+    private Set<Rule> allRules() {
+        TreeSet<Rule> result = new TreeSet<>();
+        Arrays.asList(matches).forEach(r -> addNotNull(r, result));
+        Arrays.asList(wrongPlaces).forEach(r -> addNotNull(r, result));
+        Arrays.asList(noMatches).forEach(r -> addNotNull(r, result));
+        addNotNull(mustNotHave, result);
+        result.addAll(mustHaveAtLeast.values());
+        result.addAll( mustHaveAtMost.values());
+        return result;
     }
 }

@@ -15,13 +15,13 @@ public class RuleSetTest
     private static Stream<Arguments> provideMatchData() {
         return Stream.of(
                 // solution, guess, toString
-                Arguments.of("geeky", "geeky", "Matched{GEEKY} WrongPlace{_,_,_,_,_} NoMatch{_,_,_,_,_} MustNotHave{} MustHaveAtLeast{E:2,G:1,K:1,Y:1}"),
-                Arguments.of("geeky", "egyee", "Matched{_____} WrongPlace{E,G,Y,E,_} NoMatch{_,_,_,_,E} MustNotHave{} MustHaveAtLeast{E:2,G:1,Y:1}"),
-                Arguments.of("geeky", "macho", "Matched{_____} WrongPlace{_,_,_,_,_} NoMatch{M,A,C,H,O} MustNotHave{ACHMO} MustHaveAtLeast{}"),
-                Arguments.of("trace", "boast", "Matched{__A__} WrongPlace{_,_,_,_,T} NoMatch{B,O,_,S,_} MustNotHave{BOS} MustHaveAtLeast{A:1,T:1}"),
-                Arguments.of("geeky", "weeee", "Matched{_EE__} WrongPlace{_,_,_,_,_} NoMatch{W,_,_,E,E} MustNotHave{W} MustHaveAtLeast{E:2}"),
-                Arguments.of("aaaaa", "aazzz", "Matched{AA___} WrongPlace{_,_,_,_,_} NoMatch{_,_,Z,Z,Z} MustNotHave{Z} MustHaveAtLeast{A:2}"),
-                Arguments.of("hated", "dozed", "Matched{___ED} WrongPlace{D,_,_,_,_} NoMatch{_,O,Z,_,_} MustNotHave{OZ} MustHaveAtLeast{D:1,E:1}")
+                Arguments.of("geeky", "geeky", "Matched{GEEKY} WrongPlace{_,_,_,_,_} NoMatch{_,_,_,_,_} None{} AtLeast{E:2,G:1,K:1,Y:1} AtMost{}"),
+                Arguments.of("geeky", "egyee", "Matched{_____} WrongPlace{E,G,Y,E,_} NoMatch{_,_,_,_,E} None{} AtLeast{E:2,G:1,Y:1} AtMost{}"),
+                Arguments.of("geeky", "macho", "Matched{_____} WrongPlace{_,_,_,_,_} NoMatch{M,A,C,H,O} None{ACHMO} AtLeast{} AtMost{}"),
+                Arguments.of("trace", "boast", "Matched{__A__} WrongPlace{_,_,_,_,T} NoMatch{B,O,_,S,_} None{BOS} AtLeast{A:1,T:1} AtMost{}"),
+                Arguments.of("geeky", "weeee", "Matched{_EE__} WrongPlace{_,_,_,_,_} NoMatch{W,_,_,E,E} None{W} AtLeast{E:2} AtMost{}"),
+                Arguments.of("aaaaa", "aazzz", "Matched{AA___} WrongPlace{_,_,_,_,_} NoMatch{_,_,Z,Z,Z} None{Z} AtLeast{A:2} AtMost{}"),
+                Arguments.of("hated", "dozed", "Matched{___ED} WrongPlace{D,_,_,_,_} NoMatch{_,O,Z,_,_} None{OZ} AtLeast{D:1,E:1} AtMost{}")
         );
     }
     @ParameterizedTest

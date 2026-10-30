@@ -130,4 +130,19 @@ public class RuleTest {
         assertEquals(2, combined.getAmount());
         assertEquals (-1, combined.getPosition());
     }
+
+    @Test()
+    void testCombineMustHaveAtMost() {
+        Rule r = Rule.createMustHaveAtMost('a', 1);
+        Rule combined = r.combine(Rule.createMustHaveAtMost('a', 2));
+        assertEquals("a", combined.getCharactersAsString());
+        assertEquals(1, combined.getAmount());
+        assertEquals (-1, combined.getPosition());
+
+        r = Rule.createMustHaveAtMost('a', 2);
+        combined = r.combine(Rule.createMustHaveAtMost('a', 1));
+        assertEquals("a", combined.getCharactersAsString());
+        assertEquals(1, combined.getAmount());
+        assertEquals (-1, combined.getPosition());
+    }
 }

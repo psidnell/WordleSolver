@@ -35,6 +35,10 @@ public class Rule implements Comparable<Rule> {
         return new Rule(RuleType.MUST_HAVE_AT_LEAST, ch, -1, amount);
     }
 
+    public static Rule createMustHaveAtMost(Character ch,  int amount) {
+        return new Rule(RuleType.MUST_HAVE_AT_MOST, ch, -1, amount);
+    }
+
     private Rule(RuleType type, Character ch, int position, int amount) {
         this.type = type;
         this.chars.add(ch);
@@ -88,6 +92,12 @@ public class Rule implements Comparable<Rule> {
                 }
                 return new Rule(RuleType.MUST_HAVE_AT_LEAST, chars, position, Math.max(amount, other.amount));
             }
+            case MUST_HAVE_AT_MOST: {
+                if (!charsAsString.equals(other.charsAsString)) {
+                    throw new IllegalArgumentException("Cannot combine two " + type + " with differing chars " + charsAsString + ", " + other.charsAsString);
+                }
+                return new Rule(RuleType.MUST_HAVE_AT_MOST, chars, position, Math.min(amount, other.amount));
+            }
             default:
                 throw new IllegalArgumentException("Unkown rule type: " + type);
         }
@@ -100,12 +110,23 @@ public class Rule implements Comparable<Rule> {
             case WRONG_PLACE -> wrongPlace(word);
             case MUST_NOT_HAVE -> mustNotHave(word);
             case MUST_HAVE_AT_LEAST ->mustHaveAtLeast(word);
+            case MUST_HAVE_AT_MOST ->mustHaveAtLeast(word);
         };
     }
 
     private boolean mustHaveAtLeast(Word word) {
         for (Character ch : chars) {
             boolean mustHaveAtLeastMatch = word.occurencesOf(ch) >= amount;
+            if (!mustHaveAtLeastMatch) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean mustHaveAtMost(Word word) {
+        for (Character ch : chars) {
+            boolean mustHaveAtLeastMatch = word.occurencesOf(ch) <= amount;
             if (!mustHaveAtLeastMatch) {
                 return false;
             }
@@ -163,6 +184,7 @@ public class Rule implements Comparable<Rule> {
             case WRONG_PLACE -> chrsUpper + "?[" + position + "]";
             case MUST_NOT_HAVE -> chrsUpper + "!";
             case MUST_HAVE_AT_LEAST -> chrsUpper + ">=" + amount;
+            case MUST_HAVE_AT_MOST -> chrsUpper + "<=" + amount;
         };
     }
 

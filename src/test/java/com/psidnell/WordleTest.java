@@ -97,6 +97,8 @@ public class WordleTest {
                 Arguments.of("aloft", new String[]{"trace", "spoil"}),
                 Arguments.of("grump", new String[]{"trace", "spoil"}),
                 Arguments.of("geeky", new String[]{"trace", "spoil"})
+//                Arguments.of("slide", new String[]{})
+//                Arguments.of("motor", new String[]{})
         );
     }
     @ParameterizedTest
