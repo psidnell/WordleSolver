@@ -1,6 +1,5 @@
 package com.psidnell;
 
-import com.psidnell.rules.Rule;
 import com.psidnell.rules.RuleSet;
 import com.psidnell.util.ComponentImpl;
 
@@ -40,7 +39,7 @@ public class Wordle extends ComponentImpl {
         System.out.println("History:");
         for (int i = 0; i < previousRuleSets.size(); i++) {
             System.out.println("  - " + previousGuesses.get(i).toUpperCase() + " " +
-                    previousRuleSets.get(i) + " " + userGuessSolutionsRemaining.get(i));
+                    previousRuleSets.get(i) + " Solutions: " + userGuessSolutionsRemaining.get(i));
         }
         System.out.println("Knowledge: " + combinedRuleSet.toString());
         System.out.println("Guesses Remaining: " + guessesRemaining);
@@ -140,8 +139,13 @@ public class Wordle extends ComponentImpl {
     public String propose() {
         // Try every dictionary word against all the remaining words and see which
         // best reduces the solution size
-        int totalSolutionsForFirstGo = dictionary.getWords().size() * dictionary.getWords().size();
-        int totalSolutionsForThisGo = dictionary.getWords().size() * solutions.getSolutions().size();
+
+        // todo
+        // Collection<Word> guesses = dictionary.getWords().values();
+        Collection<Word> guesses = solutions.getSolutions(); //todo << definitely faster!
+
+        //int totalSolutionsForFirstGo = dictionary.getWords().size() * dictionary.getWords().size();
+        int totalSolutionsForThisGo = guesses.size() * solutions.getSolutions().size();
 
         // Max of a massive reduction on the full dictionary or 2/3 of the solutions
         // Don't go too small, or we never find a word
@@ -150,17 +154,20 @@ public class Wordle extends ComponentImpl {
                 // so we crunch through the words quickly
                 //totalSolutionsForFirstGo / 10000000, // about 20
                 //Math.min(2 * totalSolutionsForThisGo / 3, 10)
-                8000
+
+                //todo Pulled this out of my arse - can it be derived?
+                // Good words on the first go are getting about this
+                // Is this just a quirk of the English language?
+                200
         };
 
-        int solutionThreshold = Arrays.stream(thresholds)
+        int threshold = Arrays.stream(thresholds)
                 .max()
                 .getAsInt();
 
         System.out.println("Solutions: " + solutions.getSolutions().size());
-        System.out.println("Total solution/guess space: " + totalSolutionsForFirstGo);
         System.out.println("Total solution/guess combinations to try: " + totalSolutionsForThisGo);
-        System.out.println("Applying threshold: " + solutionThreshold);
+        System.out.println("Applying threshold: " + threshold);
 
         if (solutions.getSolutions().size() == 1) {
             return solutions.getSolutions().stream().findFirst().orElseThrow().getWord();
@@ -172,10 +179,9 @@ public class Wordle extends ComponentImpl {
         int percentDone = -1;
         int lowestSolutionsCount = Integer.MAX_VALUE;
 
-        int threshold = 200;
-
-        // Would I go faster (but not better( if just considering solution words?
-        for (Word dictionaryWordGuess: dictionary.getWords().values()) {
+        // todo Would I go faster (but not better( if just considering solution words?
+        //for (Word dictionaryWordGuess: dictionary.getWords().values()) {
+        for (Word dictionaryWordGuess: solutions.getSolutions()) { //todo << definitely faster!
             if (previousGuesses.contains(dictionaryWordGuess.getWord())) {
                 continue;
             }
@@ -191,11 +197,9 @@ public class Wordle extends ComponentImpl {
                     continue;
                 }
 
-                RuleSet r = combinedRuleSet.combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
+                int prunedSize = Solver.calculateRank(dictionaryWordGuess, wordFromSolutions,
+                        combinedRuleSet, solutions);
 
-
-                int removed = solutions.wordsNotMatching(r);
-                int prunedSize = originalSize - removed;
                 totalSolutionsForWord += prunedSize;
 
                 if (totalSolutionsForWord > lowestSolutionsCount) {

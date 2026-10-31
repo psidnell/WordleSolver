@@ -91,16 +91,13 @@ public class WordleTest {
     private static Stream<Arguments> provideSolutions() {
         return Stream.of(
                 // Solution, guesses
-//                Arguments.of("grist", new String[]{})
-                Arguments.of("grist", new String[]{"trace"}),
-                Arguments.of("align",  new String[]{"trace"}),
-                Arguments.of("aloft", new String[]{"trace"}),
-                Arguments.of("grump", new String[]{"trace"}),
-                Arguments.of("geeky", new String[]{"trace"}),
-                Arguments.of("slide", new String[]{"trace"}),
-                Arguments.of("motor", new String[]{"trace"})
-                //Arguments.of("slide", new String[]{}),
-                //Arguments.of("motor", new String[]{})
+                Arguments.of("grist", new String[]{}),
+                Arguments.of("align", new String[]{}),
+                Arguments.of("aloft", new String[]{}),
+                Arguments.of("grump", new String[]{}),
+                Arguments.of("geeky", new String[]{}),
+                Arguments.of("slide", new String[]{}),
+                Arguments.of("motor", new String[]{})
         );
     }
     @ParameterizedTest

@@ -4,11 +4,18 @@ import com.psidnell.rules.CharacterFrequency;
 
 import java.util.*;
 
-public class Word {
+public class Word implements Comparable<Word> {
     private final String word;
+    private final int rank;
 
     public Word(String word) {
         this.word = word;
+        rank = -1;
+    }
+
+    public Word(String word, int rank) {
+        this.word = word;
+        this.rank = rank;
     }
 
     public String getWord() {
@@ -26,19 +33,6 @@ public class Word {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Word) {
-            return ((Word) obj).word.equals(word);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return word.hashCode();
-    }
-
-    @Override
     public String toString() {
         return word;
     }
@@ -53,8 +47,6 @@ public class Word {
         return false;
     }
 
-
-
     public CharacterFrequency charactersInCommon(Word other) {
         CharacterFrequency result = new CharacterFrequency();
         for (int i = 0; i < 5; i++) {
@@ -66,22 +58,6 @@ public class Word {
         }
         return result;
     }
-
-//    public Map<Character, Integer> charactersInCommon(Word other) {
-//        Map<Character, Integer> result = new TreeMap<>();
-//        for (int i = 0; i < 5; i++) {
-//            Character c1 = word.charAt(i);
-//            Character c2 = word.charAt(i);
-//            if (c1.equals(c2)) {
-//                if (result.containsKey(c1)) {
-//                    result.put(c1, result.get(c1) + 1);
-//                } else {
-//                    result.put(c1, 1);
-//                }
-//            }
-//        }
-//        return result;
-//    }
 
     public String charactersMissing(Word other) {
         StringBuilder result = new StringBuilder();
@@ -128,5 +104,31 @@ public class Word {
 
     public Character charAt(int i) {
         return word.charAt(i);
+    }
+
+    @Override
+    public int compareTo(Word o) {
+        int result = Integer.compare(o.rank, rank);
+        if (result != 0) {
+            return result;
+        }
+
+        return word.compareTo(o.word);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Word word1 = (Word) o;
+        return rank == word1.rank && Objects.equals(word, word1.word);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(word, rank);
+    }
+
+    public int getRank() {
+        return rank;
     }
 }

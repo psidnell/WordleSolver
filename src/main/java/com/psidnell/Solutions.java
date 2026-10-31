@@ -32,7 +32,7 @@ public class Solutions {
         });
     }
 
-    public int wordsNotMatching(RuleSet match) {
+    public int countWordsNotMatching(RuleSet match) {
         AtomicInteger count = new AtomicInteger(0);
         solutions.values().forEach(word -> {
             if (!match.match(word)) {
