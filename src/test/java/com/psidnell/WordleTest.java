@@ -76,6 +76,7 @@ public class WordleTest {
                 "faker", "fakes", "fakie", "fakir", "falaj",
                 "galah", "galas", "galax", "galea", "gales",
                 "hated", "hates", "hatha", "hangs", "hatty",
+                Wordle.FIRST_GUESS // Must be in dictionary!
         };
         Dictionary dictionary = new Dictionary(words);
         Context context = new Context(dictionary, new Wordle());
