@@ -180,7 +180,8 @@ public class Wordle extends ComponentImpl {
         int lowestSolutionsCount = Integer.MAX_VALUE;
 
         // todo Would I go faster (but not better( if just considering solution words?
-        //for (Word dictionaryWordGuess: dictionary.getWords().values()) {
+        // todo using the whole dictionary I'd expect better answers - but it's worse!
+        //for (Word dictionaryWordGuess: dictionary.getWords()) { //todo better answers????
         for (Word dictionaryWordGuess: solutions.getSolutions()) { //todo << definitely faster!
             if (previousGuesses.contains(dictionaryWordGuess.getWord())) {
                 continue;
