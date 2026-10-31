@@ -91,18 +91,19 @@ public class WordleTest {
     private static Stream<Arguments> provideSolutions() {
         return Stream.of(
                 // Solution, guesses
-                Arguments.of("grist", new String[]{}),
-                Arguments.of("align", new String[]{}),
-                Arguments.of("aloft", new String[]{}),
-                Arguments.of("grump", new String[]{}),
-                Arguments.of("geeky", new String[]{}),
-                Arguments.of("slide", new String[]{}),
-                Arguments.of("motor", new String[]{})
+                Arguments.of("yahoo", 6, new String[]{}),
+                Arguments.of("grist", 6, new String[]{}),
+                Arguments.of("align", 4, new String[]{}),
+                Arguments.of("aloft", 4, new String[]{}),
+                Arguments.of("grump", 6, new String[]{}),
+                Arguments.of("geeky", 5, new String[]{}),
+                Arguments.of("slide", 6, new String[]{}),
+                Arguments.of("motor", 3, new String[]{})
         );
     }
     @ParameterizedTest
     @MethodSource("provideSolutions")
-    void testSolving(String solution, String[] guesses) throws Exception {
+    void testSolving(String solution, int tries, String[] guesses) throws Exception {
         Context context = new Context();
         Wordle wordle = context.get("wordle", Wordle.class);
         wordle.setContext(context);
@@ -114,6 +115,7 @@ public class WordleTest {
         }
 
         solve(wordle);
+        assertEquals(tries, wordle.guessesMade);
     }
 
     private static void solve(Wordle wordle) {

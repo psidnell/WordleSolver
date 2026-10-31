@@ -157,8 +157,10 @@ public class Dictionary implements Component {
         return Collections.unmodifiableSet(words);
     }
 
-    public Map<String, Word> getWords() {
-        return words;
+    // TODO return ranked
+    public Collection<Word> getWords() {
+        return words.values();
+        //return wordsRanked; // DISAPPOINTING!!!
     }
 
     public boolean hasWord(String word) {

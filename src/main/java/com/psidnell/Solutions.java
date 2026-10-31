@@ -7,26 +7,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Solutions {
 
-    private Map<String, Word> solutions;
+    private Set<Word> solutions;
 
     public Solutions(Dictionary dictionary) {
-        solutions = new TreeMap<>(dictionary.getWords());
+        solutions = new TreeSet<>(dictionary.getWords());
     }
 
     public Solutions(Solutions solutions) {
-        this.solutions = new TreeMap<>(solutions.solutions);
+        this.solutions = new TreeSet<>(solutions.solutions);
     }
 
     public Collection<Word> getSolutions() {
-        return (Collection<Word>) solutions.values();
+        return solutions;
     }
 
     public void prune(RuleSet match) {
-        Collection<Word> wordsRemaining = new HashSet<>(solutions.values());
+        Collection<Word> wordsRemaining = new HashSet<>(solutions);
         AtomicInteger count = new AtomicInteger(0);
         wordsRemaining.forEach(word -> {
             if (!match.match(word)) {
-                solutions.remove(word.getWord());
+                solutions.remove(word);
                 count.incrementAndGet();
             }
         });
@@ -34,7 +34,7 @@ public class Solutions {
 
     public int countWordsNotMatching(RuleSet match) {
         AtomicInteger count = new AtomicInteger(0);
-        solutions.values().forEach(word -> {
+        solutions.forEach(word -> {
             if (!match.match(word)) {
                 count.incrementAndGet();
             }

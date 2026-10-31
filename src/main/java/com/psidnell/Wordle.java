@@ -8,7 +8,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class Wordle extends ComponentImpl {
-
+    public static String FIRST_GUESS = "trace";
+    public int guessesMade = 0;
     private Word solution;
     int guessesRemaining = 6;
     private Solutions solutions;
@@ -83,6 +84,7 @@ public class Wordle extends ComponentImpl {
             // We have a valid guess
             previousGuesses.add(guess);
             guessesRemaining--;
+            guessesMade++;
 
             System.out.println("Pre Cumulative: " + combinedRuleSet);
 
@@ -123,12 +125,6 @@ public class Wordle extends ComponentImpl {
         }
     }
 
-    public Solutions hypothesize (Word guessWord, Word solution, RuleSet rulesSoFar) {
-        Solutions reducedSolutions = new Solutions(solutions);
-        RuleSet m = guess(guessWord, solution, reducedSolutions, new AtomicReference<>(rulesSoFar));
-        return reducedSolutions;
-    }
-
     public RuleSet guess(Word guess, Word solution, Solutions solutions, AtomicReference<RuleSet> rulesSoFarRef) {
         RuleSet match = new RuleSet(guess, solution);
         rulesSoFarRef.set(match.combineRuleSet(rulesSoFarRef.get()));
@@ -137,6 +133,10 @@ public class Wordle extends ComponentImpl {
     }
 
     public String propose() {
+        if (guessesRemaining == 6) {
+            return FIRST_GUESS;
+        }
+
         // Try every dictionary word against all the remaining words and see which
         // best reduces the solution size
 
@@ -158,7 +158,7 @@ public class Wordle extends ComponentImpl {
                 //todo Pulled this out of my arse - can it be derived?
                 // Good words on the first go are getting about this
                 // Is this just a quirk of the English language?
-                200
+                Integer.MIN_VALUE
         };
 
         int threshold = Arrays.stream(thresholds)
