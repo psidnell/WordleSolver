@@ -110,7 +110,7 @@ public class Rule implements Comparable<Rule> {
             case WRONG_PLACE -> wrongPlace(word);
             case MUST_NOT_HAVE -> mustNotHave(word);
             case MUST_HAVE_AT_LEAST ->mustHaveAtLeast(word);
-            case MUST_HAVE_AT_MOST ->mustHaveAtLeast(word);
+            case MUST_HAVE_AT_MOST ->mustHaveAtMost(word);
         };
     }
 

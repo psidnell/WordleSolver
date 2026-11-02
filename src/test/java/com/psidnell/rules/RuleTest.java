@@ -71,6 +71,42 @@ public class RuleTest {
         assertThrows(IllegalArgumentException.class, () -> r.combine(Rule.createNoMatch('X', 1)));
     }
 
+    private static Stream<Arguments> provideMustHaveAtLeastData() {
+        return Stream.of(
+                // Character, Count, Word, matches
+                Arguments.of('g', 0, "xxxxx", true),
+                Arguments.of('g', 1, "xxxxx", false),
+                Arguments.of('g', 1, "xxxxg", true),
+                Arguments.of('g', 1, "xxxgg", true),
+                Arguments.of('g', 2, "xxxgg", true),
+                Arguments.of('g', 3, "xxxgg", false)
+                //Arguments.of('g', "xxxxg", false)
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("provideMustHaveAtLeastData")
+    void testMustHaveAtLeast(Character c, int count, String word, boolean match) {
+        assertEquals(match, Rule.createMustHaveAtLeast(c, count).match(new Word(word)));
+    }
+
+    private static Stream<Arguments> provideMustHaveAtMostData() {
+        return Stream.of(
+                // Character, Count, Word, matches
+                Arguments.of('g', 0, "xxxxx", true),
+                Arguments.of('g', 1, "xxxxx", true),
+                Arguments.of('g', 1, "xxxxg", true),
+                Arguments.of('g', 1, "xxxgg", false),
+                Arguments.of('g', 2, "xxxgg", true),
+                Arguments.of('g', 3, "xxxgg", true)
+                //Arguments.of('g', "xxxxg", false)
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("provideMustHaveAtMostData")
+    void testMustHaveAtMost(Character c, int count, String word, boolean match) {
+        assertEquals(match, Rule.createMustHaveAtMost(c, count).match(new Word(word)));
+    }
+
     @Test()
     void testCombineMatch() {
         Rule r = Rule.createMatch('a', 3);

@@ -61,7 +61,7 @@ public class Wordle extends ComponentImpl {
 
     // TODO Move all of the tests snd printing here
     public boolean userGuess(String guess) {
-        System.out.println(" GUESS*******************************");
+        System.out.println(" GUESS *******************************");
         try {
             System.out.println("Turn " + (7 - guessesRemaining) + ": Guessing " + guess);
             if (guessesRemaining == 0) {
@@ -117,14 +117,6 @@ public class Wordle extends ComponentImpl {
         }
     }
 
-
-
-    public void showRemaining() {
-        for (Word word : solutions.getSolutions()) {
-            System.out.println(word);
-        }
-    }
-
     public RuleSet guess(Word guess, Word solution, Solutions solutions, AtomicReference<RuleSet> rulesSoFarRef) {
         RuleSet match = new RuleSet(guess, solution);
         rulesSoFarRef.set(match.combineRuleSet(rulesSoFarRef.get()));
@@ -150,38 +142,15 @@ public class Wordle extends ComponentImpl {
         // Try every dictionary word against all the remaining words and see which
         // best reduces the solution size
 
-        // todo Would I go faster (but not better( if just considering solution words?
-        // todo using the whole dictionary I'd expect better answers - but it's worse!
-        // Collection<Word> guesses = dictionary.getWords().values();
+        // todo full dictionary can take 20min on 2nd guess! (yahoo/trace)
+        //Collection<Word> guesses = dictionary.getWords(); //todo should have better answer
         Collection<Word> guesses = solutions.getSolutions(); //todo << definitely faster!
 
         //int totalSolutionsForFirstGo = dictionary.getWords().size() * dictionary.getWords().size();
         int totalSolutionsForThisGo = guesses.size() * solutions.getSolutions().size();
 
-        // Max of a massive reduction on the full dictionary or 2/3 of the solutions
-        // Don't go too small, or we never find a word
-        int[] thresholds = new int[] {
-                // When the solutions are the entire dictionary, expect a look for a massive reduction
-                // so we crunch through the words quickly
-                //totalSolutionsForFirstGo / 10000000, // about 20
-                //Math.min(2 * totalSolutionsForThisGo / 3, 10)
-
-                //todo Pulled this out of my arse - can it be derived?
-                // Good words on the first go are getting about this
-                // Is this just a quirk of the English language?
-                //Integer.MAX_VALUE
-                10000
-        };
-
-        int threshold = Arrays.stream(thresholds)
-                .max()
-                .getAsInt();
-
         System.out.println("Solutions: " + solutions.getSolutions().size());
         System.out.println("Total solution/guess combinations to try: " + totalSolutionsForThisGo);
-        System.out.println("Applying threshold: " + threshold);
-
-
 
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
@@ -205,17 +174,12 @@ public class Wordle extends ComponentImpl {
                     continue;
                 }
 
-                int prunedSize = Solver.calculateRank(dictionaryWordGuess, wordFromSolutions,
+                int prunedSize = Solver.calculateSolutions(dictionaryWordGuess, wordFromSolutions,
                         combinedRuleSet, solutions);
 
                 totalSolutionsForWord += prunedSize;
 
                 if (totalSolutionsForWord > lowestSolutionsCount) {
-                    // This is never going to be the best word - bail to save time
-                    break;
-                }
-
-                if (totalSolutionsForWord > threshold) {
                     // This is never going to be the best word - bail to save time
                     break;
                 }
@@ -260,5 +224,11 @@ public class Wordle extends ComponentImpl {
                 solution != null &&
                 !previousGuesses.isEmpty() &&
                 previousGuesses.getLast().equals(solution.getWord());
+    }
+
+    public void showRemaining() {
+        for (Word word : solutions.getSolutions()) {
+            System.out.println(word);
+        }
     }
 }

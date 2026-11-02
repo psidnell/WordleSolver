@@ -108,7 +108,7 @@ public class Word implements Comparable<Word> {
 
     @Override
     public int compareTo(Word o) {
-        int result = Integer.compare(o.rank, rank);
+        int result = Integer.compare(rank, o.rank);
         if (result != 0) {
             return result;
         }

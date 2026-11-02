@@ -29,6 +29,7 @@ public class RuleSet {
      * @param solution
      */
     public RuleSet(Word guess, Word solution) {
+        //todo this is too complicated - simplify the counting
         WordComparison comparison = guess.compareWords(solution);
         CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
         CharacterFrequency mustHaveAtLeast = new CharacterFrequency();

@@ -165,8 +165,8 @@ public class Dictionary implements Component {
 
     // TODO return ranked
     public Collection<Word> getWords() {
-        return words.values();
-        //return wordsRanked; // DISAPPOINTING!!!
+        //return words.values();
+        return wordsRanked; // DISAPPOINTING!!!
     }
 
     public boolean hasWord(String word) {
