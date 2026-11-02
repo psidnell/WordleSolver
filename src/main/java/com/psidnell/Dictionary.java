@@ -68,6 +68,12 @@ public class Dictionary implements Component {
         writer.close();
     }
 
+    /**
+     * Rank is how many characters this word has in common with all the others.
+     * This is fairly quick to calculate.
+     * Higher is better when it comes to solutions
+     * @return
+     */
     private Set<Word> calculateRanks() {
         Set<Word> wordsRanked = new TreeSet<>();
         int bestRank = 0;

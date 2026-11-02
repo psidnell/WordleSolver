@@ -32,7 +32,7 @@ public class Wordle extends ComponentImpl {
     }
 
     public void printStatus() {
-        System.out.println("==============================");
+        System.out.println("STATUS ==============================");
         if (solution != null) {
             System.out.println("Solution Known: " + solution.getWord().toUpperCase());
         }
@@ -61,7 +61,7 @@ public class Wordle extends ComponentImpl {
 
     // TODO Move all of the tests snd printing here
     public boolean userGuess(String guess) {
-        System.out.println("*******************************");
+        System.out.println(" GUESS*******************************");
         try {
             System.out.println("Turn " + (7 - guessesRemaining) + ": Guessing " + guess);
             if (guessesRemaining == 0) {
@@ -133,14 +133,25 @@ public class Wordle extends ComponentImpl {
     }
 
     public String propose() {
+        System.out .println ("PROPOSE *******************************");
         if (guessesRemaining == 6) {
+            System.out.println("First Guess:" + FIRST_GUESS);
+            System.out.println ("*******************************");
             return FIRST_GUESS;
+        }
+
+        if (solutions.getSolutions().size() == 1) {
+            String lastWord = solutions.getSolutions().stream().findFirst().orElseThrow().getWord();
+            System.out.println("Last Word:" + lastWord);
+            System.out.println ("*******************************");
+            return lastWord;
         }
 
         // Try every dictionary word against all the remaining words and see which
         // best reduces the solution size
 
-        // todo
+        // todo Would I go faster (but not better( if just considering solution words?
+        // todo using the whole dictionary I'd expect better answers - but it's worse!
         // Collection<Word> guesses = dictionary.getWords().values();
         Collection<Word> guesses = solutions.getSolutions(); //todo << definitely faster!
 
@@ -158,7 +169,8 @@ public class Wordle extends ComponentImpl {
                 //todo Pulled this out of my arse - can it be derived?
                 // Good words on the first go are getting about this
                 // Is this just a quirk of the English language?
-                Integer.MIN_VALUE
+                //Integer.MAX_VALUE
+                10000
         };
 
         int threshold = Arrays.stream(thresholds)
@@ -169,9 +181,7 @@ public class Wordle extends ComponentImpl {
         System.out.println("Total solution/guess combinations to try: " + totalSolutionsForThisGo);
         System.out.println("Applying threshold: " + threshold);
 
-        if (solutions.getSolutions().size() == 1) {
-            return solutions.getSolutions().stream().findFirst().orElseThrow().getWord();
-        }
+
 
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
@@ -179,10 +189,7 @@ public class Wordle extends ComponentImpl {
         int percentDone = -1;
         int lowestSolutionsCount = Integer.MAX_VALUE;
 
-        // todo Would I go faster (but not better( if just considering solution words?
-        // todo using the whole dictionary I'd expect better answers - but it's worse!
-        //for (Word dictionaryWordGuess: dictionary.getWords()) { //todo better answers????
-        for (Word dictionaryWordGuess: solutions.getSolutions()) { //todo << definitely faster!
+        for (Word dictionaryWordGuess: guesses) {
             if (previousGuesses.contains(dictionaryWordGuess.getWord())) {
                 continue;
             }
@@ -217,7 +224,8 @@ public class Wordle extends ComponentImpl {
             //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
             if (totalSolutionsForWord < lowestSolutionsCount) {
-                System.out.println("Best word so far: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
+                System.out.println("Best word so far: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord +
+                        " rank " + bestWord.getRank());
                 bestWord = dictionaryWordGuess;
                 lowestSolutionsCount = totalSolutionsForWord;
             }
@@ -235,6 +243,7 @@ public class Wordle extends ComponentImpl {
         }
 
         System.out.println("Best word: " + bestWord + " solutions: " + lowestSolutionsCount);
+        System.out.println ("*******************************");
         return bestWord.getWord();
     }
 
