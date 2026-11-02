@@ -141,45 +141,27 @@ public class RuleSet {
         }
         output.append("} AtLeast{");
 
-        CharacterFrequency mustHaveAtLeastFreq = new CharacterFrequency();
-        mustHaveAtLeast.forEach((ch, r) -> {
-            mustHaveAtLeastFreq.set(ch, Math.max(mustHaveAtLeastFreq.occurrences(ch), r.getAmount()));
-        });
-
-        mustHaveAtLeast.forEach((ch, r) -> {
-            mustHaveAtLeastFreq.set(ch, Math.max(mustHaveAtLeastFreq.occurrences(ch), r.getAmount()));
-        });
-
-        AtomicBoolean first = new AtomicBoolean(true);
-        mustHaveAtLeastFreq.getFrequencies().forEach((ch, atLeast) -> {
-            if (!first.get()) {
-                output.append(",");
+        boolean first = true;
+        for (Rule r: mustHaveAtLeast.values()) {
+            if (!first) {
+                output.append(',');
             }
-            output.append(Character.toUpperCase(ch)).append(':').append(atLeast);
-            first.set(false);
-        });
+            Character firstChar = r.getCharactersAsString().toUpperCase().charAt(0);
+            output.append(firstChar).append(':').append(r.getAmount());
+            first = false;
+        };
 
         output.append("} AtMost{");
 
-        CharacterFrequency mustHaveAtMostFreq = new CharacterFrequency();
-        mustHaveAtMost.forEach((ch, r) -> {
-            mustHaveAtMostFreq.set(ch, Math.max(mustHaveAtMostFreq.occurrences(ch), r.getAmount()));
-        });
-
-        mustHaveAtMost.forEach((ch, r) -> {
-            mustHaveAtMostFreq.set(ch, Math.max(mustHaveAtMostFreq.occurrences(ch), r.getAmount()));
-        });
-
-
-        first.set(true);
-        mustHaveAtMostFreq.getFrequencies().forEach((ch, atMost) -> {
-            if (!first.get()) {
-                output.append(",");
+        first = true;
+        for (Rule r: mustHaveAtMost.values()) {
+            if (!first) {
+                output.append(',');
             }
-            output.append(Character.toUpperCase(ch)).append(':').append(atMost);
-            first.set(false);
-        });
-
+            Character firstChar = r.getCharactersAsString().toUpperCase().charAt(0);
+            output.append(firstChar).append(':').append(r.getAmount());
+            first = false;
+        }
 
         return output.append('}').toString();
     }
