@@ -95,11 +95,11 @@ public class WordleTest {
                 Arguments.of("scoot", 3, new String[]{}),
                 Arguments.of("viper", 5, new String[]{}),
                 Arguments.of("yahoo", 5, new String[]{}),
-                Arguments.of("grist", 4, new String[]{}),
-                Arguments.of("align", 5, new String[]{}),
+                Arguments.of("grist", 3, new String[]{}),
+                Arguments.of("align", 4, new String[]{}),
                 Arguments.of("aloft", 3, new String[]{}),
                 Arguments.of("grump", 4, new String[]{}),
-                Arguments.of("geeky", 5, new String[]{}),
+                Arguments.of("geeky", 4, new String[]{}),
                 Arguments.of("slide", 4, new String[]{}),
                 Arguments.of("motor", 3, new String[]{})
         );
