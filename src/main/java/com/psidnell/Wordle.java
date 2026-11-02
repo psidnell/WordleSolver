@@ -225,7 +225,7 @@ public class Wordle extends ComponentImpl {
 
             if (totalSolutionsForWord < lowestSolutionsCount) {
                 System.out.println("Best word so far: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord +
-                        " rank " + bestWord.getRank());
+                        " rank " + dictionaryWordGuess.getRank());
                 bestWord = dictionaryWordGuess;
                 lowestSolutionsCount = totalSolutionsForWord;
             }
