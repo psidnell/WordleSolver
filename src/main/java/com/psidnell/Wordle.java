@@ -1,6 +1,5 @@
 package com.psidnell;
 
-import com.psidnell.rules.Rule;
 import com.psidnell.rules.RuleSet;
 import com.psidnell.util.ComponentImpl;
 
@@ -28,7 +27,7 @@ public class Wordle extends ComponentImpl {
     public void setSolution(String solutionStr) {
         String solution = solutionStr.toUpperCase();
         if (!dictionary.hasWord(solution)) {
-            throw new IllegalArgumentException("solution is not a valid word");
+            throw new PlayerException("solution is not a valid word");
         }
         this.solution = new Word (solution);
     }

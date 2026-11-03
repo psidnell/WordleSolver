@@ -2,9 +2,9 @@ package com.psidnell.rules;
 
 import com.psidnell.Word;
 import com.psidnell.WordComparison;
+import com.psidnell.PlayerException;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RuleSet {
 
@@ -80,7 +80,7 @@ public class RuleSet {
      */
     public RuleSet(Word guess, String answer) {
         if (answer.length() != 5) {
-            throw new IllegalArgumentException("Must be 5 characters long");
+            throw new PlayerException("Must be 5 characters long");
         }
 
         CharacterFrequency guessFrequencies = new CharacterFrequency(guess);

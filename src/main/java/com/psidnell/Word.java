@@ -10,7 +10,7 @@ public class Word implements Comparable<Word> {
 
     public Word(String word) {
         if (word.length() != 5) {
-            throw new IllegalArgumentException("Word must be 5 characters long");
+            throw new PlayerException("Word must be 5 characters long");
         }
         this.word = word;
         rank = -1;
