@@ -197,7 +197,7 @@ public class Wordle extends ComponentImpl {
         // Uses solution 1
         final int l1 = 500;
         // Uses solution 2
-        final int l2 = 150;
+        final int l2 = 75;
         // Uses solution 3
 
         long startTime = System.currentTimeMillis();
