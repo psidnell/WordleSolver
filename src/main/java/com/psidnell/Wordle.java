@@ -134,35 +134,55 @@ public class Wordle extends ComponentImpl {
             return FIRST_GUESS;
         }
 
-        if (solutions.getSolutions().size() == 1) {
+        int solutionCount = solutions.getSolutions().size();
+        if (solutionCount == 1) {
             String lastWord = solutions.getSolutions().stream().findFirst().orElseThrow().getWord();
             System.out.println("Last Word:" + lastWord);
             System.out.println ("*******************************");
             return lastWord;
         }
 
-        // Try every dictionary word against all the remaining words and see which
-        // best reduces the solution size
 
-        // todo full dictionary can take 20min on 2nd guess! (yahoo/trace)
-        //Collection<Word> guesses = dictionary.getWords(); //todo should have better answer
-        Collection<Word> guesses = solutions.getSolutions(); //todo << definitely faster!
+        System.out.println("Solutions: " + solutionCount);
 
-        //int totalSolutionsForFirstGo = dictionary.getWords().size() * dictionary.getWords().size();
-        int totalSolutionsForThisGo = guesses.size() * solutions.getSolutions().size();
+        // Choose the strategy and guess solutionCount based on the number of solutions remaining
+        // to balance performance against optimal result. On this machine it
+        // keps it under 20s for the 2nd guess
+        Word bestWord;
 
-        System.out.println("Solutions: " + solutions.getSolutions().size());
-        System.out.println("Total solution/guess combinations to try: " + totalSolutionsForThisGo);
+        // Don't touch the higher levels when we provide a default first guess
 
-        Word bestWord = solutions.getSolutions().size() > 350 ?
-                getBestWordByLettersInCommon(guesses) :
-                getBestWordByExhaustiveSearch(guesses);
+        // Uses solution 1
+        final int l1 = 500;
+        // Uses solution 2
+        final int l2 = 150;
+        // Uses solution 3
+
+        long startTime = System.currentTimeMillis();
+
+        if (solutionCount > l1) { // Max to L1
+            System.out.println("(1) Quick Search on reduced guesses above " + l1);
+            Collection<Word> guesses = solutions.getSolutions();
+            bestWord = getBestWordByLettersInCommon(guesses);
+        } else if (solutionCount > l2) {
+            System.out.println("(2) Exhaustive Search on reduced guesses between " + l1 + " and " +l2);
+            Collection<Word> guesses = solutions.getSolutions();
+            bestWord = getBestWordByExhaustiveSearch(guesses);
+        } else {
+            System.out.println("(3) Exhaustive Search on maximum guesses below " + l2);
+            Collection<Word> guesses = dictionary.getWords();
+            bestWord = getBestWordByExhaustiveSearch(guesses);
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println ("Time elapsed: " + (endTime - startTime)/1000 + "s");
 
         System.out.println ("*******************************");
         return bestWord.getWord();
     }
 
     private Word getBestWordByExhaustiveSearch(Collection<Word> guesses) {
+        System.out.println("Total solution/guess combinations to try: " + guesses.size());
+
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
@@ -227,6 +247,7 @@ public class Wordle extends ComponentImpl {
     }
 
     private Word getBestWordByLettersInCommon(Collection<Word> guesses) {
+        System.out.println("Total solution/guess combinations to try: " + guesses.size());
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
