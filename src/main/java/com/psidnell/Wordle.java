@@ -125,6 +125,7 @@ public class Wordle extends ComponentImpl {
     }
 
     public String propose() {
+
         System.out .println ("PROPOSE *******************************");
         if (guessesRemaining == 6) {
             System.out.println("First Guess:" + FIRST_GUESS);
@@ -152,6 +153,15 @@ public class Wordle extends ComponentImpl {
         System.out.println("Solutions: " + solutions.getSolutions().size());
         System.out.println("Total solution/guess combinations to try: " + totalSolutionsForThisGo);
 
+        Word bestWord = solutions.getSolutions().size() > 500 ?
+                getBestWordByLettersInCommon(guesses) :
+                getBestWordByExhaustiveSearch(guesses);
+
+        System.out.println ("*******************************");
+        return bestWord.getWord();
+    }
+
+    private Word getBestWordByExhaustiveSearch(Collection<Word> guesses) {
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
@@ -180,9 +190,14 @@ public class Wordle extends ComponentImpl {
                 totalSolutionsForWord += prunedSize;
 
                 if (totalSolutionsForWord > lowestSolutionsCount) {
-                    // This is never going to be the best word - bail to save time
+                    // This guess is never going to be the best word - bail to save time
                     break;
                 }
+
+//                if (totalSolutionsForWord > threshold) {
+//                    // This guess is never going to be the best word - bail to save time
+//                    break;
+//                }
             }
 
             //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
@@ -207,8 +222,51 @@ public class Wordle extends ComponentImpl {
         }
 
         System.out.println("Best word: " + bestWord + " solutions: " + lowestSolutionsCount);
-        System.out.println ("*******************************");
-        return bestWord.getWord();
+        return bestWord;
+    }
+
+    private Word getBestWordByLettersInCommon(Collection<Word> guesses) {
+        Word bestWord = null;
+        int dictWords = dictionary.getWords().size();
+        int wordsDone = 0;
+        int percentDone = -1;
+        int highestLettersInCommon = 0;
+
+        for (Word dictionaryWordGuess: guesses) {
+            if (previousGuesses.contains(dictionaryWordGuess.getWord())) {
+                continue;
+            }
+
+            int totalLettersInCommonForWord = 0;
+
+            for (Word wordFromSolutions : solutions.getSolutions()) {
+
+                totalLettersInCommonForWord += dictionaryWordGuess.charactersInCommon(wordFromSolutions).overlapSize();
+            }
+
+            //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
+
+            if (totalLettersInCommonForWord > highestLettersInCommon) {
+                System.out.println("Best word so far: " + dictionaryWordGuess + " LIC: " + totalLettersInCommonForWord +
+                        " rank " + dictionaryWordGuess.getRank());
+                bestWord = dictionaryWordGuess;
+                highestLettersInCommon = totalLettersInCommonForWord;
+            }
+
+            wordsDone++;
+            int nextPercentDome = (100 * wordsDone) / dictWords;
+            if (percentDone != nextPercentDome) {
+                percentDone = nextPercentDome;
+                //System.out.println("PercentDone: " + percentDone);
+            }
+        }
+
+        if (bestWord == null) {
+            throw new IllegalStateException("No best word found");
+        }
+
+        System.out.println("Best word: " + bestWord + " LIC: " + highestLettersInCommon);
+        return bestWord;
     }
 
     public int getGuessesRemaining() {
