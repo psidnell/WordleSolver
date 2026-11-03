@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Random;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -92,6 +93,7 @@ public class WordleTest {
     private static Stream<Arguments> provideSolutions() {
         return Stream.of(
                 // Solution, guesses
+                Arguments.of("legno", 4, new String[]{}),
                 Arguments.of("pouch", 4, new String[]{}),
                 Arguments.of("scoot", 3, new String[]{}),
                 Arguments.of("viper", 5, new String[]{}),
@@ -107,7 +109,7 @@ public class WordleTest {
     }
     @ParameterizedTest
     @MethodSource("provideSolutions")
-    void testSolving(String solution, int tries, String[] guesses) throws Exception {
+    void testSolvingInFixedTurns(String solution, int tries, String[] guesses) throws Exception {
         Context context = new Context();
         Wordle wordle = context.get("wordle", Wordle.class);
         wordle.setContext(context);
@@ -120,6 +122,23 @@ public class WordleTest {
 
         solve(wordle);
         assertEquals(tries, wordle.guessesMade);
+    }
+
+    @Test
+    void testSolvingRandomWords() throws Exception {
+
+        for (int i = 0; i < 5; i++) {
+            Context context = new Context();
+            Wordle wordle = context.get("wordle", Wordle.class);
+            wordle.setContext(context);
+            wordle.init();
+            Dictionary dictionary = context.get("dictionary", Dictionary.class);
+            Word[] dictWords = dictionary.getWords().toArray(new Word[0]);
+            Random random = new Random();
+            Word randomWord = dictWords[random.nextInt(dictWords.length)];
+            wordle.setSolution(randomWord.getWord());
+            solve(wordle);
+        }
     }
 
     private static void solve(Wordle wordle) {
