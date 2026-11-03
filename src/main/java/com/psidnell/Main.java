@@ -20,12 +20,16 @@ public class Main {
 
         while (running) {
 
-            wordle.printStatus();
+            try {
+                wordle.printStatus();
 
-            IO.print("Enter command: ");
-            String input = scanner.nextLine();
+                IO.print("Enter command: ");
+                String input = scanner.nextLine();
 
-            running = processLine(input, running);
+                running = processLine(input, running);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         scanner.close();
@@ -37,7 +41,7 @@ public class Main {
         }
 
         // Extract the first word as the command
-        String[] parts = input.trim().split("\\s+", 2);
+        String[] parts = input.trim().split("\\s+", 3);
         String command = parts[0].toLowerCase();
 
         switch (command) {
@@ -63,6 +67,10 @@ public class Main {
             case "p":
             case "propose":
                 wordle.propose();
+                break;
+            case "a":
+            case "answer":
+                wordle.answer(parts[1], parts[2]);
                 break;
             default:
                 IO.println("Unknown command: " + command);

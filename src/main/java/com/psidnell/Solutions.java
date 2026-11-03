@@ -23,11 +23,9 @@ public class Solutions {
 
     public void prune(RuleSet match) {
         Collection<Word> wordsRemaining = new HashSet<>(solutions);
-        AtomicInteger count = new AtomicInteger(0);
         wordsRemaining.forEach(word -> {
             if (!match.match(word)) {
                 solutions.remove(word);
-                count.incrementAndGet();
             }
         });
     }

@@ -39,13 +39,13 @@ public class WordTest
     @Test
     public void testCharactersInCommon() {
         Word word1 = new Word("abcde");
-        Word word2 = new Word("defghi");
+        Word word2 = new Word("defgh");
         WordComparison wordComparison = word1.compareWords(word2);
         assertEquals(2, wordComparison.getCommonLetterFrequency().getFrequencies().size());
         assertEquals(1, wordComparison.getCommonLetterFrequency().getFrequencies().get((char) 'd'));
 
         word1 = new Word("aaxxx");
-        word2 = new Word("zzaazz");
+        word2 = new Word("zzaaz");
         wordComparison = word1.compareWords(word2);
         assertEquals(1, wordComparison.getCommonLetterFrequency().getFrequencies().size());
         assertEquals(2, wordComparison.getCommonLetterFrequency().getFrequencies().get((char) 'a'));
@@ -54,7 +54,7 @@ public class WordTest
     @Test
     public void testLettersMissing() {
         Word word1 = new Word("abcde");
-        Word word2 = new Word("defghi");
+        Word word2 = new Word("defgh");
         WordComparison wordComparison = word1.compareWords(word2);
         assertEquals("abc", wordComparison.getLettersMissing());
     }

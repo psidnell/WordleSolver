@@ -248,4 +248,14 @@ public class RuleSet {
         result.addAll(mustHaveAtMost.values());
         return result;
     }
+
+    public boolean isSolved() {
+        int count = 0;
+        for (Rule r : matches) {
+            if (r != null) {
+                count++;
+            }
+        }
+        return count == 5;
+    }
 }

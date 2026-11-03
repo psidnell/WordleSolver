@@ -146,9 +146,8 @@ public class Rule implements Comparable<Rule> {
 
     private boolean wrongPlace(Word word) {
         for (Character ch : chars) {
-            //todo 2nd term necessary? we added a rule for that
-            boolean wrongPlaceMatch = !word.charAt(position).equals(ch) && word.occurencesOf(ch) > 0;
-            if (!wrongPlaceMatch) {
+            boolean matches = word.charAt(position).equals(ch);
+            if (matches) {
                 return false;
             }
         }

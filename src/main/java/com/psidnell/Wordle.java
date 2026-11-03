@@ -1,5 +1,6 @@
 package com.psidnell;
 
+import com.psidnell.rules.Rule;
 import com.psidnell.rules.RuleSet;
 import com.psidnell.util.ComponentImpl;
 
@@ -58,6 +59,46 @@ public class Wordle extends ComponentImpl {
         }
         System.out.println("==============================");
 
+    }
+
+    public boolean answer(String guessStr, String answer) {
+        String guess = guessStr.toUpperCase();
+        System.out.println("++++++++++++++++++++++++++++++");
+        System.out.println("ANSWER");
+        RuleSet r = new RuleSet(new Word(guess), answer);
+        combinedRuleSet = combinedRuleSet.combineRuleSet(r);
+
+        int solutionsBefore = solutions.getSolutions().size();
+
+        solutions.prune(combinedRuleSet);
+
+        int solutionsAfter = solutions.getSolutions().size();
+
+        previousGuesses.add(guess);
+        guessesRemaining--;
+        guessesMade++;
+        userGuessSolutionsRemaining.add(solutions.getSolutions().size());
+        previousRuleSets.add(combinedRuleSet);
+
+        System.out.println("Solutions dropped from " + solutionsBefore + " to " + solutionsAfter);
+
+        if (combinedRuleSet.isSolved()) {
+            System.out.println("Solved: " + guess);
+            return false;
+        }
+
+        if (guessesRemaining == 0) {
+            System.out.println("FAILED! No more guesses!");
+            return false;
+        }
+
+        System.out.println("++++++++++++++++++++++++++++++");
+
+        if (solutions.getSolutions().isEmpty()) {
+            throw new IllegalArgumentException("Cannot have no words left");
+        }
+
+        return true;
     }
 
     // TODO Move all of the tests snd printing here
@@ -302,10 +343,15 @@ public class Wordle extends ComponentImpl {
     }
 
     public boolean isSolved() {
-        return
-                solution != null &&
-                !previousGuesses.isEmpty() &&
-                previousGuesses.getLast().equals(solution.getWord());
+        if (solution == null) {
+            return combinedRuleSet.isSolved();
+        }
+
+        if (previousGuesses.isEmpty()) {
+            return false;
+        }
+
+        return previousGuesses.getLast().equals(solution.getWord());
     }
 
     public void showRemaining() {

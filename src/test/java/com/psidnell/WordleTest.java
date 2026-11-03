@@ -141,6 +141,23 @@ public class WordleTest {
         }
     }
 
+    @Test
+    public void testPlayRealGame() throws Exception {
+        Context context = new Context();
+        Wordle wordle = context.get("wordle", Wordle.class);
+        wordle.setContext(context);
+        wordle.init();
+
+        wordle.answer("trace", "___C_");
+        wordle.printStatus();
+        assertFalse(wordle.isSolved());
+        wordle.answer("slink", "_____");
+        wordle.printStatus();
+        wordle.showRemaining();
+        wordle.answer("pouch", "POUCH");
+        assertTrue(wordle.isSolved());
+    }
+
     private static void solve(Wordle wordle) {
         while (wordle.getGuessesRemaining() > 0 && !wordle.isSolved()) {
             String proposal = wordle.propose();
