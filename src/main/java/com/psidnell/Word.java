@@ -5,6 +5,7 @@ import com.psidnell.rules.CharacterFrequency;
 import java.util.*;
 
 public class Word implements Comparable<Word> {
+    private CharacterFrequency frequencies = null;
     private final String word;
     private final int rank;
 
@@ -17,6 +18,9 @@ public class Word implements Comparable<Word> {
     }
 
     public Word(String word, int rank) {
+        if (word.length() != 5) {
+            throw new PlayerException("Word must be 5 characters long");
+        }
         this.word = word;
         this.rank = rank;
     }
@@ -133,5 +137,12 @@ public class Word implements Comparable<Word> {
 
     public int getRank() {
         return rank;
+    }
+
+    public CharacterFrequency geFrequencies() {
+        if (frequencies == null) {
+            frequencies = new CharacterFrequency(this);
+        }
+        return this.frequencies;
     }
 }

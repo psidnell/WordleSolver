@@ -33,7 +33,6 @@ public class RuleSet {
         WordComparison comparison = guess.compareWords(solution);
         CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
         CharacterFrequency mustHaveAtLeast = new CharacterFrequency();
-        CharacterFrequency mustHaveAtMost = new CharacterFrequency();
         CharacterFrequency seenSoFar = new CharacterFrequency();
         // Handle basic character matches and misses
         for(int i = 0; i < 5; i++) {
@@ -83,7 +82,7 @@ public class RuleSet {
             throw new PlayerException("Must be 5 characters long");
         }
 
-        CharacterFrequency guessFrequencies = new CharacterFrequency(guess);
+        CharacterFrequency guessFrequencies = guess.geFrequencies();
         CharacterFrequency answerFrequencies = new CharacterFrequency();
 
         for (int i = 0; i < 5; i++) {

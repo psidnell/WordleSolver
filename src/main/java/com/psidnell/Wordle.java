@@ -26,10 +26,8 @@ public class Wordle extends ComponentImpl {
 
     public void setSolution(String solutionStr) {
         String solution = solutionStr.toUpperCase();
-        if (!dictionary.hasWord(solution)) {
-            throw new PlayerException("solution is not a valid word");
-        }
-        this.solution = new Word (solution);
+
+        this.solution = dictionary.getWord(solution);
     }
 
     public void printStatus() {
@@ -64,7 +62,8 @@ public class Wordle extends ComponentImpl {
         String guess = guessStr.toUpperCase();
         System.out.println("++++++++++++++++++++++++++++++");
         System.out.println("ANSWER");
-        RuleSet r = new RuleSet(new Word(guess), answer);
+        Word guessWord = new Word(guess);
+        RuleSet r = new RuleSet(guessWord, answer);
         combinedRuleSet = combinedRuleSet.combineRuleSet(r);
 
         int solutionsBefore = solutions.getSolutions().size();
@@ -111,7 +110,7 @@ public class Wordle extends ComponentImpl {
                 return false;
             }
 
-            Word guessWord = new Word(guess);
+            Word guessWord = dictionary.getWord(guess);
 
             if (guess.length() != 5) {
                 System.out.println("Guess must be 5 characters");

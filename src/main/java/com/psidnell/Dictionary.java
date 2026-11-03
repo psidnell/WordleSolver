@@ -34,6 +34,13 @@ public class Dictionary implements Component {
         wordsRanked = calculateRanks();
     }
 
+    public Word getWord(String word) {
+        if (!hasWord(word)) {
+            throw new PlayerException("solution is not a valid word");
+        }
+        return words.get(word);
+    }
+
     @Override
     public void setContext(Context context) throws Exception {
         Component.super.setContext(context);
