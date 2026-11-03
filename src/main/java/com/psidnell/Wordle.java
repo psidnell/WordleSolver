@@ -127,6 +127,7 @@ public class Wordle extends ComponentImpl {
     public String propose() {
 
         System.out .println ("PROPOSE *******************************");
+
         if (guessesRemaining == 6) {
             System.out.println("First Guess:" + FIRST_GUESS);
             System.out.println ("*******************************");
@@ -153,7 +154,7 @@ public class Wordle extends ComponentImpl {
         System.out.println("Solutions: " + solutions.getSolutions().size());
         System.out.println("Total solution/guess combinations to try: " + totalSolutionsForThisGo);
 
-        Word bestWord = solutions.getSolutions().size() > 500 ?
+        Word bestWord = solutions.getSolutions().size() > 350 ?
                 getBestWordByLettersInCommon(guesses) :
                 getBestWordByExhaustiveSearch(guesses);
 
