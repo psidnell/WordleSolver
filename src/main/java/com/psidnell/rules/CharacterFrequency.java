@@ -1,11 +1,20 @@
 package com.psidnell.rules;
 
+import com.psidnell.Word;
+
 import java.util.Map;
 import java.util.TreeMap;
 
 public class CharacterFrequency {
     private final Map<Character, Integer> frequencies;
-    
+
+    public CharacterFrequency(Word word) {
+        frequencies = new TreeMap<>();
+        for (int i = 0; i < 5; i++) {
+            increase(word.charAt(i));
+        }
+    }
+
     public CharacterFrequency() {
         frequencies = new TreeMap<>();
     }

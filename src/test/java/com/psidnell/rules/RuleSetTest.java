@@ -49,4 +49,20 @@ public class RuleSetTest
         RuleSet m = new RuleSet(new Word(guess), new Word(solution));
         assertEquals(eliminated, m.match(new Word(elimWord)));
     }
+
+    private static Stream<Arguments> provideAnswerData() {
+        return Stream.of(
+                // Guess, Answer, toString
+                Arguments.of("AAAAA", "_____", "Matched{_____} WrongPlace{A,A,A,A,A} NoMatch{A,A,A,A,A} None{A} AtLeast{} AtMost{}"),
+                Arguments.of("AXXXX", "A____", "Matched{A____} WrongPlace{_,X,X,X,X} NoMatch{_,X,X,X,X} None{X} AtLeast{A:1} AtMost{}"),
+                Arguments.of("AAXXX", "Aa___", "Matched{A____} WrongPlace{_,A,X,X,X} NoMatch{_,_,X,X,X} None{X} AtLeast{A:2} AtMost{}"),
+                Arguments.of("AAAXX", "Aa___", "Matched{A____} WrongPlace{_,A,A,X,X} NoMatch{_,_,A,X,X} None{X} AtLeast{A:2} AtMost{A:2}"),
+                Arguments.of("AAAXX", "aA___", "Matched{_A___} WrongPlace{A,_,A,X,X} NoMatch{_,_,A,X,X} None{X} AtLeast{A:2} AtMost{A:2}")
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("provideAnswerData")
+    void testAnswerData(String guess, String answer, String expected) {
+        assertEquals(expected, new RuleSet(new Word(guess), answer).toString());
+    }
 }

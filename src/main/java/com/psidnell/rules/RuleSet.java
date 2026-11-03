@@ -71,6 +71,57 @@ public class RuleSet {
         });
     }
 
+    /**
+     * Can provide the answer to a guess.
+     * Upper case means we got the character in the right position.
+     * Lower case means we got it in the wrong position.
+     * '_' means that there was no match
+     * @param answer
+     */
+    public RuleSet(Word guess, String answer) {
+        if (answer.length() != 5) {
+            throw new IllegalArgumentException("Must be 5 characters long");
+        }
+
+        CharacterFrequency guessFrequencies = new CharacterFrequency(guess);
+        CharacterFrequency answerFrequencies = new CharacterFrequency();
+
+        for (int i = 0; i < 5; i++) {
+            Character ch = answer.charAt(i);
+            if (!ch.equals('_')) {
+                Character chUc = Character.toUpperCase(answer.charAt(i));
+                answerFrequencies.increase(chUc);
+            }
+        }
+
+        for (int i = 0; i < 5; i++) {
+            Character ch = answer.charAt(i);
+            Character chUc = Character.toUpperCase(ch);
+            if (ch.equals('_')) {
+                addRule(Rule.createNoMatch(guess.charAt(i), i));
+                addRule(Rule.createWrongPlace(guess.charAt(i), i));
+            } else if (Character.isUpperCase(ch)) {
+                    addRule(Rule.createMatch(chUc, i));
+            } else {
+                addRule(Rule.createWrongPlace(chUc, i));
+            }
+    }
+
+        answerFrequencies.getFrequencies().forEach((ch, answerOccurrences) -> {
+            addRule(Rule.createMustHaveAtLeast(ch, answerOccurrences));
+            if (answerOccurrences < guessFrequencies.occurrences((ch))) {
+                addRule(Rule.createMustHaveAtMost(ch, answerOccurrences));
+            }
+        });
+
+        for (int i = 0; i < 5; i++) {
+            Character ch = guess.charAt(i);
+            if (answerFrequencies.occurrences(ch) == 0) {
+                addRule(Rule.createMustNotHave(guess.charAt(i)));
+            }
+        }
+    }
+
     private Rule combine (Rule r1, Rule r2) {
         if (r1 == null) {
             return r2;
