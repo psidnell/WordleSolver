@@ -24,7 +24,8 @@ public class Wordle extends ComponentImpl {
         this.solutions = new Solutions(dictionary);
     }
 
-    public void setSolution(String solution) {
+    public void setSolution(String solutionStr) {
+        String solution = solutionStr.toUpperCase();
         if (!dictionary.hasWord(solution)) {
             throw new IllegalArgumentException("solution is not a valid word");
         }
@@ -60,7 +61,8 @@ public class Wordle extends ComponentImpl {
     }
 
     // TODO Move all of the tests snd printing here
-    public boolean userGuess(String guess) {
+    public boolean userGuess(String guessStr) {
+        String guess = guessStr.toUpperCase();
         System.out.println(" GUESS *******************************");
         try {
             System.out.println("Turn " + (7 - guessesRemaining) + ": Guessing " + guess);

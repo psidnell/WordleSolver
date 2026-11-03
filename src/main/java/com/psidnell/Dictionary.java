@@ -27,7 +27,10 @@ public class Dictionary implements Component {
 
     public Dictionary(String[] testWords) {
         words = new TreeMap<>();
-        Arrays.stream(testWords).forEach(word -> words.put(word, new Word(word)));
+        Arrays.stream(testWords).forEach(word -> {
+            String upperCase = word.toUpperCase();
+            words.put(upperCase, new Word(upperCase));
+        });
         wordsRanked = calculateRanks();
     }
 
@@ -119,7 +122,7 @@ public class Dictionary implements Component {
         if (wordsNode.isArray()) {
             for (JsonNode wordNode : wordsNode) {
                 if (wordNode.isTextual()) {
-                    String wordText = wordNode.asText().toLowerCase();
+                    String wordText = wordNode.asText().toUpperCase();
                     Word word = new Word(wordText);
                     words.put(wordText, word);
                 }
@@ -148,7 +151,7 @@ public class Dictionary implements Component {
             for (JsonNode rankNode : ranksNode) {
                 JsonNode wordNode = rankNode.findValue("word");
                 if (wordNode.isTextual()) {
-                    String wordText = wordNode.asText().toLowerCase();
+                    String wordText = wordNode.asText().toUpperCase();
 
                     JsonNode valNode = rankNode.findValue("rank");
                     if (valNode.isNumber()) {
