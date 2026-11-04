@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.gradleup.shadow") version "9.6.1"
 }
 
 group = "org.example"
@@ -19,4 +20,10 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+    manifest {
+        attributes["Main-Class"] = "com.psidnell.Main"
+    }
 }

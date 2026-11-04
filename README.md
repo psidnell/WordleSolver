@@ -1,3 +1,7 @@
+# Build
+
+```gradlew clean shadowJar```
+
 ## Updating the dictionary
 
 - https://www.reddit.com/r/wordle/comments/10u24dh/is_the_wordle_dictionary_available_if_so_where/

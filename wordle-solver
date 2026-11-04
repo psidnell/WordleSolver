@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Shell wrapper script to execute the WordleSolver jar file
+# Usage: ./wordlesolver.sh
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Set the path to the jar file
+JAR_FILE="$SCRIPT_DIR/build/libs/WordleSolver-1.0-SNAPSHOT-all.jar"
+
+# Check if the jar file exists
+if [ ! -f "$JAR_FILE" ]; then
+    echo "Error: Jar file not found at $JAR_FILE"
+    echo "Please build the project first using './gradlew build'"
+    exit 1
+fi
+
+# Execute the jar with the specified main class
+java -jar "$JAR_FILE"
