@@ -9,8 +9,8 @@ public class Main {
     private static Wordle wordle;
 
     static void main(String[] args) throws Exception {
-       final Context context = new Context();
-       wordle = context.get("wordle", Wordle.class);
+        final Context context = new Context();
+        wordle = context.get("wordle", Wordle.class);
 
         IO.println("Wordle Solver");
 
@@ -63,7 +63,7 @@ public class Main {
             case "guess":
                 ensureArguments(parts, 1);
                 boolean correct = wordle.guess(parts[1].toLowerCase());
-                boolean guessesRemaining = wordle.getGuessesRemaining() >0;
+                boolean guessesRemaining = wordle.getGuessesRemaining() > 0;
                 return guessesRemaining && !correct;
             case "r":
             case "remaining":
@@ -98,8 +98,8 @@ public class Main {
     private static void printHelp() {
         System.out.println("Command Line Wordle Solver");
         System.out.println("Commands:");
-        System .out.println("h/help | print this help");
-        System .out.println("s/solution <solution word> | set a know solution");
+        System.out.println("h/help | print this help");
+        System.out.println("s/solution <solution word> | set a know solution");
         System.out.println("g/guess <guess word> | guess against a known solution");
         System.out.println("r/remaining | show remaining possible solutions");
         System.out.println("p/propose | propose the next word");

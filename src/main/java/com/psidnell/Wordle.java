@@ -13,14 +13,14 @@ import java.util.stream.Collectors;
 
 public class Wordle extends ComponentImpl {
     public static String FIRST_GUESS = "trace";
-    public int guessesMade = 0;
-    private Word solution;
-    int guessesRemaining = 6;
-    private Solutions solutions;
     private final List<Integer> userGuessSolutionsRemaining = new ArrayList<>();
     private final List<RuleSet> previousRuleSets = new ArrayList<>();
-    private RuleSet combinedRuleSet = new RuleSet();
     private final List<String> previousGuesses = new ArrayList<>();
+    public int guessesMade = 0;
+    int guessesRemaining = 6;
+    private Word solution;
+    private Solutions solutions;
+    private RuleSet combinedRuleSet = new RuleSet();
 
     @Override
     public void init() {
@@ -152,7 +152,7 @@ public class Wordle extends ComponentImpl {
 
     public String propose() {
 
-        System.out .println ("PROPOSE");
+        System.out.println("PROPOSE");
 
         if (guessesRemaining == 6) {
             System.out.println("First Guess:" + FIRST_GUESS);
@@ -188,7 +188,7 @@ public class Wordle extends ComponentImpl {
             Collection<Word> guesses = solutions.getSolutions();
             bestWord = getBestWordByRank(guesses);
         } else if (solutionCount > l2) {
-            System.out.println("(2) Exhaustive Search on reduced guesses between " + l1 + " and " +l2);
+            System.out.println("(2) Exhaustive Search on reduced guesses between " + l1 + " and " + l2);
             Collection<Word> guesses = solutions.getSolutions();
             bestWord = getBestWordByExhaustiveSearch(guesses);
         } else {
@@ -197,7 +197,7 @@ public class Wordle extends ComponentImpl {
             bestWord = getBestWordByExhaustiveSearch(guesses);
         }
         long endTime = System.currentTimeMillis();
-        System.out.println ("Time elapsed: " + (endTime - startTime)/1000 + "s");
+        System.out.println("Time elapsed: " + (endTime - startTime) / 1000 + "s");
 
         return bestWord.getWord();
     }
@@ -211,7 +211,7 @@ public class Wordle extends ComponentImpl {
         int percentDone = -1;
         int lowestSolutionsCount = Integer.MAX_VALUE;
 
-        for (Word dictionaryWordGuess: guesses) {
+        for (Word dictionaryWordGuess : guesses) {
             if (previousGuesses.contains(dictionaryWordGuess.getWord())) {
                 continue;
             }
@@ -273,7 +273,7 @@ public class Wordle extends ComponentImpl {
         int percentDone = -1;
         int highestRank = 0;
 
-        for (Word dictionaryWordGuess: guesses) {
+        for (Word dictionaryWordGuess : guesses) {
             if (previousGuesses.contains(dictionaryWordGuess.getWord())) {
                 continue;
             }

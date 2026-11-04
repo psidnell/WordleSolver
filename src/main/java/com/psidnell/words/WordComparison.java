@@ -26,7 +26,7 @@ public class WordComparison {
                 correctPositions[i] = true;
                 incorrectPositions[i] = false;
                 mismatches[i] = false;
-            } else if (w2.occurrencesOf(c1) > 0){
+            } else if (w2.occurrencesOf(c1) > 0) {
                 correctPositions[i] = false;
                 incorrectPositions[i] = true;
                 mismatches[i] = false;
@@ -38,7 +38,7 @@ public class WordComparison {
         }
 
         String charactersMissing = w1.charactersMissing(w2);
-        CharacterFrequency commonFrequencies =  w1.charactersInCommon(w2);
+        CharacterFrequency commonFrequencies = w1.charactersInCommon(w2);
         int charactersInCommon1 = w1.charactersInCommon(w2).overlapSize();
         this.commonLetterFrequency = commonFrequencies;
         this.lettersMissing = charactersMissing;

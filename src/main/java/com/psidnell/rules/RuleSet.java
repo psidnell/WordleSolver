@@ -14,10 +14,10 @@ public class RuleSet {
 
     private final Rule[] matches = new Rule[5];
     private final Rule[] wrongPlaces = new Rule[5];
-    private final Rule[] noMatches = new Rule[5];;
-    private Rule mustNotHave = null;
+    private final Rule[] noMatches = new Rule[5];
     private final Map<Character, Rule> mustHaveAtLeast = new TreeMap<>();
     private final Map<Character, Rule> mustHaveAtMost = new TreeMap<>();
+    private Rule mustNotHave = null;
 
     public RuleSet() {
     }
@@ -29,6 +29,7 @@ public class RuleSet {
     /**
      * When we provide a guess against a know solution, create a rule set
      * that encapsulates what we learned from the guess.
+     *
      * @param guess
      * @param solution
      */
@@ -38,7 +39,7 @@ public class RuleSet {
         CharacterFrequency mustHaveAtLeast = new CharacterFrequency();
         CharacterFrequency seenSoFar = new CharacterFrequency();
 
-        for(int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++) {
             Character gc = guess.charAt(i);
             seenSoFar.increase(gc);
             if (comparison.getCorrectPositions()[i]) {
@@ -78,6 +79,7 @@ public class RuleSet {
      * Upper case means we got the character in the right position.
      * Lower case means we got it in the wrong position.
      * '_' means that there was no match
+     *
      * @param answer
      */
     public RuleSet(Word guess, String answer) {
@@ -103,11 +105,11 @@ public class RuleSet {
                 addRule(Rule.createNoMatch(guess.charAt(i), i));
                 addRule(Rule.createWrongPlace(guess.charAt(i), i));
             } else if (Character.isUpperCase(ch)) {
-                    addRule(Rule.createMatch(chUc, i));
+                addRule(Rule.createMatch(chUc, i));
             } else {
                 addRule(Rule.createWrongPlace(chUc, i));
             }
-    }
+        }
 
         answerFrequencies.frequencies().forEach((ch, answerOccurrences) -> {
             addRule(Rule.createMustHaveAtLeast(ch, answerOccurrences));
@@ -124,7 +126,7 @@ public class RuleSet {
         }
     }
 
-    private Rule combine (Rule r1, Rule r2) {
+    private Rule combine(Rule r1, Rule r2) {
         if (r1 == null) {
             return r2;
         }
@@ -136,12 +138,13 @@ public class RuleSet {
 
     /**
      * Add the rule by optimally combining it with existing rules.
+     *
      * @param r
      */
     private void addRule(Rule r) {
-        switch(r.getType()) {
-            case MATCH -> matches[r.getPosition()] =  combine(r, matches[r.getPosition()]);
-            case WRONG_PLACE ->  wrongPlaces[r.getPosition()] = combine(r, wrongPlaces[r.getPosition()]);
+        switch (r.getType()) {
+            case MATCH -> matches[r.getPosition()] = combine(r, matches[r.getPosition()]);
+            case WRONG_PLACE -> wrongPlaces[r.getPosition()] = combine(r, wrongPlaces[r.getPosition()]);
             case NO_MATCH -> noMatches[r.getPosition()] = combine(r, noMatches[r.getPosition()]);
             case MUST_NOT_HAVE -> mustNotHave = combine(r, mustNotHave);
             case MUST_HAVE_AT_LEAST -> {
@@ -165,7 +168,7 @@ public class RuleSet {
                 matchedChars[i] = r.getCharactersAsString();
             }
         }
-        output.append ("Matched{");
+        output.append("Matched{");
         Arrays.stream(matchedChars).forEach(output::append);
         output.append("} WrongPlace{");
 
@@ -197,19 +200,19 @@ public class RuleSet {
         output.append("} AtLeast{");
 
         boolean first = true;
-        for (Rule r: mustHaveAtLeast.values()) {
+        for (Rule r : mustHaveAtLeast.values()) {
             if (!first) {
                 output.append(',');
             }
             Character firstChar = r.getCharactersAsString().charAt(0);
             output.append(firstChar).append(':').append(r.getAmount());
             first = false;
-        };
+        }
 
         output.append("} AtMost{");
 
         first = true;
-        for (Rule r: mustHaveAtMost.values()) {
+        for (Rule r : mustHaveAtMost.values()) {
             if (!first) {
                 output.append(',');
             }

@@ -3,8 +3,8 @@ package com.psidnell.util;
 import com.psidnell.words.Dictionary;
 
 public class ComponentImpl implements Component {
-    private Context context;
     protected Dictionary dictionary;
+    private Context context;
 
     @Override
     public void setContext(Context context) {

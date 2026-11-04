@@ -15,30 +15,6 @@ public class Rule implements Comparable<Rule> {
     private final int position;
     private final int amount;
 
-    public static Rule createMatch(Character ch, int position) {
-        return new Rule(RuleType.MATCH, ch, position, -1);
-    }
-
-    public static Rule createNoMatch(Character ch, int position) {
-        return new Rule(RuleType.NO_MATCH, ch, position, -1);
-    }
-
-    public static Rule createWrongPlace(Character ch, int position) {
-        return new Rule(RuleType.WRONG_PLACE, ch, position, -1);
-    }
-
-    public static Rule createMustNotHave(Character ch) {
-        return new Rule(RuleType.MUST_NOT_HAVE, ch, -1, -1);
-    }
-
-    public static Rule createMustHaveAtLeast(Character ch,  int amount) {
-        return new Rule(RuleType.MUST_HAVE_AT_LEAST, ch, -1, amount);
-    }
-
-    public static Rule createMustHaveAtMost(Character ch,  int amount) {
-        return new Rule(RuleType.MUST_HAVE_AT_MOST, ch, -1, amount);
-    }
-
     private Rule(RuleType type, Character ch, int position, int amount) {
         this.type = type;
         this.chars.add(ch);
@@ -57,6 +33,30 @@ public class Rule implements Comparable<Rule> {
         this.charsAsString = b.toString();
     }
 
+    public static Rule createMatch(Character ch, int position) {
+        return new Rule(RuleType.MATCH, ch, position, -1);
+    }
+
+    public static Rule createNoMatch(Character ch, int position) {
+        return new Rule(RuleType.NO_MATCH, ch, position, -1);
+    }
+
+    public static Rule createWrongPlace(Character ch, int position) {
+        return new Rule(RuleType.WRONG_PLACE, ch, position, -1);
+    }
+
+    public static Rule createMustNotHave(Character ch) {
+        return new Rule(RuleType.MUST_NOT_HAVE, ch, -1, -1);
+    }
+
+    public static Rule createMustHaveAtLeast(Character ch, int amount) {
+        return new Rule(RuleType.MUST_HAVE_AT_LEAST, ch, -1, amount);
+    }
+
+    public static Rule createMustHaveAtMost(Character ch, int amount) {
+        return new Rule(RuleType.MUST_HAVE_AT_MOST, ch, -1, amount);
+    }
+
     public Rule combine(Rule other) {
         if (!this.type.equals(other.type)) {
             throw new IllegalArgumentException("Cannot combine with different types " + type + " and " + other.type);
@@ -65,7 +65,7 @@ public class Rule implements Comparable<Rule> {
             throw new IllegalArgumentException("Cannot combine with different positions " + position + " and " + other.position);
         }
 
-        switch(type) {
+        switch (type) {
             case MATCH:
                 if (!charsAsString.equals(other.charsAsString)) {
                     throw new IllegalArgumentException("Cannot combine different matches " + charsAsString + " and " + other.charsAsString);
@@ -109,8 +109,8 @@ public class Rule implements Comparable<Rule> {
             case NO_MATCH -> !chars.contains(word.charAt(position));
             case WRONG_PLACE -> wrongPlace(word);
             case MUST_NOT_HAVE -> mustNotHave(word);
-            case MUST_HAVE_AT_LEAST ->mustHaveAtLeast(word);
-            case MUST_HAVE_AT_MOST ->mustHaveAtMost(word);
+            case MUST_HAVE_AT_LEAST -> mustHaveAtLeast(word);
+            case MUST_HAVE_AT_MOST -> mustHaveAtMost(word);
         };
     }
 
@@ -154,7 +154,7 @@ public class Rule implements Comparable<Rule> {
         return true;
     }
 
-    public RuleType getType () {
+    public RuleType getType() {
         return type;
     }
 
@@ -166,11 +166,11 @@ public class Rule implements Comparable<Rule> {
         return chars;
     }
 
-    public int getPosition () {
+    public int getPosition() {
         return position;
     }
 
-    public int getAmount () {
+    public int getAmount() {
         return amount;
     }
 

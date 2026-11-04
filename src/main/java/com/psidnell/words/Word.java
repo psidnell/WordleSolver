@@ -8,8 +8,8 @@ import java.util.Objects;
 import java.util.Set;
 
 public class Word implements Comparable<Word> {
-    private CharacterFrequency frequencies = null;
     private final String word;
+    private CharacterFrequency frequencies = null;
 
     public Word(String word) {
         if (word.length() != 5) {
