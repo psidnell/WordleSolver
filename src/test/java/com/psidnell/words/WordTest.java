@@ -46,14 +46,14 @@ public class WordTest
         Word word1 = new Word("ABCDE");
         Word word2 = new Word("DEFGH");
         WordComparison wordComparison = word1.compareWords(word2);
-        assertEquals(2, wordComparison.getCommonLetterFrequency().getFrequencies().size());
-        assertEquals(1, wordComparison.getCommonLetterFrequency().getFrequencies().get((char) 'D'));
+        assertEquals(2, wordComparison.getCommonLetterFrequency().frequencies().size());
+        assertEquals(1, wordComparison.getCommonLetterFrequency().frequencies().get((char) 'D'));
 
         word1 = new Word("AAXXX");
         word2 = new Word("ZZAAZ");
         wordComparison = word1.compareWords(word2);
-        assertEquals(1, wordComparison.getCommonLetterFrequency().getFrequencies().size());
-        assertEquals(2, wordComparison.getCommonLetterFrequency().getFrequencies().get((char) 'A'));
+        assertEquals(1, wordComparison.getCommonLetterFrequency().frequencies().size());
+        assertEquals(2, wordComparison.getCommonLetterFrequency().frequencies().get((char) 'A'));
     }
 
     @Test

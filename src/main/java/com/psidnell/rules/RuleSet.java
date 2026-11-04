@@ -68,7 +68,7 @@ public class RuleSet {
         }
 
         // Can derive this
-        mustHaveAtLeast.getFrequencies().forEach((ch, min) -> {
+        mustHaveAtLeast.frequencies().forEach((ch, min) -> {
             addRule(Rule.createMustHaveAtLeast(ch, min));
         });
     }
@@ -109,7 +109,7 @@ public class RuleSet {
             }
     }
 
-        answerFrequencies.getFrequencies().forEach((ch, answerOccurrences) -> {
+        answerFrequencies.frequencies().forEach((ch, answerOccurrences) -> {
             addRule(Rule.createMustHaveAtLeast(ch, answerOccurrences));
             if (answerOccurrences < guessFrequencies.occurrences((ch))) {
                 addRule(Rule.createMustHaveAtMost(ch, answerOccurrences));
@@ -134,6 +134,10 @@ public class RuleSet {
         return r1.combine(r2);
     }
 
+    /**
+     * Add the rule by optimally combining it with existing rules.
+     * @param r
+     */
     private void addRule(Rule r) {
         switch(r.getType()) {
             case MATCH -> matches[r.getPosition()] =  combine(r, matches[r.getPosition()]);

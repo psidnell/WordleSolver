@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
-//todo differing subclasses for types?
+// todo Could use subclasses
 public class Rule implements Comparable<Rule> {
     private final RuleType type;
     private final Set<Character> chars = new TreeSet<>();

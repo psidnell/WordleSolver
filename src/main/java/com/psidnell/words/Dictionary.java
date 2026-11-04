@@ -93,7 +93,7 @@ public class Dictionary implements Component {
                     continue;
                 }
                 AtomicInteger rank = new AtomicInteger(0);
-                w1.charactersInCommon(w2).getFrequencies().values().forEach(freq -> {
+                w1.charactersInCommon(w2).frequencies().values().forEach(freq -> {
                     rank.set(rank.get() + freq);
                 });
                 totalRankForWord += rank.get();

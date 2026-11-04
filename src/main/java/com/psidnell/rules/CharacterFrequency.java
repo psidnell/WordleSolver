@@ -6,15 +6,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class CharacterFrequency {
-    private final Map<Character, Integer> frequencies;
-
+public record CharacterFrequency(Map<Character, Integer> frequencies) {
     public CharacterFrequency(Word word) {
         this(word.getWord());
     }
 
     public CharacterFrequency(String word) {
-        frequencies = new TreeMap<>();
+        this(new TreeMap<>());
         for (int i = 0; i < 5; i++) {
             char ch = word.charAt(i);
             if (Character.isAlphabetic(ch)) {
@@ -24,13 +22,13 @@ public class CharacterFrequency {
     }
 
     public CharacterFrequency() {
-        frequencies = new TreeMap<>();
+        this(new TreeMap<>());
     }
 
     public CharacterFrequency(CharacterFrequency other) {
-        frequencies = new TreeMap<>(other.frequencies);
+        this(new TreeMap<>(other.frequencies));
     }
-    
+
     public void increase(Character c) {
         int count = frequencies.getOrDefault(c, 0);
         frequencies.put(c, count + 1);
@@ -55,13 +53,14 @@ public class CharacterFrequency {
         return frequencies.getOrDefault(c, 0);
     }
 
-    public Map<Character, Integer>  getFrequencies() {
+    @Override
+    public Map<Character, Integer> frequencies() {
         return Collections.unmodifiableMap(frequencies);
     }
 
 
     public int overlapSize() {
-       return frequencies.values().stream().mapToInt(Integer::intValue).sum();
+        return frequencies.values().stream().mapToInt(Integer::intValue).sum();
     }
 
     @Override
