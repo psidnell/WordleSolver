@@ -1,7 +1,7 @@
 package com.psidnell.util;
 
-import com.psidnell.words.Dictionary;
 import com.psidnell.Wordle;
+import com.psidnell.words.Dictionary;
 
 import java.util.HashMap;
 import java.util.Map;

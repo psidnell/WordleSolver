@@ -10,9 +10,16 @@ public class CharacterFrequency {
     private final Map<Character, Integer> frequencies;
 
     public CharacterFrequency(Word word) {
+        this(word.getWord());
+    }
+
+    public CharacterFrequency(String word) {
         frequencies = new TreeMap<>();
         for (int i = 0; i < 5; i++) {
-            increase(word.charAt(i));
+            char ch = word.charAt(i);
+            if (Character.isAlphabetic(ch)) {
+                increase(ch);
+            }
         }
     }
 

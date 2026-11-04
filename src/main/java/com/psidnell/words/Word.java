@@ -3,7 +3,9 @@ package com.psidnell.words;
 import com.psidnell.PlayerException;
 import com.psidnell.rules.CharacterFrequency;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class Word implements Comparable<Word> {
     private CharacterFrequency frequencies = null;
@@ -14,7 +16,7 @@ public class Word implements Comparable<Word> {
         if (word.length() != 5) {
             throw new PlayerException("Word must be 5 characters long");
         }
-        this.word = word;
+        this.word = word.toUpperCase();
         rank = -1;
     }
 
@@ -22,7 +24,7 @@ public class Word implements Comparable<Word> {
         if (word.length() != 5) {
             throw new PlayerException("Word must be 5 characters long");
         }
-        this.word = word;
+        this.word = word.toUpperCase();
         this.rank = rank;
     }
 
@@ -30,7 +32,7 @@ public class Word implements Comparable<Word> {
         return word;
     }
 
-    public int occurencesOf(Character c) {
+    public int occurrencesOf(Character c) {
         int occurrences = 0;
         for (int i = 0; i < 5; i++) {
             if (word.charAt(i) == c) {
@@ -48,7 +50,7 @@ public class Word implements Comparable<Word> {
     public boolean haveCommonCharacters(Word other) {
         for (int i = 0; i < 5; i++) {
             Character c = word.charAt(i);
-            if (other.occurencesOf(c) > 0) {
+            if (other.occurrencesOf(c) > 0) {
                 return true;
             }
         }
@@ -59,7 +61,7 @@ public class Word implements Comparable<Word> {
         CharacterFrequency result = new CharacterFrequency();
         for (int i = 0; i < 5; i++) {
             Character c = word.charAt(i);
-            int occurrences = other.occurencesOf(c);
+            int occurrences = other.occurrencesOf(c);
             if (occurrences > 0) {
                 result.set(c, occurrences);
             }
@@ -72,7 +74,7 @@ public class Word implements Comparable<Word> {
         Set<Character> seen = new HashSet<>();
         for (int i = 0; i < 5; i++) {
             Character c = word.charAt(i);
-            if (other.occurencesOf(c) == 0 && !seen.contains(c)) {
+            if (other.occurrencesOf(c) == 0 && !seen.contains(c)) {
                 result.append(c);
                 seen.add(c);
             }

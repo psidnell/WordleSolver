@@ -87,7 +87,7 @@ public class WordleTest {
         wordle.init();
 
         wordle.setSolution("hated");
-        solve(wordle);
+        solve(wordle, true);
     }
 
     //todo try and solve ALL dictionary words - when performance improved
@@ -121,8 +121,30 @@ public class WordleTest {
             wordle.userGuess(guess);
         }
 
-        solve(wordle);
+        solve(wordle, true);
         assertEquals(tries, wordle.guessesMade);
+    }
+
+    private static Stream<Arguments> provideFailures() {
+        return Stream.of(
+                // Solution, guesses
+                Arguments.of("noggs", new String[]{})
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("provideFailures")
+    void testFailureWords(String solution, String[] guesses) throws Exception {
+        Context context = new Context();
+        Wordle wordle = context.get("wordle", Wordle.class);
+        wordle.setContext(context);
+        wordle.init();
+        wordle.setSolution(solution);
+
+        for (String guess : guesses) {
+            wordle.userGuess(guess);
+        }
+
+        solve(wordle, false);
     }
 
     @Test
@@ -138,7 +160,7 @@ public class WordleTest {
             Random random = new Random();
             Word randomWord = dictWords[random.nextInt(dictWords.length)];
             wordle.setSolution(randomWord.getWord());
-            solve(wordle);
+            solve(wordle, true);
         }
     }
 
@@ -159,13 +181,18 @@ public class WordleTest {
         assertTrue(wordle.isSolved());
     }
 
-    private static void solve(Wordle wordle) {
+    private static void solve(Wordle wordle, boolean expectSuccess) {
         while (wordle.getGuessesRemaining() > 0 && !wordle.isSolved()) {
             String proposal = wordle.propose();
             wordle.userGuess(proposal);
             wordle.printStatus();
         }
         wordle.printStatus();
-        assertTrue(wordle.isSolved());
+        assertEquals(expectSuccess, wordle.isSolved());
+        if (expectSuccess) {
+            assertTrue(wordle.guessesMade <= 6);
+        } else {
+            assertEquals(6, wordle.guessesMade);
+        }
     }
 }

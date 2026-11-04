@@ -5,7 +5,9 @@ import com.psidnell.util.ComponentImpl;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -27,26 +29,26 @@ public class Wordle extends ComponentImpl {
     }
 
     public void setSolution(String solutionStr) {
-        String solution = solutionStr.toUpperCase();
+        //String solution = solutionStr.toUpperCase();
 
-        this.solution = dictionary.getWord(solution);
+        this.solution = new Word(solutionStr);
     }
 
     public void printStatus() {
         System.out.println("STATUS ==============================");
         if (solution != null) {
-            System.out.println("Solution Known: " + solution.getWord().toUpperCase());
+            System.out.println("Solution Known: " + solution.getWord());
         }
         System.out.println("Dictionary Size:" + dictionary.getWords().size());
         System.out.println("History:");
         for (int i = 0; i < previousRuleSets.size(); i++) {
-            System.out.println("  - " + previousGuesses.get(i).toUpperCase() + " " +
+            System.out.println("  - " + previousGuesses.get(i) + " " +
                     previousRuleSets.get(i) + " Solutions: " + userGuessSolutionsRemaining.get(i));
         }
         System.out.println("Knowledge: " + combinedRuleSet.toString());
         System.out.println("Guesses Remaining: " + guessesRemaining);
         if (isSolved()) {
-            System.out.println("Solved: " + previousGuesses.get(previousGuesses.size() - 1).toUpperCase());
+            System.out.println("Solved: " + previousGuesses.get(previousGuesses.size() - 1));
         } else {
             System.out.println("Not Solved");
         }
@@ -112,7 +114,7 @@ public class Wordle extends ComponentImpl {
                 return false;
             }
 
-            Word guessWord = dictionary.getWord(guess);
+            Word guessWord = new Word(guess);
 
             if (guess.length() != 5) {
                 System.out.println("Guess must be 5 characters");

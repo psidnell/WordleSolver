@@ -1,5 +1,10 @@
 package com.psidnell.words;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.psidnell.util.Component;
+import com.psidnell.util.Context;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -8,14 +13,14 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.psidnell.PlayerException;
-import com.psidnell.util.Component;
-import com.psidnell.util.Context;
 
 // Dictionary and Solutions are both wodlists
 public class Dictionary implements Component {
@@ -32,13 +37,6 @@ public class Dictionary implements Component {
             words.put(upperCase, new Word(upperCase));
         });
         wordsRanked = calculateRanks();
-    }
-
-    public Word getWord(String word) {
-        if (!hasWord(word)) {
-            throw new PlayerException("solution is not a valid word");
-        }
-        return words.get(word);
     }
 
     @Override

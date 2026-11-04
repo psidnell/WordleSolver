@@ -1,10 +1,14 @@
 package com.psidnell.rules;
 
+import com.psidnell.PlayerException;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
-import com.psidnell.PlayerException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class RuleSet {
 
@@ -29,12 +33,11 @@ public class RuleSet {
      * @param solution
      */
     public RuleSet(Word guess, Word solution) {
-        //todo this is too complicated - simplify the counting
         WordComparison comparison = guess.compareWords(solution);
         CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
         CharacterFrequency mustHaveAtLeast = new CharacterFrequency();
         CharacterFrequency seenSoFar = new CharacterFrequency();
-        // Handle basic character matches and misses
+
         for(int i = 0; i < 5; i++) {
             Character gc = guess.charAt(i);
             seenSoFar.increase(gc);
@@ -64,7 +67,7 @@ public class RuleSet {
             }
         }
 
-        //Can derive this
+        // Can derive this
         mustHaveAtLeast.getFrequencies().forEach((ch, min) -> {
             addRule(Rule.createMustHaveAtLeast(ch, min));
         });
@@ -155,7 +158,7 @@ public class RuleSet {
         for (int i = 0; i < 5; i++) {
             Rule r = matches[i];
             if (r != null) {
-                matchedChars[i] = r.getCharactersAsString().toUpperCase();
+                matchedChars[i] = r.getCharactersAsString();
             }
         }
         output.append ("Matched{");
@@ -166,7 +169,7 @@ public class RuleSet {
         for (int i = 0; i < 5; i++) {
             Rule r = wrongPlaces[i];
             if (r != null) {
-                wrongPlacesArr[i] = r.getCharactersAsString().toUpperCase();
+                wrongPlacesArr[i] = r.getCharactersAsString();
             }
         }
         output.append(String.join(",", wrongPlacesArr));
@@ -177,7 +180,7 @@ public class RuleSet {
         for (int i = 0; i < 5; i++) {
             Rule r = noMatches[i];
             if (r != null) {
-                noMatchesArr[i] = r.getCharactersAsString().toUpperCase();
+                noMatchesArr[i] = r.getCharactersAsString();
             }
         }
         output.append(String.join(",", noMatchesArr));
@@ -185,9 +188,7 @@ public class RuleSet {
         output.append("} None{");
 
         if (mustNotHave != null) {
-            mustNotHave.getCharacters().forEach(ch -> {
-                output.append(Character.toUpperCase(ch));
-            });
+            mustNotHave.getCharacters().forEach(output::append);
         }
         output.append("} AtLeast{");
 
@@ -196,7 +197,7 @@ public class RuleSet {
             if (!first) {
                 output.append(',');
             }
-            Character firstChar = r.getCharactersAsString().toUpperCase().charAt(0);
+            Character firstChar = r.getCharactersAsString().charAt(0);
             output.append(firstChar).append(':').append(r.getAmount());
             first = false;
         };
@@ -208,7 +209,7 @@ public class RuleSet {
             if (!first) {
                 output.append(',');
             }
-            Character firstChar = r.getCharactersAsString().toUpperCase().charAt(0);
+            Character firstChar = r.getCharactersAsString().charAt(0);
             output.append(firstChar).append(':').append(r.getAmount());
             first = false;
         }

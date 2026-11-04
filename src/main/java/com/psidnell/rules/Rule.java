@@ -116,7 +116,7 @@ public class Rule implements Comparable<Rule> {
 
     private boolean mustHaveAtLeast(Word word) {
         for (Character ch : chars) {
-            boolean mustHaveAtLeastMatch = word.occurencesOf(ch) >= amount;
+            boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) >= amount;
             if (!mustHaveAtLeastMatch) {
                 return false;
             }
@@ -126,7 +126,7 @@ public class Rule implements Comparable<Rule> {
 
     private boolean mustHaveAtMost(Word word) {
         for (Character ch : chars) {
-            boolean mustHaveAtLeastMatch = word.occurencesOf(ch) <= amount;
+            boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) <= amount;
             if (!mustHaveAtLeastMatch) {
                 return false;
             }
@@ -136,7 +136,7 @@ public class Rule implements Comparable<Rule> {
 
     private boolean mustNotHave(Word word) {
         for (Character ch : chars) {
-            boolean mustNotHaveMatch = word.occurencesOf(ch) == 0;
+            boolean mustNotHaveMatch = word.occurrencesOf(ch) == 0;
             if (!mustNotHaveMatch) {
                 return false;
             }
@@ -176,14 +176,13 @@ public class Rule implements Comparable<Rule> {
 
     @Override
     public String toString() {
-        String chrsUpper = charsAsString.toUpperCase();
         return switch (type) {
-            case MATCH -> chrsUpper + "*[" + position + "]";
-            case NO_MATCH -> chrsUpper + "![" + position + "]";
-            case WRONG_PLACE -> chrsUpper + "?[" + position + "]";
-            case MUST_NOT_HAVE -> chrsUpper + "!";
-            case MUST_HAVE_AT_LEAST -> chrsUpper + ">=" + amount;
-            case MUST_HAVE_AT_MOST -> chrsUpper + "<=" + amount;
+            case MATCH -> charsAsString + "*[" + position + "]";
+            case NO_MATCH -> charsAsString + "![" + position + "]";
+            case WRONG_PLACE -> charsAsString + "?[" + position + "]";
+            case MUST_NOT_HAVE -> charsAsString + "!";
+            case MUST_HAVE_AT_LEAST -> charsAsString + ">=" + amount;
+            case MUST_HAVE_AT_MOST -> charsAsString + "<=" + amount;
         };
     }
 

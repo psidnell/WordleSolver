@@ -3,6 +3,7 @@ package com.psidnell.words;
 import com.psidnell.rules.CharacterFrequency;
 
 public class WordComparison {
+    // todo How much of all this am I using?
     private final CharacterFrequency commonLetterFrequency;
     private final String lettersMissing;
     private final boolean fullMatch;
@@ -25,7 +26,7 @@ public class WordComparison {
                 correctPositions[i] = true;
                 incorrectPositions[i] = false;
                 mismatches[i] = false;
-            } else if (w2.occurencesOf(c1) > 0){
+            } else if (w2.occurrencesOf(c1) > 0){
                 correctPositions[i] = false;
                 incorrectPositions[i] = true;
                 mismatches[i] = false;

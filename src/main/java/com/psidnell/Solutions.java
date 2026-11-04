@@ -4,7 +4,10 @@ import com.psidnell.rules.RuleSet;
 import com.psidnell.words.Dictionary;
 import com.psidnell.words.Word;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Solutions {
