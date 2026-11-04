@@ -6,6 +6,9 @@ import com.psidnell.words.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Can't be bothered to use Spring
+ */
 public class Context {
 
     private final Map<String, Component> components = new HashMap<String, Component>();

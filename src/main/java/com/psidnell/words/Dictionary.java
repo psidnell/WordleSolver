@@ -5,9 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psidnell.util.Component;
 import com.psidnell.util.Context;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -17,15 +14,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
 
 // Dictionary and Solutions are both wodlists
 public class Dictionary implements Component {
     private Map<String, Word> words = null;
-    private Set<Word> wordsRanked = null;
 
     public Dictionary() {
     }
@@ -36,7 +29,6 @@ public class Dictionary implements Component {
             String upperCase = word.toUpperCase();
             words.put(upperCase, new Word(upperCase));
         });
-        wordsRanked = calculateRanks();
     }
 
     @Override
@@ -44,69 +36,7 @@ public class Dictionary implements Component {
         Component.super.setContext(context);
         if (words == null) {
             words = loadDictionary();
-            writeRankFileIfMissing();
-            wordsRanked = loadWordsRanked();
         }
-    }
-
-    private void writeRankFileIfMissing() throws IOException {
-        File file = new File("src/main/resources/com/psidnell/Rank.json");
-        if (file.exists()) {
-            String p = file.getAbsolutePath();
-            return;
-        }
-
-        Set<Word> wordsRanked = calculateRanks();
-
-        final BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.write(" {\n  \"ranks\": [\n");
-
-        int i = 0;
-        for (Word w : wordsRanked) {
-            writer.write("    { \"word\": \"" + w.getWord() + "\", \"rank\": " + w.getRank() + "}" );
-            if (i == wordsRanked.size() - 1) {
-                writer.write("\n");
-            } else {
-                writer.write(",\n");
-            }
-            i++;
-        }
-
-        writer.write("  ]\n}\n");
-        writer.close();
-    }
-
-    /**
-     * Rank is how many characters this word has in common with all the others.
-     * This is fairly quick to calculate.
-     * Higher is better when it comes to solutions
-     * @return
-     */
-    private Set<Word> calculateRanks() {
-        Set<Word> wordsRanked = new TreeSet<>();
-        int bestRank = 0;
-        for (Word w1 : words.values()) {
-            int totalRankForWord = 0;
-            for(Word w2 : words.values()) {
-                if (!w1.haveCommonCharacters(w2)) {
-                    //totalRankForWord = worstCaseSolutionsSize;
-                    continue;
-                }
-                AtomicInteger rank = new AtomicInteger(0);
-                w1.charactersInCommon(w2).frequencies().values().forEach(freq -> {
-                    rank.set(rank.get() + freq);
-                });
-                totalRankForWord += rank.get();
-            };
-            Word ranked = new Word(w1.getWord(), totalRankForWord);
-            wordsRanked.add(ranked);
-            if (totalRankForWord > bestRank) {
-                bestRank = totalRankForWord;
-                System.out.println("Best so far " + ranked.getWord() + " " + ranked.getRank());
-                //System.out.println(wordsRanked.size() + "/" + words.size());
-            }
-        }
-        return wordsRanked;
     }
 
     private Map<String, Word> loadDictionary() throws IOException, URISyntaxException {
@@ -137,47 +67,11 @@ public class Dictionary implements Component {
         return Collections.unmodifiableMap(words);
     }
 
-    private Set<Word> loadWordsRanked() throws IOException, URISyntaxException {
-        // Load the JSON file
-        URL resource = getClass().getResource("/com/psidnell/Rank.json");
-        if (resource == null) {
-            throw new IOException("Rank.json not found in classpath");
-        }
-
-        String content = new String(Files.readAllBytes(Paths.get(resource.toURI())));
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode rootNode = mapper.readTree(content);
-
-        Set<Word> words = new TreeSet<>();
-
-        // Extract words from the JSON structure
-        JsonNode ranksNode = rootNode.get("ranks");
-        if (ranksNode.isArray()) {
-            for (JsonNode rankNode : ranksNode) {
-                JsonNode wordNode = rankNode.findValue("word");
-                if (wordNode.isTextual()) {
-                    String wordText = wordNode.asText().toUpperCase();
-
-                    JsonNode valNode = rankNode.findValue("rank");
-                    if (valNode.isNumber()) {
-                        int number = valNode.asInt();
-                        Word word = new Word(wordText, number);
-                        words.add(word);
-                    }
-                }
-            }
-        }
-
-        return Collections.unmodifiableSet(words);
-    }
-
-    // TODO return ranked
     public Collection<Word> getWords() {
         return words.values();
-        //return wordsRanked; // DISAPPOINTING!!!
     }
 
     public boolean hasWord(String word) {
-        return words.keySet().contains(word);
+        return words.containsKey(word.toUpperCase());
     }
 }

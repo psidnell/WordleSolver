@@ -265,8 +265,7 @@ public class Wordle extends ComponentImpl {
             //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
             if (totalSolutionsForWord < lowestSolutionsCount) {
-                System.out.println("Best word so far: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord +
-                        " rank " + dictionaryWordGuess.getRank());
+                System.out.println("Best word so far: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
                 bestWord = dictionaryWordGuess;
                 lowestSolutionsCount = totalSolutionsForWord;
             }
@@ -311,8 +310,7 @@ public class Wordle extends ComponentImpl {
             //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
             if (totalRankForWord > highestRank) {
-                System.out.println("Best word so far: " + dictionaryWordGuess + " Rank: " + totalRankForWord +
-                        " rank " + dictionaryWordGuess.getRank());
+                System.out.println("Best word so far: " + dictionaryWordGuess + " Rank: " + totalRankForWord);
                 bestWord = dictionaryWordGuess;
                 highestRank = totalRankForWord;
             }

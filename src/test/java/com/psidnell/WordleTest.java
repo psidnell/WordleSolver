@@ -30,8 +30,8 @@ public class WordleTest {
         wordle.setContext(context);
         wordle.init();
 
-        wordle.setSolution("geeky");
-        assertTrue(wordle.userGuess("geeky"));
+        wordle.setSolution("GEEKY");
+        assertTrue(wordle.userGuess("GEEKY"));
     }
 
     @Test

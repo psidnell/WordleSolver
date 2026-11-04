@@ -10,22 +10,12 @@ import java.util.Set;
 public class Word implements Comparable<Word> {
     private CharacterFrequency frequencies = null;
     private final String word;
-    private final int rank;
 
     public Word(String word) {
         if (word.length() != 5) {
             throw new PlayerException("Word must be 5 characters long");
         }
         this.word = word.toUpperCase();
-        rank = -1;
-    }
-
-    public Word(String word, int rank) {
-        if (word.length() != 5) {
-            throw new PlayerException("Word must be 5 characters long");
-        }
-        this.word = word.toUpperCase();
-        this.rank = rank;
     }
 
     public String getWord() {
@@ -92,11 +82,6 @@ public class Word implements Comparable<Word> {
 
     @Override
     public int compareTo(Word o) {
-        int result = Integer.compare(rank, o.rank);
-        if (result != 0) {
-            return result;
-        }
-
         return word.compareTo(o.word);
     }
 
@@ -104,16 +89,12 @@ public class Word implements Comparable<Word> {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Word word1 = (Word) o;
-        return rank == word1.rank && Objects.equals(word, word1.word);
+        return Objects.equals(word, word1.word);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(word, rank);
-    }
-
-    public int getRank() {
-        return rank;
+        return Objects.hash(word);
     }
 
     public CharacterFrequency geFrequencies() {
