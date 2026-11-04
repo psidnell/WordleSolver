@@ -94,6 +94,7 @@ public class WordleTest {
     private static Stream<Arguments> provideSolutions() {
         return Stream.of(
                 // Solution, guesses
+                Arguments.of("nutty", 3, new String[]{}),
                 Arguments.of("noggs", 5, new String[]{}),
                 Arguments.of("legno", 4, new String[]{}),
                 Arguments.of("pouch", 4, new String[]{}),
