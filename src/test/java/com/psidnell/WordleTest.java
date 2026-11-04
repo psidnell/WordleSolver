@@ -94,6 +94,7 @@ public class WordleTest {
     private static Stream<Arguments> provideSolutions() {
         return Stream.of(
                 // Solution, guesses
+                Arguments.of("noggs", 5, new String[]{}),
                 Arguments.of("legno", 4, new String[]{}),
                 Arguments.of("pouch", 4, new String[]{}),
                 Arguments.of("scoot", 3, new String[]{}),
@@ -125,27 +126,28 @@ public class WordleTest {
         assertEquals(tries, wordle.guessesMade);
     }
 
-    private static Stream<Arguments> provideFailures() {
-        return Stream.of(
-                // Solution, guesses
-                Arguments.of("noggs", new String[]{})
-        );
-    }
-    @ParameterizedTest
-    @MethodSource("provideFailures")
-    void testFailureWords(String solution, String[] guesses) throws Exception {
-        Context context = new Context();
-        Wordle wordle = context.get("wordle", Wordle.class);
-        wordle.setContext(context);
-        wordle.init();
-        wordle.setSolution(solution);
-
-        for (String guess : guesses) {
-            wordle.guess(guess);
-        }
-
-        solve(wordle, false);
-    }
+    // No known failures
+//    private static Stream<Arguments> provideFailures() {
+//        return Stream.of(
+//                // Solution, guesses
+//                Arguments.of("noggs", new String[]{})
+//        );
+//    }
+//    @ParameterizedTest
+//    @MethodSource("provideFailures")
+//    void testFailureWords(String solution, String[] guesses) throws Exception {
+//        Context context = new Context();
+//        Wordle wordle = context.get("wordle", Wordle.class);
+//        wordle.setContext(context);
+//        wordle.init();
+//        wordle.setSolution(solution);
+//
+//        for (String guess : guesses) {
+//            wordle.guess(guess);
+//        }
+//
+//        solve(wordle, false);
+//    }
 
     @Test
     void testSolvingRandomWords() throws Exception {
