@@ -8,7 +8,7 @@ public class Main {
 
     private static Wordle wordle;
 
-    public static void main(String[] args) throws Exception {
+    static void main(String[] args) throws Exception {
        final Context context = new Context();
        wordle = context.get("wordle", Wordle.class);
 
@@ -24,7 +24,7 @@ public class Main {
                 IO.print("Enter command: ");
                 String input = scanner.nextLine();
 
-                running = processLine(input, running);
+                running = processLine(input);
             } catch (PlayerException e) {
                 System.out.println("Error: " + e.getMessage());
             }
@@ -33,9 +33,10 @@ public class Main {
         scanner.close();
     }
 
-    private static boolean processLine(String input, boolean running) {
+    private static boolean processLine(String input) {
+
         if (input == null || input.trim().isEmpty()) {
-            return running;
+            return true;
         }
 
         // Extract the first word as the command
@@ -52,8 +53,7 @@ public class Main {
             case "quit":
                 ensureArguments(parts, 0);
                 IO.println("Goodbye!");
-                running = false;
-                break;
+                return false;
             case "s":
             case "solution":
                 ensureArguments(parts, 1);
@@ -62,10 +62,9 @@ public class Main {
             case "g":
             case "guess":
                 ensureArguments(parts, 1);
-                boolean correct = wordle.userGuess(parts[1].toLowerCase());
+                boolean correct = wordle.guess(parts[1].toLowerCase());
                 boolean guessesRemaining = wordle.getGuessesRemaining() >0;
-                running = guessesRemaining && !correct;
-                break;
+                return guessesRemaining && !correct;
             case "r":
             case "remaining":
                 ensureArguments(parts, 0);
@@ -74,23 +73,23 @@ public class Main {
             case "p":
             case "propose":
                 ensureArguments(parts, 0);
-                wordle.propose();
+                String bsetWord = wordle.propose();
+                System.out.println("Proposal: " + bsetWord);
                 break;
             case "a":
             case "answer":
                 ensureArguments(parts, 2);
-                wordle.answer(parts[1], parts[2]);
-                break;
+                return wordle.answer(parts[1], parts[2]);
             default:
                 IO.println("Unknown command: " + command);
                 IO.println("Type 'help' for available commands.");
                 break;
         }
 
-        return running;
+        return true;
     }
 
-    static void ensureArguments(String parts[], int count) {
+    static void ensureArguments(String[] parts, int count) {
         if (parts.length - 1 != count) {
             throw new PlayerException("Wrong number of arguments, expected " + count);
         }

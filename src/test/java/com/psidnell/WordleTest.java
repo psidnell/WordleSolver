@@ -31,7 +31,7 @@ public class WordleTest {
         wordle.init();
 
         wordle.setSolution("GEEKY");
-        assertTrue(wordle.userGuess("GEEKY"));
+        assertTrue(wordle.guess("GEEKY"));
     }
 
     @Test
@@ -42,12 +42,12 @@ public class WordleTest {
         wordle.init();
 
         wordle.setSolution("geeky");
-        assertFalse(wordle.userGuess("wonky"));
-        assertFalse(wordle.userGuess("wonky"));
-        assertFalse(wordle.userGuess("wonky"));
-        assertFalse(wordle.userGuess("wonky"));
-        assertFalse(wordle.userGuess("wonky"));
-        assertTrue(wordle.userGuess("geeky"));
+        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("wonky"));
+        assertTrue(wordle.guess("geeky"));
     }
 
     @Test
@@ -58,13 +58,13 @@ public class WordleTest {
         wordle.init();
 
         wordle.setSolution("geeky");
-        assertFalse(wordle.userGuess("wonky"));
-        assertFalse(wordle.userGuess("wonky"));
-        assertFalse(wordle.userGuess("wonky"));
-        assertFalse(wordle.userGuess("wonky"));
-        assertFalse(wordle.userGuess("wonky"));
-        assertFalse(wordle.userGuess("wonky"));
-        assertFalse(wordle.userGuess("geeky"));
+        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("geeky"));
     }
 
     @Test
@@ -118,7 +118,7 @@ public class WordleTest {
         wordle.setSolution(solution);
 
         for (String guess : guesses) {
-            wordle.userGuess(guess);
+            wordle.guess(guess);
         }
 
         solve(wordle, true);
@@ -141,7 +141,7 @@ public class WordleTest {
         wordle.setSolution(solution);
 
         for (String guess : guesses) {
-            wordle.userGuess(guess);
+            wordle.guess(guess);
         }
 
         solve(wordle, false);
@@ -184,7 +184,7 @@ public class WordleTest {
     private static void solve(Wordle wordle, boolean expectSuccess) {
         while (wordle.getGuessesRemaining() > 0 && !wordle.isSolved()) {
             String proposal = wordle.propose();
-            wordle.userGuess(proposal);
+            wordle.guess(proposal);
             wordle.printStatus();
         }
         wordle.printStatus();

@@ -29,13 +29,11 @@ public class Wordle extends ComponentImpl {
     }
 
     public void setSolution(String solutionStr) {
-        //String solution = solutionStr.toUpperCase();
-
         this.solution = new Word(solutionStr);
     }
 
     public void printStatus() {
-        System.out.println("STATUS ==============================");
+        System.out.println("STATUS:");
         if (solution != null) {
             System.out.println("Solution Known: " + solution.getWord());
         }
@@ -58,14 +56,11 @@ public class Wordle extends ComponentImpl {
             System.out.print("Solutions Remaining:");
             System.out.println(solutions.getSolutions().stream().map(Word::toString).collect(Collectors.joining(",")));
         }
-        System.out.println("==============================");
-
     }
 
     public boolean answer(String guessStr, String answer) {
         String guess = guessStr.toUpperCase();
-        System.out.println("++++++++++++++++++++++++++++++");
-        System.out.println("ANSWER");
+        System.out.println("ANSWER:");
         Word guessWord = new Word(guess);
         RuleSet r = new RuleSet(guessWord, answer);
         combinedRuleSet = combinedRuleSet.combineRuleSet(r);
@@ -94,8 +89,6 @@ public class Wordle extends ComponentImpl {
             return false;
         }
 
-        System.out.println("++++++++++++++++++++++++++++++");
-
         if (solutions.getSolutions().isEmpty()) {
             throw new IllegalArgumentException("Cannot have no words left");
         }
@@ -103,79 +96,66 @@ public class Wordle extends ComponentImpl {
         return true;
     }
 
-    // TODO Move all of the tests snd printing here
-    public boolean userGuess(String guessStr) {
+    public boolean guess(String guessStr) {
         String guess = guessStr.toUpperCase();
-        System.out.println(" GUESS *******************************");
-        try {
-            System.out.println("Turn " + (7 - guessesRemaining) + ": Guessing " + guess);
-            if (guessesRemaining == 0) {
-                System.out.println("FAILED! No more guesses!");
-                return false;
-            }
-
-            Word guessWord = new Word(guess);
-
-            if (guess.length() != 5) {
-                System.out.println("Guess must be 5 characters");
-                return false;
-            }
-
-            if (!dictionary.hasWord(guess)) {
-                System.out.println("Unknown word");
-                return false;
-            }
-
-            // We have a valid guess
-            previousGuesses.add(guess);
-            guessesRemaining--;
-            guessesMade++;
-
-            System.out.println("Pre Cumulative: " + combinedRuleSet);
-
-            int solutionsBefore = solutions.getSolutions().size();
-            AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
-            RuleSet match = guess(guessWord, solution, solutions, rulesSoFarRef);
-            combinedRuleSet = rulesSoFarRef.get();
-            userGuessSolutionsRemaining.add(solutions.getSolutions().size());
-            previousRuleSets.add(combinedRuleSet);
-            int solutionsAfter = solutions.getSolutions().size();
-
-            System.out.println("Derived Match:   " + match);
-            System.out.println("Post Cumulative: " + combinedRuleSet);
-            System.out.println("Solutions dropped from " + solutionsBefore + " to " + solutionsAfter);
-
-
-            if (guessWord.equals(solution)) {
-                System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses");
-
-                return true;
-            }
-
-            if (solutions.getSolutions().isEmpty()) {
-                throw new IllegalArgumentException("Solutions are empty");
-            }
-
+        System.out.println("GUESS");
+        System.out.println("Turn " + (7 - guessesRemaining) + ": Guessing " + guess);
+        if (guessesRemaining == 0) {
+            System.out.println("FAILED! No more guesses!");
             return false;
-        } finally {
-            System.out.println("*******************************");
         }
-    }
 
-    public RuleSet guess(Word guess, Word solution, Solutions solutions, AtomicReference<RuleSet> rulesSoFarRef) {
-        RuleSet match = new RuleSet(guess, solution);
+        Word guessWord = new Word(guess);
+
+        if (guess.length() != 5) {
+            System.out.println("Guess must be 5 characters");
+            return false;
+        }
+
+        if (!dictionary.hasWord(guess)) {
+            System.out.println("Unknown word");
+            return false;
+        }
+
+        // We have a valid guess
+        previousGuesses.add(guess);
+        guessesRemaining--;
+        guessesMade++;
+
+        System.out.println("Pre Cumulative: " + combinedRuleSet);
+
+        int solutionsBefore = solutions.getSolutions().size();
+        AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
+        RuleSet match = new RuleSet(guessWord, solution);
         rulesSoFarRef.set(match.combineRuleSet(rulesSoFarRef.get()));
         solutions.prune(rulesSoFarRef.get());
-        return match;
+        combinedRuleSet = rulesSoFarRef.get();
+        userGuessSolutionsRemaining.add(solutions.getSolutions().size());
+        previousRuleSets.add(combinedRuleSet);
+        int solutionsAfter = solutions.getSolutions().size();
+
+        System.out.println("Derived Match:   " + match);
+        System.out.println("Post Cumulative: " + combinedRuleSet);
+        System.out.println("Solutions dropped from " + solutionsBefore + " to " + solutionsAfter);
+
+        if (guessWord.equals(solution)) {
+            System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses");
+            return true;
+        }
+
+        if (solutions.getSolutions().isEmpty()) {
+            throw new IllegalArgumentException("Solutions are empty");
+        }
+
+        return false;
     }
 
     public String propose() {
 
-        System.out .println ("PROPOSE *******************************");
+        System.out .println ("PROPOSE");
 
         if (guessesRemaining == 6) {
             System.out.println("First Guess:" + FIRST_GUESS);
-            System.out.println ("*******************************");
             return FIRST_GUESS;
         }
 
@@ -183,16 +163,14 @@ public class Wordle extends ComponentImpl {
         if (solutionCount == 1) {
             String lastWord = solutions.getSolutions().stream().findFirst().orElseThrow().getWord();
             System.out.println("Last Word:" + lastWord);
-            System.out.println ("*******************************");
             return lastWord;
         }
-
 
         System.out.println("Solutions: " + solutionCount);
 
         // Choose the strategy and guess solutionCount based on the number of solutions remaining
         // to balance performance against optimal result. On this machine it
-        // keps it under 20s for the 2nd guess
+        // keeps it under 20s for the 2nd guess
         Word bestWord;
 
         // Don't touch the higher levels when we provide a default first guess
@@ -221,7 +199,6 @@ public class Wordle extends ComponentImpl {
         long endTime = System.currentTimeMillis();
         System.out.println ("Time elapsed: " + (endTime - startTime)/1000 + "s");
 
-        System.out.println ("*******************************");
         return bestWord.getWord();
     }
 
@@ -250,8 +227,10 @@ public class Wordle extends ComponentImpl {
                     continue;
                 }
 
-                int prunedSize = Solver.calculateSolutions(dictionaryWordGuess, wordFromSolutions,
-                        combinedRuleSet, solutions);
+                int originalSize1 = solutions.getSolutions().size();
+                RuleSet r = combinedRuleSet.combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
+                int removed = solutions.countWordsNotMatching(r);
+                int prunedSize = originalSize1 - removed;
 
                 totalSolutionsForWord += prunedSize;
 
@@ -333,10 +312,6 @@ public class Wordle extends ComponentImpl {
 
     public int getGuessesRemaining() {
         return guessesRemaining;
-    }
-
-    public Solutions getSolutions() {
-        return solutions;
     }
 
     public boolean isSolved() {
