@@ -49,6 +49,10 @@ public class Main {
                 ensureArguments(parts, 0);
                 printHelp();
                 break;
+            case "i":
+            case "info":
+                wordle.printStatus();
+                break;
             case "q":
             case "quit":
                 ensureArguments(parts, 0);
@@ -99,6 +103,7 @@ public class Main {
         System.out.println("Command Line Wordle Solver");
         System.out.println("Commands:");
         System.out.println("h/help | print this help");
+        System.out.println("i/info | print game info/status");
         System.out.println("s/solution <solution word> | set a know solution");
         System.out.println("g/guess <guess word> | guess against a known solution");
         System.out.println("r/remaining | show remaining possible solutions");
