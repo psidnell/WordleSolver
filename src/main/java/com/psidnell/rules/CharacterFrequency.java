@@ -2,6 +2,7 @@ package com.psidnell.rules;
 
 import com.psidnell.Word;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -48,9 +49,8 @@ public class CharacterFrequency {
         return frequencies.getOrDefault(c, 0);
     }
 
-    //todo dangerous
     public Map<Character, Integer>  getFrequencies() {
-        return frequencies;
+        return Collections.unmodifiableMap(frequencies);
     }
 
 
