@@ -77,15 +77,15 @@ public class WordComparison {
     }
 
     public int getRank() {
-        return 100 * nonNullCount(correctPositions) +
-                10 * nonNullCount(incorrectPositions) +
-                nonNullCount(mismatches);
+        return 100 * trueCount(correctPositions) +
+                10 * trueCount(incorrectPositions) +
+                trueCount(mismatches);
     }
 
-    private int nonNullCount(Object[] array) {
+    private int trueCount(Boolean[] array) {
         int count = 0;
         for (int i = 0; i < array.length; i++) {
-            if (array[i] != null) {
+            if (array[i]) {
                 count++;
             }
         }
@@ -118,7 +118,9 @@ public class WordComparison {
 
         sb.append(" Cmp:").append(fullMatch);
 
-        sb.append(" Rnk:").append(getRank());
+        sb.append(" Mis{").append(lettersMissing);
+
+        sb.append("} Rnk:").append(getRank());
         return sb.toString();
     }
 }
