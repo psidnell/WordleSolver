@@ -1,6 +1,12 @@
 package com.psidnell.words;
 
+import com.psidnell.rules.CharacterFrequency;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,4 +70,20 @@ public class WordTest
         assertFalse(new Word("abcde").compareWords(new Word("abcdx")).isFullMatch());
         assertTrue(new Word("abcde").compareWords(new Word("abcde")).isFullMatch());
     }
+
+    public static Stream<Arguments> compareWordsData() {
+        return Stream.of(
+                // Word1, Word2, toString
+                Arguments.of("AAAAA", "BBBBB", "Correct{_____} Incorrect{_____} Mismatches{YYYYY} Missing{A} Freq{} Cmn:0 Cmp:false"),
+                Arguments.of("AAAAA", "AAAAA", "Correct{YYYYY} Incorrect{_____} Mismatches{_____} Missing{} Freq{A:5} Cmn:5 Cmp:true"),
+                Arguments.of("AAAAA", "AABBB", "Correct{YY___} Incorrect{__YYY} Mismatches{_____} Missing{} Freq{A:2} Cmn:2 Cmp:false"),
+                Arguments.of("AAABB", "BBAAA", "Correct{__Y__} Incorrect{YY_YY} Mismatches{_____} Missing{} Freq{A:3,B:2} Cmn:5 Cmp:false")
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("compareWordsData")
+    public void testCompareWords(String word1, String word2, String toString) {
+        assertEquals(toString, new Word(word1).compareWords(new Word(word2)).toString());
+    }
+
 }

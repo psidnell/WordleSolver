@@ -56,4 +56,20 @@ public class CharacterFrequency {
     public int overlapSize() {
        return frequencies.values().stream().mapToInt(Integer::intValue).sum();
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        sb.append('{');
+        for (Map.Entry<Character, Integer> entry : frequencies.entrySet()) {
+            if (!first) {
+                sb.append(',');
+            }
+            sb.append(entry.getKey()).append(':').append(entry.getValue());
+            first = false;
+        }
+        sb.append('}');
+        return sb.toString();
+    }
 }
