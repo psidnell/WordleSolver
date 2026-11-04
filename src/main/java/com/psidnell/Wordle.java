@@ -258,10 +258,6 @@ public class Wordle extends ComponentImpl {
                     break;
                 }
 
-//                if (totalSolutionsForWord > threshold) {
-//                    // This guess is never going to be the best word - bail to save time
-//                    break;
-//                }
             }
 
             //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
@@ -289,7 +285,6 @@ public class Wordle extends ComponentImpl {
         return bestWord;
     }
 
-    // todo rename
     private Word getBestWordByRank(Collection<Word> guesses) {
         System.out.println("Total solution/guess combinations to try: " + guesses.size());
         Word bestWord = null;

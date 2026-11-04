@@ -9,14 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Solutions {
 
-    private Set<Word> solutions;
+    private final Set<Word> solutions;
 
     public Solutions(Dictionary dictionary) {
         solutions = new TreeSet<>(dictionary.getWords());
-    }
-
-    public Solutions(Solutions solutions) {
-        this.solutions = new TreeSet<>(solutions.solutions);
     }
 
     public Collection<Word> getSolutions() {
