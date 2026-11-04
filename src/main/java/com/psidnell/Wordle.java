@@ -2,6 +2,8 @@ package com.psidnell;
 
 import com.psidnell.rules.RuleSet;
 import com.psidnell.util.ComponentImpl;
+import com.psidnell.words.Word;
+import com.psidnell.words.WordComparison;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -204,7 +206,7 @@ public class Wordle extends ComponentImpl {
         if (solutionCount > l1) { // Max to L1
             System.out.println("(1) Quick Search on reduced guesses above " + l1);
             Collection<Word> guesses = solutions.getSolutions();
-            bestWord = getBestWordByLettersInCommon(guesses);
+            bestWord = getBestWordByRank(guesses);
         } else if (solutionCount > l2) {
             System.out.println("(2) Exhaustive Search on reduced guesses between " + l1 + " and " +l2);
             Collection<Word> guesses = solutions.getSolutions();
@@ -287,33 +289,35 @@ public class Wordle extends ComponentImpl {
         return bestWord;
     }
 
-    private Word getBestWordByLettersInCommon(Collection<Word> guesses) {
+    // todo rename
+    private Word getBestWordByRank(Collection<Word> guesses) {
         System.out.println("Total solution/guess combinations to try: " + guesses.size());
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
         int percentDone = -1;
-        int highestLettersInCommon = 0;
+        int highestRank = 0;
 
         for (Word dictionaryWordGuess: guesses) {
             if (previousGuesses.contains(dictionaryWordGuess.getWord())) {
                 continue;
             }
 
-            int totalLettersInCommonForWord = 0;
+            int totalRankForWord = 0;
 
             for (Word wordFromSolutions : solutions.getSolutions()) {
 
-                totalLettersInCommonForWord += dictionaryWordGuess.charactersInCommon(wordFromSolutions).overlapSize();
+                WordComparison comparison = dictionaryWordGuess.compareWords(wordFromSolutions);
+                totalRankForWord += comparison.charactersInCommon();
             }
 
             //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
-            if (totalLettersInCommonForWord > highestLettersInCommon) {
-                System.out.println("Best word so far: " + dictionaryWordGuess + " LIC: " + totalLettersInCommonForWord +
+            if (totalRankForWord > highestRank) {
+                System.out.println("Best word so far: " + dictionaryWordGuess + " Rank: " + totalRankForWord +
                         " rank " + dictionaryWordGuess.getRank());
                 bestWord = dictionaryWordGuess;
-                highestLettersInCommon = totalLettersInCommonForWord;
+                highestRank = totalRankForWord;
             }
 
             wordsDone++;
@@ -328,7 +332,7 @@ public class Wordle extends ComponentImpl {
             throw new IllegalStateException("No best word found");
         }
 
-        System.out.println("Best word: " + bestWord + " LIC: " + highestLettersInCommon);
+        System.out.println("Best word: " + bestWord + " LIC: " + highestRank);
         return bestWord;
     }
 

@@ -1,9 +1,6 @@
-package com.psidnell;
+package com.psidnell.words;
 
 import com.psidnell.rules.CharacterFrequency;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class WordComparison {
     private final CharacterFrequency commonLetterFrequency;
@@ -12,15 +9,17 @@ public class WordComparison {
     private final Boolean[] correctPositions;
     private final Boolean[] incorrectPositions;
     private final Boolean[] mismatches;
+    private final int charactersInCommon;
 
     public WordComparison(CharacterFrequency commonLetterFrequency, String lettersMissing, boolean fullMatch,
-                          Boolean[] correctPositions, Boolean[] incorrectPositions, Boolean[] mismatches) {
+                          Boolean[] correctPositions, Boolean[] incorrectPositions, Boolean[] mismatches, int charactersInCommon) {
         this.commonLetterFrequency = commonLetterFrequency;
         this.lettersMissing = lettersMissing;
         this.fullMatch = fullMatch;
         this.correctPositions = correctPositions;
         this.incorrectPositions = incorrectPositions;
         this.mismatches = mismatches;
+        this.charactersInCommon = charactersInCommon;
     }
 
     public CharacterFrequency getCommonLetterFrequency() {
@@ -45,5 +44,25 @@ public class WordComparison {
 
     public Boolean[] getMismatches() {
         return mismatches;
+    }
+
+    public int charactersInCommon() {
+        return charactersInCommon;
+    }
+
+    public int getRank() {
+        return 100 * nonNullCount(correctPositions) +
+                10 * nonNullCount(incorrectPositions) +
+                nonNullCount(mismatches);
+    }
+
+    private int nonNullCount(Object[] array) {
+        int count = 0;
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] != null) {
+                count++;
+            }
+        }
+        return count;
     }
 }

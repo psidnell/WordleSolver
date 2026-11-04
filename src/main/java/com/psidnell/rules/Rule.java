@@ -1,6 +1,6 @@
 package com.psidnell.rules;
 
-import com.psidnell.Word;
+import com.psidnell.words.Word;
 
 import java.util.HashSet;
 import java.util.Objects;

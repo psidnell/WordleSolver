@@ -1,5 +1,6 @@
-package com.psidnell;
+package com.psidnell.words;
 
+import com.psidnell.PlayerException;
 import com.psidnell.rules.CharacterFrequency;
 
 import java.util.*;
@@ -103,10 +104,11 @@ public class Word implements Comparable<Word> {
             }
         }
 
-
         String charactersMissing = charactersMissing(other);
         CharacterFrequency commonFrequencies =  charactersInCommon(other);
-        return new WordComparison(commonFrequencies, charactersMissing, equals(other), correctPositions, incorrectPositions, mismatches);
+        return new WordComparison(commonFrequencies, charactersMissing, equals(other),
+                correctPositions, incorrectPositions,
+                mismatches, charactersInCommon(other).overlapSize());
     }
 
     public Character charAt(int i) {

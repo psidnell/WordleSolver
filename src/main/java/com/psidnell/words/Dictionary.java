@@ -1,4 +1,4 @@
-package com.psidnell;
+package com.psidnell.words;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.psidnell.rules.RuleSet;
+import com.psidnell.PlayerException;
 import com.psidnell.util.Component;
 import com.psidnell.util.Context;
 

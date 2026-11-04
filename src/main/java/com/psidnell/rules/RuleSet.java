@@ -1,7 +1,7 @@
 package com.psidnell.rules;
 
-import com.psidnell.Word;
-import com.psidnell.WordComparison;
+import com.psidnell.words.Word;
+import com.psidnell.words.WordComparison;
 import com.psidnell.PlayerException;
 
 import java.util.*;

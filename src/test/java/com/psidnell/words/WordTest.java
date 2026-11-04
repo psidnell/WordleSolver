@@ -1,4 +1,4 @@
-package com.psidnell;
+package com.psidnell.words;
 
 import org.junit.jupiter.api.Test;
 

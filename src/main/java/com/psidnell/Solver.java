@@ -1,6 +1,7 @@
 package com.psidnell;
 
 import com.psidnell.rules.RuleSet;
+import com.psidnell.words.Word;
 
 public class Solver {
     public static int calculateSolutions(Word dictionaryWordGuess, Word wordFromSolutions,

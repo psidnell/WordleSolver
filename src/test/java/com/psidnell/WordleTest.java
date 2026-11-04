@@ -1,7 +1,8 @@
 package com.psidnell;
 
-import com.psidnell.rules.Rule;
 import com.psidnell.util.Context;
+import com.psidnell.words.Dictionary;
+import com.psidnell.words.Word;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

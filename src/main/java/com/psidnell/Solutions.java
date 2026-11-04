@@ -1,6 +1,8 @@
 package com.psidnell;
 
 import com.psidnell.rules.RuleSet;
+import com.psidnell.words.Dictionary;
+import com.psidnell.words.Word;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

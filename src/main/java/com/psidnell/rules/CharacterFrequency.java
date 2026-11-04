@@ -1,10 +1,9 @@
 package com.psidnell.rules;
 
-import com.psidnell.Word;
+import com.psidnell.words.Word;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 public class CharacterFrequency {
