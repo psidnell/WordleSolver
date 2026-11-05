@@ -5,6 +5,8 @@ import com.psidnell.util.ComponentImpl;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -12,10 +14,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class Wordle extends ComponentImpl {
+    private static final Logger LOG = System.getLogger(Wordle.class.getName());
     public static String FIRST_GUESS = "trace";
     private final List<Integer> userGuessSolutionsRemaining = new ArrayList<>();
     private final List<RuleSet> previousRuleSets = new ArrayList<>();
     private final List<String> previousGuesses = new ArrayList<>();
+    private final Settings settings = Settings.getInstance();
     public int guessesMade = 0;
     int guessesRemaining = 6;
     private Word solution;
@@ -122,7 +126,7 @@ public class Wordle extends ComponentImpl {
         guessesRemaining--;
         guessesMade++;
 
-        System.out.println("Pre Cumulative: " + combinedRuleSet);
+        LOG.log(Level.DEBUG, "Pre Cumulative: {0}", combinedRuleSet);
 
         int solutionsBefore = solutions.getSolutions().size();
         AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
@@ -134,9 +138,9 @@ public class Wordle extends ComponentImpl {
         previousRuleSets.add(combinedRuleSet);
         int solutionsAfter = solutions.getSolutions().size();
 
-        System.out.println("Derived Match:   " + match);
-        System.out.println("Post Cumulative: " + combinedRuleSet);
-        System.out.println("Solutions dropped from " + solutionsBefore + " to " + solutionsAfter);
+        LOG.log(Level.DEBUG, "Derived Match:   {0}", match);
+        LOG.log(Level.DEBUG, "Post Cumulative: {0}", combinedRuleSet);
+        LOG.log(Level.DEBUG, "Solutions dropped from: {0} to {1}", solutionsBefore, solutionsAfter);
 
         if (guessWord.equals(solution)) {
             System.out.println("SUCCESS Guessed correctly in " + (6 - guessesRemaining) + " guesses");
@@ -175,11 +179,11 @@ public class Wordle extends ComponentImpl {
 
         // Don't touch the higher levels when we provide a default first guess
 
-        // Uses solution 1
-        final int l1 = 500;
-        // Uses solution 2
-        final int l2 = 150;
-        // Uses solution 3
+        // Greater than: Uses solution 1
+        final int l1 = settings.getSearchThresholdWorst();
+        // Between: Uses solution 2
+        final int l2 = settings.getSearchThresholdBest();
+        // Below: Uses solution 3
 
         long startTime = System.currentTimeMillis();
 
@@ -203,7 +207,7 @@ public class Wordle extends ComponentImpl {
     }
 
     private Word getBestWordByExhaustiveSearch(Collection<Word> guesses) {
-        System.out.println("Total solution/guess combinations to try: " + guesses.size());
+        LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", guesses.size());
 
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
@@ -222,7 +226,7 @@ public class Wordle extends ComponentImpl {
                 int originalSize = solutions.getSolutions().size();
 
                 if (!dictionaryWordGuess.haveCommonCharacters(wordFromSolutions)) {
-                    //System.out.println("No common letters " +dictionaryWordGuess +"/" +wordFromSolutions);
+                    LOG.log(Level.DEBUG, "No common letters {0}/{1}", dictionaryWordGuess, wordFromSolutions);
                     totalSolutionsForWord += originalSize;
                     continue;
                 }
@@ -241,10 +245,10 @@ public class Wordle extends ComponentImpl {
 
             }
 
-            //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
+            LOG.log(Level.DEBUG, "{0}", "Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
             if (totalSolutionsForWord < lowestSolutionsCount) {
-                System.out.println("Best word so far: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
+                LOG.log(Level.INFO, "Best word so far: {0} solutions: {1}", dictionaryWordGuess, totalSolutionsForWord);
                 bestWord = dictionaryWordGuess;
                 lowestSolutionsCount = totalSolutionsForWord;
             }
@@ -253,7 +257,7 @@ public class Wordle extends ComponentImpl {
             int nextPercentDome = (100 * wordsDone) / dictWords;
             if (percentDone != nextPercentDome) {
                 percentDone = nextPercentDome;
-                //System.out.println("PercentDone: " + percentDone);
+                LOG.log(Level.DEBUG, "PercentDone {0}%", percentDone);
             }
         }
 
@@ -261,12 +265,12 @@ public class Wordle extends ComponentImpl {
             throw new IllegalStateException("No best word found");
         }
 
-        System.out.println("Best word: " + bestWord + " solutions: " + lowestSolutionsCount);
+        LOG.log(Level.INFO, "Best word: {0} Solutions", bestWord, lowestSolutionsCount);
         return bestWord;
     }
 
     private Word getBestWordByRank(Collection<Word> guesses) {
-        System.out.println("Total solution/guess combinations to try: " + guesses.size());
+        LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", guesses.size());
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
@@ -286,10 +290,10 @@ public class Wordle extends ComponentImpl {
                 totalRankForWord += comparison.charactersInCommon();
             }
 
-            //System.out.println("Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
+            LOG.log(Level.DEBUG, "Analysed: {0} Total Rank: {1}", dictionaryWordGuess, totalRankForWord);
 
             if (totalRankForWord > highestRank) {
-                System.out.println("Best word so far: " + dictionaryWordGuess + " Rank: " + totalRankForWord);
+                LOG.log(Level.INFO, "Best word so far: {0} Rank: {1}", dictionaryWordGuess, totalRankForWord);
                 bestWord = dictionaryWordGuess;
                 highestRank = totalRankForWord;
             }
@@ -298,7 +302,7 @@ public class Wordle extends ComponentImpl {
             int nextPercentDome = (100 * wordsDone) / dictWords;
             if (percentDone != nextPercentDome) {
                 percentDone = nextPercentDome;
-                //System.out.println("PercentDone: " + percentDone);
+                LOG.log(Level.DEBUG, "PercentDone: {0}%", percentDone);
             }
         }
 
@@ -306,7 +310,7 @@ public class Wordle extends ComponentImpl {
             throw new IllegalStateException("No best word found");
         }
 
-        System.out.println("Best word: " + bestWord + " LIC: " + highestRank);
+        LOG.log(Level.INFO, "Best word: {0} Rank: {1}", bestWord, highestRank);
         return bestWord;
     }
 
