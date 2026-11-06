@@ -78,9 +78,21 @@ public class WordComparison {
     }
 
     public int getRank() {
-        return 100 * trueCount(correctPositions) +
+        return
+                10000 * charactersInCommon +
+                1000 * trueCount(correctPositions) +
+
+                100 * lettersMissing.length() +
                 10 * trueCount(incorrectPositions) +
                 trueCount(mismatches);
+
+//                10000 * trueCount(correctPositions) +
+//                1000 * charactersInCommon +
+//                100 * lettersMissing.length() +
+//                10 * trueCount(incorrectPositions) +
+//                trueCount(mismatches);
+
+
     }
 
     private int trueCount(Boolean[] array) {

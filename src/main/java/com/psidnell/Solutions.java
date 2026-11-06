@@ -18,7 +18,11 @@ public class Solutions {
         solutions = new TreeSet<>(dictionary.getWords());
     }
 
-    public Collection<Word> getSolutions() {
+    public Solutions(Collection<Word> words) {
+        solutions = new TreeSet<>(words);
+    }
+
+    public Collection<Word> getWords() {
         return solutions;
     }
 
@@ -43,5 +47,9 @@ public class Solutions {
 
     public boolean contains(Word word) {
         return solutions.contains(word);
+    }
+
+    public void add(Solutions other) {
+        this.solutions.addAll(other.getWords());
     }
 }

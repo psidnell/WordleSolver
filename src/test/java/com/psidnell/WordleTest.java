@@ -93,28 +93,35 @@ public class WordleTest {
     //todo try and solve ALL dictionary words - when performance improved
     private static Stream<Arguments> provideSolutions() {
         return Stream.of(
-                // Solution, guesses
-                Arguments.of("dreck", 2, new String[]{}),
-                Arguments.of("parch", 3, new String[]{}),
-                Arguments.of("nutty", 3, new String[]{}),
-                Arguments.of("noggs", 5, new String[]{}),
-                Arguments.of("legno", 4, new String[]{}),
-                Arguments.of("pouch", 4, new String[]{}),
-                Arguments.of("scoot", 3, new String[]{}),
-                Arguments.of("viper", 5, new String[]{}),
-                Arguments.of("yahoo", 5, new String[]{}),
-                Arguments.of("grist", 3, new String[]{}),
-                Arguments.of("align", 3, new String[]{}),
-                Arguments.of("aloft", 3, new String[]{}),
-                Arguments.of("grump", 4, new String[]{}),
-                Arguments.of("geeky", 4, new String[]{}),
-                Arguments.of("slide", 4, new String[]{}),
-                Arguments.of("motor", 4, new String[]{})
+                // Solution, guesses, succeeds
+
+                // Falures
+                Arguments.of("waxes", 6, new String[]{}, false),
+                Arguments.of("nunks", 6, new String[]{}, false),
+
+                 // Successes
+                Arguments.of("soyle", 4, new String[]{}, true),
+                Arguments.of("dreck", 2, new String[]{}, true),
+                Arguments.of("parch", 3, new String[]{}, true),
+                Arguments.of("nutty", 3, new String[]{}, true),
+                Arguments.of("noggs", 5, new String[]{}, true),
+                Arguments.of("legno", 4, new String[]{}, true),
+                Arguments.of("pouch", 4, new String[]{}, true),
+                Arguments.of("scoot", 3, new String[]{}, true),
+                Arguments.of("viper", 5, new String[]{}, true),
+                Arguments.of("yahoo", 5, new String[]{}, true),
+                Arguments.of("grist", 3, new String[]{}, true),
+                Arguments.of("align", 3, new String[]{}, true),
+                Arguments.of("aloft", 3, new String[]{}, true),
+                Arguments.of("grump", 4, new String[]{}, true),
+                Arguments.of("geeky", 4, new String[]{}, true),
+                Arguments.of("slide", 4, new String[]{}, true),
+                Arguments.of("motor", 4, new String[]{}, true)
         );
     }
     @ParameterizedTest
     @MethodSource("provideSolutions")
-    void testSolvingInFixedTurns(String solution, int tries, String[] guesses) throws Exception {
+    void testSolvingInFixedTurns(String solution, int tries, String[] guesses, boolean succeeds) throws Exception {
         Context context = new Context();
         Wordle wordle = context.get("wordle", Wordle.class);
         wordle.setContext(context);
@@ -125,30 +132,8 @@ public class WordleTest {
             wordle.guess(guess);
         }
 
-        solve(wordle, true);
+        solve(wordle, succeeds);
         assertEquals(tries, wordle.guessesMade);
-    }
-
-    private static Stream<Arguments> provideFailures() {
-        return Stream.of(
-                // Solution, guesses
-                Arguments.of("nunks", new String[]{})
-        );
-    }
-    @ParameterizedTest
-    @MethodSource("provideFailures")
-    void testFailureWords(String solution, String[] guesses) throws Exception {
-        Context context = new Context();
-        Wordle wordle = context.get("wordle", Wordle.class);
-        wordle.setContext(context);
-        wordle.init();
-        wordle.setSolution(solution);
-
-        for (String guess : guesses) {
-            wordle.guess(guess);
-        }
-
-        solve(wordle, false);
     }
 
     @Test
