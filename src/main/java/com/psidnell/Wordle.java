@@ -192,7 +192,7 @@ public class Wordle extends ComponentImpl {
             Collection<Word> guesses = solutions.getSolutions();
             bestWord = getBestWordByRank(guesses);
         } else if (solutionCount > l2) {
-            System.out.println("(2) Exhaustive Search on reduced guesses between " + l1 + " and " + l2);
+            System.out.println("(2) Exhaustive Search on reduced guesses between " + l2 + " and " + l1);
             Collection<Word> guesses = solutions.getSolutions();
             bestWord = getBestWordByExhaustiveSearch(guesses);
         } else {
@@ -242,13 +242,18 @@ public class Wordle extends ComponentImpl {
                     // This guess is never going to be the best word - bail to save time
                     break;
                 }
-
             }
 
             LOG.log(Level.DEBUG, "{0}", "Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
-            if (totalSolutionsForWord < lowestSolutionsCount) {
-                LOG.log(Level.INFO, "Best word so far: {0} solutions: {1}", dictionaryWordGuess, totalSolutionsForWord);
+            if (totalSolutionsForWord == lowestSolutionsCount && solutions.contains(dictionaryWordGuess) && !solutions.contains(bestWord)) {
+                // Prefer a guess if it's in the solution set
+                LOG.log(Level.INFO, "Best (solution) word so far: {0} solutions: {1}", dictionaryWordGuess, totalSolutionsForWord);
+                bestWord = dictionaryWordGuess;
+                lowestSolutionsCount = totalSolutionsForWord;
+            }
+            else if (totalSolutionsForWord < lowestSolutionsCount) {
+                LOG.log(Level.INFO, "Best (dictionary) word so far: {0} solutions: {1}", dictionaryWordGuess, totalSolutionsForWord);
                 bestWord = dictionaryWordGuess;
                 lowestSolutionsCount = totalSolutionsForWord;
             }

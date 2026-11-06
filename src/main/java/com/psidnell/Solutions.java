@@ -40,4 +40,8 @@ public class Solutions {
         });
         return count.get();
     }
+
+    public boolean contains(Word word) {
+        return solutions.contains(word);
+    }
 }
