@@ -79,18 +79,11 @@ public class WordComparison {
 
     public int getRank() {
         return
-                10000 * charactersInCommon +
-                1000 * trueCount(correctPositions) +
-
+                10000 * trueCount(correctPositions) +
+                1000 * charactersInCommon +
                 100 * lettersMissing.length() +
                 10 * trueCount(incorrectPositions) +
                 trueCount(mismatches);
-
-//                10000 * trueCount(correctPositions) +
-//                1000 * charactersInCommon +
-//                100 * lettersMissing.length() +
-//                10 * trueCount(incorrectPositions) +
-//                trueCount(mismatches);
 
 
     }
