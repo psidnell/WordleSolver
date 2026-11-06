@@ -250,7 +250,6 @@ public class Wordle extends ComponentImpl {
                 // Prefer a guess if it's in the solution set
                 LOG.log(Level.INFO, "Best (solution) word so far: {0} solutions: {1}", dictionaryWordGuess, totalSolutionsForWord);
                 bestWord = dictionaryWordGuess;
-                lowestSolutionsCount = totalSolutionsForWord;
             }
             else if (totalSolutionsForWord < lowestSolutionsCount) {
                 LOG.log(Level.INFO, "Best (dictionary) word so far: {0} solutions: {1}", dictionaryWordGuess, totalSolutionsForWord);
@@ -297,8 +296,11 @@ public class Wordle extends ComponentImpl {
 
             LOG.log(Level.DEBUG, "Analysed: {0} Total Rank: {1}", dictionaryWordGuess, totalRankForWord);
 
-            if (totalRankForWord > highestRank) {
-                LOG.log(Level.INFO, "Best word so far: {0} Rank: {1}", dictionaryWordGuess, totalRankForWord);
+            if (totalRankForWord == highestRank && solutions.contains(dictionaryWordGuess) && !solutions.contains(bestWord)) {
+                LOG.log(Level.INFO, "Best (solution) word so far: {0} Rank: {1}", dictionaryWordGuess, totalRankForWord);
+                bestWord = dictionaryWordGuess;
+            } else if (totalRankForWord > highestRank) {
+                LOG.log(Level.INFO, "Best (dictionary) word so far: {0} Rank: {1}", dictionaryWordGuess, totalRankForWord);
                 bestWord = dictionaryWordGuess;
                 highestRank = totalRankForWord;
             }
