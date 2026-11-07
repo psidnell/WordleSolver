@@ -30,7 +30,7 @@ public interface Rule extends Comparable<Rule> {
     }
 
     static Rule createWrongPlace(Character ch, int position) {
-        return new RuleImpl(RuleType.WRONG_PLACE, ch, position, -1);
+        return new WrongPlaceRule(ch, position);
     }
 
     //todo Inline - BUT it makes it slower
