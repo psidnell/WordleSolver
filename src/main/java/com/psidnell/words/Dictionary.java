@@ -2,6 +2,7 @@ package com.psidnell.words;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.psidnell.profile.Probe;
 import com.psidnell.util.Component;
 import com.psidnell.util.Context;
 
@@ -40,26 +41,27 @@ public class Dictionary implements Component {
     }
 
     private Map<String, Word> loadDictionary() throws IOException, URISyntaxException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                Objects.requireNonNull(this.getClass().getResourceAsStream("/com/psidnell/Dictionary.json"))));) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode rootNode = mapper.readTree(reader);
+        try (Probe p = new Probe(this.getClass(), "loadDictionary")) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    Objects.requireNonNull(this.getClass().getResourceAsStream("/com/psidnell/Dictionary.json"))));) {
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode rootNode = mapper.readTree(reader);
 
-        Map<String, Word> words = new TreeMap<>();
+                Map<String, Word> words = new TreeMap<>();
 
-        // Extract words from the JSON structure
-        JsonNode wordsNode = rootNode.get("words");
-        if (wordsNode.isArray()) {
-            for (JsonNode wordNode : wordsNode) {
-                if (wordNode.isTextual()) {
-                    String wordText = wordNode.asText().toUpperCase();
-                    Word word = new Word(wordText);
-                    words.put(wordText, word);
+                // Extract words from the JSON structure
+                JsonNode wordsNode = rootNode.get("words");
+                if (wordsNode.isArray()) {
+                    for (JsonNode wordNode : wordsNode) {
+                        if (wordNode.isTextual()) {
+                            String wordText = wordNode.asText().toUpperCase();
+                            Word word = new Word(wordText);
+                            words.put(wordText, word);
+                        }
+                    }
                 }
+                return Collections.unmodifiableMap(words);
             }
-        }
-
-        return Collections.unmodifiableMap(words);
         }
     }
 

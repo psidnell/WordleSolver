@@ -1,5 +1,6 @@
 package com.psidnell.rules;
 
+import com.psidnell.profile.Probe;
 import com.psidnell.words.Word;
 
 import java.util.HashSet;
@@ -106,14 +107,16 @@ public class Rule implements Comparable<Rule> {
     }
 
     public boolean match(Word word) {
-        return switch (type) {
-            case MATCH -> chars.contains(word.charAt(position));
-            case NOT -> !chars.contains(word.charAt(position));
-            case WRONG_PLACE -> wrongPlace(word);
-            case MUST_NOT_HAVE -> mustNotHave(word);
-            case MUST_HAVE_AT_LEAST -> mustHaveAtLeast(word);
-            case MUST_HAVE_AT_MOST -> mustHaveAtMost(word);
-        };
+        try (Probe p = new Probe(this.getClass(), "match", this.type.name())) {
+            return switch (type) {
+                case MATCH -> chars.contains(word.charAt(position));
+                case NOT -> !chars.contains(word.charAt(position));
+                case WRONG_PLACE -> wrongPlace(word);
+                case MUST_NOT_HAVE -> mustNotHave(word);
+                case MUST_HAVE_AT_LEAST -> mustHaveAtLeast(word);
+                case MUST_HAVE_AT_MOST -> mustHaveAtMost(word);
+            };
+        }
     }
 
     private boolean mustHaveAtLeast(Word word) {

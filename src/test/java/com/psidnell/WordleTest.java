@@ -1,5 +1,6 @@
 package com.psidnell;
 
+import com.psidnell.profile.Profiler;
 import com.psidnell.util.Context;
 import com.psidnell.words.Dictionary;
 import com.psidnell.words.Word;
@@ -100,10 +101,10 @@ public class WordleTest {
                 Arguments.of("nunks", 6, new String[]{}, false),
 
                  // Successes
-                Arguments.of("prate", 4, new String[]{}, true),
+                Arguments.of("prate", 3, new String[]{}, true),
                 Arguments.of("soyle", 4, new String[]{}, true),
                 Arguments.of("dreck", 2, new String[]{}, true),
-                Arguments.of("parch", 3, new String[]{}, true),
+                Arguments.of("parch", 4, new String[]{}, true),
                 Arguments.of("nutty", 3, new String[]{}, true),
                 Arguments.of("noggs", 5, new String[]{}, true),
                 Arguments.of("legno", 4, new String[]{}, true),
@@ -123,18 +124,23 @@ public class WordleTest {
     @ParameterizedTest
     @MethodSource("provideSolutions")
     void testSolvingInFixedTurns(String solution, int tries, String[] guesses, boolean succeeds) throws Exception {
-        Context context = new Context();
-        Wordle wordle = context.get("wordle", Wordle.class);
-        wordle.setContext(context);
-        wordle.init();
-        wordle.setSolution(solution);
+        try {
+            Profiler.reset();
+            Context context = new Context();
+            Wordle wordle = context.get("wordle", Wordle.class);
+            wordle.setContext(context);
+            wordle.init();
+            wordle.setSolution(solution);
 
-        for (String guess : guesses) {
-            wordle.guess(guess);
+            for (String guess : guesses) {
+                wordle.guess(guess);
+            }
+
+            solve(wordle, succeeds);
+            assertEquals(tries, wordle.guessesMade);
+        } finally {
+            Profiler.report();
         }
-
-        solve(wordle, succeeds);
-        assertEquals(tries, wordle.guessesMade);
     }
 
     @Test

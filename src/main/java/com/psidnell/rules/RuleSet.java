@@ -1,6 +1,7 @@
 package com.psidnell.rules;
 
 import com.psidnell.PlayerException;
+import com.psidnell.profile.Probe;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
@@ -34,44 +35,46 @@ public class RuleSet {
      * @param solution
      */
     public RuleSet(Word guess, Word solution) {
-        WordComparison comparison = guess.compareWords(solution);
-        CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
-        CharacterFrequency mustHaveAtLeast = new CharacterFrequency();
-        CharacterFrequency seenSoFar = new CharacterFrequency();
+        try (Probe p = new Probe(this.getClass(), "Constructor(Word,Word)")) {
+            WordComparison comparison = guess.compareWords(solution);
+            CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
+            CharacterFrequency mustHaveAtLeast = new CharacterFrequency();
+            CharacterFrequency seenSoFar = new CharacterFrequency();
 
-        for (int i = 0; i < 5; i++) {
-            Character gc = guess.charAt(i);
-            seenSoFar.increase(gc);
-            if (comparison.getCorrectPositions()[i]) {
-                addRule(Rule.createMatch(gc, i));
-                // We might have already consumed all the letters in a wrong place match
-                int remaining = commonLettersRemaining.occurrences(gc);
-                if (remaining > 0) {
-                    mustHaveAtLeast.increase(gc);
-                    commonLettersRemaining.decrease(gc);
-                } else {
-                    addRule(Rule.createMustHaveAtMost(gc, seenSoFar.occurrences(gc) - 1));
-                }
-            } else if (comparison.getIncorrectPositions()[i]) {
-                int remaining = commonLettersRemaining.occurrences(gc);
-                if (remaining > 0) {
-                    addRule(Rule.createWrongPlace(gc, i));
-                    mustHaveAtLeast.increase(gc);
-                    commonLettersRemaining.decrease(gc);
-                } else {
+            for (int i = 0; i < 5; i++) {
+                Character gc = guess.charAt(i);
+                seenSoFar.increase(gc);
+                if (comparison.getCorrectPositions()[i]) {
+                    addRule(Rule.createMatch(gc, i));
+                    // We might have already consumed all the letters in a wrong place match
+                    int remaining = commonLettersRemaining.occurrences(gc);
+                    if (remaining > 0) {
+                        mustHaveAtLeast.increase(gc);
+                        commonLettersRemaining.decrease(gc);
+                    } else {
+                        addRule(Rule.createMustHaveAtMost(gc, seenSoFar.occurrences(gc) - 1));
+                    }
+                } else if (comparison.getIncorrectPositions()[i]) {
+                    int remaining = commonLettersRemaining.occurrences(gc);
+                    if (remaining > 0) {
+                        addRule(Rule.createWrongPlace(gc, i));
+                        mustHaveAtLeast.increase(gc);
+                        commonLettersRemaining.decrease(gc);
+                    } else {
+                        addRule(Rule.createNoMatch(gc, i));
+                        addRule(Rule.createMustHaveAtMost(gc, seenSoFar.occurrences(gc) - 1));
+                    }
+                } else if (comparison.getMismatches()[i]) {
+                    addRule(Rule.createMustNotHave(gc));
                     addRule(Rule.createNoMatch(gc, i));
-                    addRule(Rule.createMustHaveAtMost(gc, seenSoFar.occurrences(gc) - 1));
                 }
-            } else if (comparison.getMismatches()[i]) {
-                addRule(Rule.createMustNotHave(gc));
-                addRule(Rule.createNoMatch(gc, i));
             }
-        }
 
-        // Can derive this
-        mustHaveAtLeast.frequencies().forEach((ch, min) -> {
-            addRule(Rule.createMustHaveAtLeast(ch, min));
-        });
+            // Can derive this
+            mustHaveAtLeast.frequencies().forEach((ch, min) -> {
+                addRule(Rule.createMustHaveAtLeast(ch, min));
+            });
+        }
     }
 
     /**
@@ -225,12 +228,14 @@ public class RuleSet {
     }
 
     public boolean match(Word word) {
-        for (Rule rule : allRules()) {
-            if (!rule.match(word)) {
-                return false;
+        try (Probe p = new Probe(this.getClass(), "match")) {
+            for (Rule rule : allRules()) {
+                if (!rule.match(word)) {
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
     }
 
     public RuleSet combineRuleSet(RuleSet other) {

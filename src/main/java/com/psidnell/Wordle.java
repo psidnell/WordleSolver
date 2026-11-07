@@ -209,12 +209,14 @@ public class Wordle extends ComponentImpl {
     }
 
     private Word getBestWordByExhaustiveSearch(Collection<Word> guesses) {
-        LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", guesses.size());
+        int totalCombinations = guesses.size() * solutions.size();
+        LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
 
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
         int percentDone = -1;
+        int shortcuts = 0;
         int lowestSolutionsCount = Integer.MAX_VALUE;
 
         for (Word dictionaryWordGuess : guesses) {
@@ -227,34 +229,38 @@ public class Wordle extends ComponentImpl {
             for (Word wordFromSolutions : solutions.getWords()) {
                 int originalSize = solutions.getWords().size();
 
-                if (!dictionaryWordGuess.haveCommonCharacters(wordFromSolutions)) {
-                    LOG.log(Level.DEBUG, "No common letters {0}/{1}", dictionaryWordGuess, wordFromSolutions);
-                    totalSolutionsForWord += originalSize;
-                    continue;
-                }
+                // todo don't optimise yet
+//                if (!dictionaryWordGuess.haveCommonCharacters(wordFromSolutions)) {
+//                    LOG.log(Level.DEBUG, "No common letters {0}/{1}", dictionaryWordGuess, wordFromSolutions);
+//                    totalSolutionsForWord += originalSize;
+//                    continue;
+//                }
 
-                int originalSize1 = solutions.getWords().size();
                 RuleSet r = combinedRuleSet.combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
                 int removed = solutions.countWordsNotMatching(r);
-                int prunedSize = originalSize1 - removed;
+                int prunedSize = originalSize - removed;
 
                 totalSolutionsForWord += prunedSize;
 
+                //todo why is this so bad?
                 if (totalSolutionsForWord > lowestSolutionsCount) {
                     // This guess is never going to be the best word - bail to save time
+                    shortcuts++;
                     break;
                 }
             }
 
             LOG.log(Level.DEBUG, "{0}", "Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
-            if (totalSolutionsForWord == lowestSolutionsCount && solutions.contains(dictionaryWordGuess) && !solutions.contains(bestWord)) {
+            boolean dictWordInSolutions = solutions.contains(dictionaryWordGuess);
+            boolean preferDictionaryWord = bestWord != null && dictWordInSolutions && !solutions.contains(bestWord);
+            if (totalSolutionsForWord <= lowestSolutionsCount && preferDictionaryWord) {
                 // Prefer a guess if it's in the solution set
-                LOG.log(Level.INFO, "Best (solution) word so far: {0} solutions: {1}", dictionaryWordGuess, totalSolutionsForWord);
+                LOG.log(Level.INFO, "Best (solution) word so far: {0} solutions: {1} {2} {3} ", dictionaryWordGuess, totalSolutionsForWord, dictWordInSolutions, shortcuts);
                 bestWord = dictionaryWordGuess;
-            }
-            else if (totalSolutionsForWord < lowestSolutionsCount) {
-                LOG.log(Level.INFO, "Best (dictionary) word so far: {0} solutions: {1}", dictionaryWordGuess, totalSolutionsForWord);
+                lowestSolutionsCount = totalSolutionsForWord;
+            } else if (totalSolutionsForWord < lowestSolutionsCount) {
+                LOG.log(Level.INFO, "Best word so far: {0} solutions: {1} {2} {3}", dictionaryWordGuess, totalSolutionsForWord, dictWordInSolutions, shortcuts);
                 bestWord = dictionaryWordGuess;
                 lowestSolutionsCount = totalSolutionsForWord;
             }
@@ -271,36 +277,13 @@ public class Wordle extends ComponentImpl {
             throw new IllegalStateException("No best word found");
         }
 
-        LOG.log(Level.INFO, "Best word: {0} Solutions", bestWord, lowestSolutionsCount);
+        LOG.log(Level.INFO, "Best word: {0} Solutions {1} Shortcuts {2}", bestWord, lowestSolutionsCount, shortcuts);
         return bestWord;
     }
 
-    private Solutions shrinkWordsByRank(Collection<Word> guesses, int limit) {
-        LOG.log(Level.INFO, "Shrinking words: {0}", guesses.size());
-
-        ArrayList<Map.Entry<Word, Integer>> collectedWordsAndRanks = new ArrayList<>();
-
-        for (Word dictionaryWordGuess : guesses) {
-
-            int totalRankForWord = 0;
-
-            for (Word wordFromSolutions : solutions.getWords()) {
-                WordComparison comparison = dictionaryWordGuess.compareWords(wordFromSolutions);
-                totalRankForWord += comparison.charactersInCommon();
-            }
-
-            collectedWordsAndRanks.add(new AbstractMap.SimpleEntry<Word, Integer>(dictionaryWordGuess, totalRankForWord));
-        }
-
-        collectedWordsAndRanks.sort((a, b) ->Integer.compare(b.getValue(), a.getValue()));
-        List<Map.Entry<Word, Integer>> truncatedWordsAndRanks = collectedWordsAndRanks.stream().limit(limit).toList();
-        List<Word> truncatedWords = truncatedWordsAndRanks.stream().map(Map.Entry::getKey).toList();
-        LOG.log(Level.INFO, "Shrunk words: {0}", truncatedWords.size());
-        return new Solutions(truncatedWords);
-    }
-
     private Word getBestWordByRank(Collection<Word> guesses) {
-        LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", guesses.size());
+        int totalCombinations = guesses.size() * solutions.size();
+        LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
         int wordsDone = 0;
@@ -315,18 +298,20 @@ public class Wordle extends ComponentImpl {
             int totalRankForWord = 0;
 
             for (Word wordFromSolutions : solutions.getWords()) {
-
                 WordComparison comparison = dictionaryWordGuess.compareWords(wordFromSolutions);
                 totalRankForWord += comparison.charactersInCommon();
             }
 
             LOG.log(Level.DEBUG, "Analysed: {0} Total Rank: {1}", dictionaryWordGuess, totalRankForWord);
 
-            if (totalRankForWord == highestRank && solutions.contains(dictionaryWordGuess) && !solutions.contains(bestWord)) {
-                LOG.log(Level.INFO, "Best (solution) word so far: {0} Rank: {1}", dictionaryWordGuess, totalRankForWord);
+            boolean dictWordInSolutions = solutions.contains(dictionaryWordGuess);
+            boolean preferDictionaryWord = bestWord != null && dictWordInSolutions && !solutions.contains(bestWord);
+            if (totalRankForWord >= highestRank && preferDictionaryWord) {
+                LOG.log(Level.INFO, "Best (solution) word so far: {0} Rank: {1} {2}", dictionaryWordGuess, totalRankForWord, dictWordInSolutions);
                 bestWord = dictionaryWordGuess;
+                highestRank = totalRankForWord;
             } else if (totalRankForWord > highestRank) {
-                LOG.log(Level.INFO, "Best (dictionary) word so far: {0} Rank: {1}", dictionaryWordGuess, totalRankForWord);
+                LOG.log(Level.INFO, "Best word so far: {0} Rank: {1} {2}", dictionaryWordGuess, totalRankForWord, dictWordInSolutions);
                 bestWord = dictionaryWordGuess;
                 highestRank = totalRankForWord;
             }
@@ -368,4 +353,29 @@ public class Wordle extends ComponentImpl {
             System.out.println(word);
         }
     }
+
+    private Solutions shrinkWordsByRank(Collection<Word> guesses, int limit) {
+        LOG.log(Level.INFO, "Shrinking words: {0}", guesses.size());
+
+        ArrayList<Map.Entry<Word, Integer>> collectedWordsAndRanks = new ArrayList<>();
+
+        for (Word dictionaryWordGuess : guesses) {
+
+            int totalRankForWord = 0;
+
+            for (Word wordFromSolutions : solutions.getWords()) {
+                WordComparison comparison = dictionaryWordGuess.compareWords(wordFromSolutions);
+                totalRankForWord += comparison.charactersInCommon();
+            }
+
+            collectedWordsAndRanks.add(new AbstractMap.SimpleEntry<Word, Integer>(dictionaryWordGuess, totalRankForWord));
+        }
+
+        collectedWordsAndRanks.sort((a, b) ->Integer.compare(b.getValue(), a.getValue()));
+        List<Map.Entry<Word, Integer>> truncatedWordsAndRanks = collectedWordsAndRanks.stream().limit(limit).toList();
+        List<Word> truncatedWords = truncatedWordsAndRanks.stream().map(Map.Entry::getKey).toList();
+        LOG.log(Level.INFO, "Shrunk words: {0}", truncatedWords.size());
+        return new Solutions(truncatedWords);
+    }
+
 }

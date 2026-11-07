@@ -52,4 +52,8 @@ public class Solutions {
     public void add(Solutions other) {
         this.solutions.addAll(other.getWords());
     }
+
+    public int size() {
+        return solutions.size();
+    }
 }
