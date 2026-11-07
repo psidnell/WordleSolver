@@ -1,6 +1,7 @@
 package com.psidnell.rules;
 
 import com.psidnell.profile.Probe;
+import com.psidnell.profile.Profiler;
 import com.psidnell.words.Word;
 
 import java.util.HashSet;
@@ -106,8 +107,10 @@ public class Rule implements Comparable<Rule> {
         }
     }
 
+    private static final Probe PROBE = Profiler.getProbe(Rule.class, "match");
+
     public boolean match(Word word) {
-        try (Probe p = new Probe(this.getClass(), "match", this.type.name())) {
+        try (Probe p = PROBE.open()) {
             return switch (type) {
                 case MATCH -> chars.contains(word.charAt(position));
                 case NOT -> !chars.contains(word.charAt(position));

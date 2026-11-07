@@ -2,6 +2,7 @@ package com.psidnell.rules;
 
 import com.psidnell.PlayerException;
 import com.psidnell.profile.Probe;
+import com.psidnell.profile.Profiler;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
@@ -27,6 +28,9 @@ public class RuleSet {
         other.allRules().forEach(this::addRule);
     }
 
+
+    private static final Probe PROBE = Profiler.getProbe(RuleSet.class, "Constructor(Word,Word)");
+
     /**
      * When we provide a guess against a know solution, create a rule set
      * that encapsulates what we learned from the guess.
@@ -35,7 +39,7 @@ public class RuleSet {
      * @param solution
      */
     public RuleSet(Word guess, Word solution) {
-        try (Probe p = new Probe(this.getClass(), "Constructor(Word,Word)")) {
+        try (Probe p = PROBE.open()) {
             WordComparison comparison = guess.compareWords(solution);
             CharacterFrequency commonLettersRemaining = new CharacterFrequency(comparison.getCommonLetterFrequency());
             CharacterFrequency mustHaveAtLeast = new CharacterFrequency();
@@ -227,8 +231,10 @@ public class RuleSet {
         return output.append('}').toString();
     }
 
+    private static final Probe PROBE2 = Profiler.getProbe(RuleSet.class, "match");
+
     public boolean match(Word word) {
-        try (Probe p = new Probe(this.getClass(), "match")) {
+        try (Probe p = PROBE2.open()) {
             for (Rule rule : allRules()) {
                 if (!rule.match(word)) {
                     return false;

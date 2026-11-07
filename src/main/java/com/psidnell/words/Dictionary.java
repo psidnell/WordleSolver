@@ -3,6 +3,7 @@ package com.psidnell.words;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psidnell.profile.Probe;
+import com.psidnell.profile.Profiler;
 import com.psidnell.util.Component;
 import com.psidnell.util.Context;
 
@@ -40,8 +41,10 @@ public class Dictionary implements Component {
         }
     }
 
+    private static final Probe PROBE = Profiler.getProbe(Dictionary.class, "loadDictionary");
+
     private Map<String, Word> loadDictionary() throws IOException, URISyntaxException {
-        try (Probe p = new Probe(this.getClass(), "loadDictionary")) {
+        try (Probe p = PROBE.open()) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                     Objects.requireNonNull(this.getClass().getResourceAsStream("/com/psidnell/Dictionary.json"))));) {
                 ObjectMapper mapper = new ObjectMapper();
