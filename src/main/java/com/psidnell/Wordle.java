@@ -1,6 +1,6 @@
 package com.psidnell;
 
-import com.psidnell.rules.RuleSet;
+import com.psidnell.ruleset.RuleSet;
 import com.psidnell.util.ComponentImpl;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;

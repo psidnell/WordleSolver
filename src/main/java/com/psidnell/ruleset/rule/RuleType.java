@@ -1,4 +1,4 @@
-package com.psidnell.rules;
+package com.psidnell.ruleset.rule;
 
 public enum RuleType {
     MATCH,

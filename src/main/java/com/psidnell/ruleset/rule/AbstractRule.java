@@ -1,4 +1,4 @@
-package com.psidnell.rules;
+package com.psidnell.ruleset.rule;
 
 public abstract class AbstractRule implements Rule {
     protected final RuleType type;

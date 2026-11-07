@@ -1,38 +1,38 @@
-package com.psidnell.rules;
+package com.psidnell.ruleset.rule;
 
 import com.psidnell.words.Word;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class WrongPlaceRule extends AbstractRule {
-    private final Set<Character> chars;
+public class NotRule extends AbstractRule {
+    //todo Make it an array
+    private final TreeSet<Character> chars;
     private final int position;
 
-    public WrongPlaceRule(Character ch, int position) {
+    public NotRule(Character ch, int position) {
         TreeSet<Character> chars = new TreeSet<>();
         chars.add(ch);
         this(chars, position);
     }
 
-    public WrongPlaceRule(Set<Character> chars, int position) {
-        super(RuleType.WRONG_PLACE);
+    public NotRule(TreeSet<Character> chars, int position) {
+        super(RuleType.NOT);
         this.chars = chars;
         this.position = position;
     }
 
     @Override
     public Rule combine(Rule o) {
-        WrongPlaceRule other = (WrongPlaceRule) o;
+        NotRule other = (NotRule) o;
 
         if (this.getPosition() != other.getPosition()) {
             throw new IllegalArgumentException("Cannot combine with different positions " + position + " and " + position);
         }
 
-        Set<Character> combinedChars = new HashSet<>(getCharacters());
+        TreeSet<Character> combinedChars = new TreeSet<>(getCharacters());
         combinedChars.addAll(other.getCharacters());
-        return new WrongPlaceRule(combinedChars, position);
+        return new NotRule(combinedChars, position);
     }
 
     @Override

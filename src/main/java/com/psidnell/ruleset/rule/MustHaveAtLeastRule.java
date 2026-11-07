@@ -1,4 +1,4 @@
-package com.psidnell.rules;
+package com.psidnell.ruleset.rule;
 
 import com.psidnell.words.Word;
 

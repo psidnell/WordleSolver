@@ -1,8 +1,9 @@
-package com.psidnell.rules;
+package com.psidnell.ruleset;
 
 import com.psidnell.PlayerException;
 import com.psidnell.profile.Probe;
 import com.psidnell.profile.Profiler;
+import com.psidnell.ruleset.rule.Rule;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
