@@ -3,7 +3,7 @@ package com.psidnell.rules;
 import com.psidnell.words.Word;
 import java.util.Set;
 
-public interface Rule extends Comparable<Rule> {
+public interface Rule {
 
     Rule combine(Rule r2);
 

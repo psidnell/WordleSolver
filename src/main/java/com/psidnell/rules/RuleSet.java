@@ -7,10 +7,10 @@ import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class RuleSet {
 
@@ -250,14 +250,14 @@ public class RuleSet {
         return result;
     }
 
-    private void addNotNull(Rule r, Set<Rule> rules) {
+    private void addNotNull(Rule r, List<Rule> rules) {
         if (r != null) {
             rules.add(r);
         }
     }
 
-    private Set<Rule> allRules() {
-        TreeSet<Rule> result = new TreeSet<>();
+    private List<Rule> allRules() {
+        List<Rule> result = new LinkedList<>();
         Arrays.asList(matches).forEach(r -> addNotNull(r, result));
         Arrays.asList(wrongPlaces).forEach(r -> addNotNull(r, result));
         Arrays.asList(not).forEach(r -> addNotNull(r, result));
