@@ -1,6 +1,6 @@
 package com.psidnell.words;
 
-import com.psidnell.ruleset.CharacterFrequency;
+import com.psidnell.util.CharacterFrequency;
 
 public class WordComparison {
     // todo How much of all this am I using?

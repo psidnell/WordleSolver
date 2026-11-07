@@ -1,20 +1,18 @@
 package com.psidnell.ruleset.rule;
 
+import com.psidnell.util.CharacterSet;
 import com.psidnell.words.Word;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 public class MustNotHaveRule extends AbstractRule {
-    private final TreeSet<Character> chars;
+    private final CharacterSet chars;
 
     public MustNotHaveRule(Character ch) {
-        TreeSet<Character> chars = new TreeSet<>();
+        CharacterSet chars = new CharacterSet();
         chars.add(ch);
         this(chars);
     }
 
-    public MustNotHaveRule(TreeSet<Character> chars) {
+    public MustNotHaveRule(CharacterSet chars) {
         super(RuleType.MUST_NOT_HAVE);
         this.chars = chars;
     }
@@ -23,14 +21,14 @@ public class MustNotHaveRule extends AbstractRule {
     public Rule combine(Rule o) {
         MustNotHaveRule other = (MustNotHaveRule) o;
 
-        TreeSet<Character> combinedChars = new TreeSet<>(getCharacters());
+        CharacterSet combinedChars = new CharacterSet(chars);
         combinedChars.addAll(other.getCharacters());
         return new MustNotHaveRule(combinedChars);
     }
 
     @Override
     public boolean match(Word word) {
-        for (Character ch : getCharacters()) {
+        for (Character ch : getCharacters().values()) {
             boolean mustNotHaveMatch = word.occurrencesOf(ch) == 0;
             if (!mustNotHaveMatch) {
                 return false;
@@ -39,12 +37,12 @@ public class MustNotHaveRule extends AbstractRule {
         return true;
     }
 
-    public Set<Character> getCharacters() {
+    public CharacterSet getCharacters() {
         return chars;
     }
 
     @Override
     public String toString() {
-        return charactersToString(chars) + "!";
+        return chars + "!";
     }
 }

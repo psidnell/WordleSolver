@@ -1,21 +1,19 @@
 package com.psidnell.ruleset.rule;
 
+import com.psidnell.util.CharacterSet;
 import com.psidnell.words.Word;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 public class WrongPlaceRule extends AbstractRule {
-    private final TreeSet<Character> chars;
+    private final CharacterSet chars;
     private final int position;
 
     public WrongPlaceRule(Character ch, int position) {
-        TreeSet<Character> chars = new TreeSet<>();
+        CharacterSet chars = new CharacterSet();
         chars.add(ch);
         this(chars, position);
     }
 
-    public WrongPlaceRule(TreeSet<Character> chars, int position) {
+    public WrongPlaceRule(CharacterSet chars, int position) {
         super(RuleType.WRONG_PLACE);
         this.chars = chars;
         this.position = position;
@@ -29,7 +27,7 @@ public class WrongPlaceRule extends AbstractRule {
             throw new IllegalArgumentException("Cannot combine with different positions " + position + " and " + position);
         }
 
-        TreeSet<Character> combinedChars = new TreeSet<>(getCharacters());
+        CharacterSet combinedChars = new CharacterSet(getCharacters());
         combinedChars.addAll(other.getCharacters());
         return new WrongPlaceRule(combinedChars, position);
     }
@@ -43,18 +41,16 @@ public class WrongPlaceRule extends AbstractRule {
         return position;
     }
 
-    public Set<Character> getCharacters() {
+    public CharacterSet getCharacters() {
         return chars;
     }
 
 
     public String getCharactersAsString() {
-        return charactersToString(chars);
+        return chars.toString();
     }
     @Override
     public String toString() {
-        return charactersToString(chars) + "![" + position + "]";
+        return chars + "![" + position + "]";
     }
-
-
 }

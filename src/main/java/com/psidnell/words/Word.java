@@ -1,7 +1,7 @@
 package com.psidnell.words;
 
 import com.psidnell.PlayerException;
-import com.psidnell.ruleset.CharacterFrequency;
+import com.psidnell.util.CharacterFrequency;
 
 import java.util.HashSet;
 import java.util.Objects;

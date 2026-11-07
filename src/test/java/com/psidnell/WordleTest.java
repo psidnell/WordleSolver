@@ -97,6 +97,7 @@ public class WordleTest {
                 // Solution, guesses, succeeds
 
                 // Falures
+                Arguments.of("wangs", 6, new String[]{}, false),
                 Arguments.of("waxes", 6, new String[]{}, false),
                 Arguments.of("nunks", 6, new String[]{}, false),
 

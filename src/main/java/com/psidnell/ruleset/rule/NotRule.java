@@ -1,22 +1,20 @@
 package com.psidnell.ruleset.rule;
 
+import com.psidnell.util.CharacterSet;
 import com.psidnell.words.Word;
-
-import java.util.Set;
-import java.util.TreeSet;
 
 public class NotRule extends AbstractRule {
     //todo Make it an array
-    private final TreeSet<Character> chars;
+    private final CharacterSet chars;
     private final int position;
 
     public NotRule(Character ch, int position) {
-        TreeSet<Character> chars = new TreeSet<>();
+        CharacterSet chars = new CharacterSet();
         chars.add(ch);
         this(chars, position);
     }
 
-    public NotRule(TreeSet<Character> chars, int position) {
+    public NotRule(CharacterSet chars, int position) {
         super(RuleType.NOT);
         this.chars = chars;
         this.position = position;
@@ -30,7 +28,7 @@ public class NotRule extends AbstractRule {
             throw new IllegalArgumentException("Cannot combine with different positions " + position + " and " + position);
         }
 
-        TreeSet<Character> combinedChars = new TreeSet<>(getCharacters());
+        CharacterSet combinedChars = new CharacterSet(getCharacters());
         combinedChars.addAll(other.getCharacters());
         return new NotRule(combinedChars, position);
     }
@@ -44,16 +42,16 @@ public class NotRule extends AbstractRule {
         return position;
     }
 
-    public Set<Character> getCharacters() {
+    public CharacterSet getCharacters() {
         return chars;
     }
 
     public String getCharactersAsString() {
-        return charactersToString(chars);
+        return chars.toString();
     }
 
     @Override
     public String toString() {
-        return charactersToString(chars) + "![" + position + "]";
+        return chars + "![" + position + "]";
     }
 }

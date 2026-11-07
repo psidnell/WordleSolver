@@ -144,7 +144,7 @@ public class RuleTest {
     void testCombineMustNotHave() {
         MustNotHaveRule r = new MustNotHaveRule('A');
         MustNotHaveRule combined = (MustNotHaveRule) r.combine(new MustNotHaveRule('B'));
-        assertEquals("[A, B]", combined.getCharacters().toString());
+        assertEquals("AB", combined.getCharacters().toString());
     }
 
     @Test()

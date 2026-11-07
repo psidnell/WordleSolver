@@ -10,6 +10,7 @@ import com.psidnell.ruleset.rule.MustNotHaveRule;
 import com.psidnell.ruleset.rule.NotRule;
 import com.psidnell.ruleset.rule.Rule;
 import com.psidnell.ruleset.rule.WrongPlaceRule;
+import com.psidnell.util.CharacterFrequency;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
