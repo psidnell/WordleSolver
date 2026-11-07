@@ -5,20 +5,18 @@ import com.psidnell.profile.Profiler;
 import com.psidnell.words.Word;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
 // todo Could use subclasses
-public class RuleImpl implements Rule {
-    private final RuleType type;
+public class RuleImpl extends AbstractRule {
     private final Set<Character> chars = new TreeSet<>();
     private final String charsAsString;
     private final int position;
     private final int amount;
 
     RuleImpl(RuleType type, Character ch, int position, int amount) {
-        this.type = type;
+        super(type);
         this.chars.add(ch);
         this.position = position;
         this.amount = amount;
@@ -26,7 +24,7 @@ public class RuleImpl implements Rule {
     }
 
     private RuleImpl(RuleType type, Set<Character> chars, int position, int amount) {
-        this.type = type;
+        super(type);
         this.chars.addAll(chars);
         this.position = position;
         this.amount = amount;
@@ -37,48 +35,48 @@ public class RuleImpl implements Rule {
 
     public Rule combine(Rule o) {
         RuleImpl other = (RuleImpl) o; //todo
-        if (!this.type.equals(other.type)) {
-            throw new IllegalArgumentException("Cannot combine with different types " + type + " and " + other.type);
+        if (!this.getType().equals(other.getType())) {
+            throw new IllegalArgumentException("Cannot combine with different types " + getType() + " and " + other.getType());
         }
-        if (this.position != other.position) {
-            throw new IllegalArgumentException("Cannot combine with different positions " + position + " and " + other.position);
+        if (this.getPosition() != other.getPosition()) {
+            throw new IllegalArgumentException("Cannot combine with different positions " + getPosition() + " and " + other.getPosition());
         }
 
-        switch (type) {
+        switch (getType()) {
             case MATCH:
-                if (!charsAsString.equals(other.charsAsString)) {
-                    throw new IllegalArgumentException("Cannot combine different matches " + charsAsString + " and " + other.charsAsString);
+                if (!getCharactersAsString().equals(other.getCharactersAsString())) {
+                    throw new IllegalArgumentException("Cannot combine different matches " + getCharactersAsString() + " and " + other.getCharactersAsString());
                 }
-                return Rule.createMatch(charsAsString.charAt(0), position);
+                return Rule.createMatch(getCharactersAsString().charAt(0), getPosition());
             case NOT: {
-                Set<Character> combinedChars = new HashSet<>(chars);
-                combinedChars.addAll(other.chars);
-                return new RuleImpl(RuleType.NOT, combinedChars, position, amount);
+                Set<Character> combinedChars = new HashSet<>(getCharacters());
+                combinedChars.addAll(other.getCharacters());
+                return new RuleImpl(RuleType.NOT, combinedChars, getPosition(), getAmount());
             }
             case WRONG_PLACE: {
-                Set<Character> combinedChars = new HashSet<>(chars);
-                combinedChars.addAll(other.chars);
-                return new RuleImpl(RuleType.WRONG_PLACE, combinedChars, position, amount);
+                Set<Character> combinedChars = new HashSet<>(getCharacters());
+                combinedChars.addAll(other.getCharacters());
+                return new RuleImpl(RuleType.WRONG_PLACE, combinedChars, getPosition(), getAmount());
             }
             case MUST_NOT_HAVE: {
-                Set<Character> combinedChars = new HashSet<>(chars);
-                combinedChars.addAll(other.chars);
-                return new RuleImpl(RuleType.MUST_NOT_HAVE, combinedChars, position, amount);
+                Set<Character> combinedChars = new HashSet<>(getCharacters());
+                combinedChars.addAll(other.getCharacters());
+                return new RuleImpl(RuleType.MUST_NOT_HAVE, combinedChars, getPosition(), getAmount());
             }
             case MUST_HAVE_AT_LEAST: {
-                if (!charsAsString.equals(other.charsAsString)) {
-                    throw new IllegalArgumentException("Cannot combine two " + type + " with differing chars " + charsAsString + ", " + other.charsAsString);
+                if (!getCharactersAsString().equals(other.getCharactersAsString())) {
+                    throw new IllegalArgumentException("Cannot combine two " + getType() + " with differing chars " + getCharactersAsString() + ", " + other.getCharactersAsString());
                 }
-                return new RuleImpl(RuleType.MUST_HAVE_AT_LEAST, chars, position, Math.max(amount, other.amount));
+                return new RuleImpl(RuleType.MUST_HAVE_AT_LEAST, getCharacters(), getPosition(), Math.max(getAmount(), other.getAmount()));
             }
             case MUST_HAVE_AT_MOST: {
-                if (!charsAsString.equals(other.charsAsString)) {
-                    throw new IllegalArgumentException("Cannot combine two " + type + " with differing chars " + charsAsString + ", " + other.charsAsString);
+                if (!getCharactersAsString().equals(other.getCharactersAsString())) {
+                    throw new IllegalArgumentException("Cannot combine two " + getType() + " with differing chars " + getCharactersAsString() + ", " + other.getCharactersAsString());
                 }
-                return new RuleImpl(RuleType.MUST_HAVE_AT_MOST, chars, position, Math.min(amount, other.amount));
+                return new RuleImpl(RuleType.MUST_HAVE_AT_MOST, getCharacters(), getPosition(), Math.min(getAmount(), other.getAmount()));
             }
             default:
-                throw new IllegalArgumentException("Unkown rule type: " + type);
+                throw new IllegalArgumentException("Unkown rule type: " + getType());
         }
     }
 
@@ -86,9 +84,9 @@ public class RuleImpl implements Rule {
 
     public boolean match(Word word) {
         try (Probe p = PROBE.open()) {
-            return switch (type) {
-                case MATCH -> chars.contains(word.charAt(position));
-                case NOT -> !chars.contains(word.charAt(position));
+            return switch (getType()) {
+                case MATCH -> getCharacters().contains(word.charAt(getPosition()));
+                case NOT -> !getCharacters().contains(word.charAt(getPosition()));
                 case WRONG_PLACE -> wrongPlace(word);
                 case MUST_NOT_HAVE -> mustNotHave(word);
                 case MUST_HAVE_AT_LEAST -> mustHaveAtLeast(word);
@@ -98,8 +96,8 @@ public class RuleImpl implements Rule {
     }
 
     private boolean mustHaveAtLeast(Word word) {
-        for (Character ch : chars) {
-            boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) >= amount;
+        for (Character ch : getCharacters()) {
+            boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) >= getAmount();
             if (!mustHaveAtLeastMatch) {
                 return false;
             }
@@ -108,8 +106,8 @@ public class RuleImpl implements Rule {
     }
 
     private boolean mustHaveAtMost(Word word) {
-        for (Character ch : chars) {
-            boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) <= amount;
+        for (Character ch : getCharacters()) {
+            boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) <= getAmount();
             if (!mustHaveAtLeastMatch) {
                 return false;
             }
@@ -118,7 +116,7 @@ public class RuleImpl implements Rule {
     }
 
     private boolean mustNotHave(Word word) {
-        for (Character ch : chars) {
+        for (Character ch : getCharacters()) {
             boolean mustNotHaveMatch = word.occurrencesOf(ch) == 0;
             if (!mustNotHaveMatch) {
                 return false;
@@ -128,17 +126,13 @@ public class RuleImpl implements Rule {
     }
 
     private boolean wrongPlace(Word word) {
-        for (Character ch : chars) {
-            boolean matches = word.charAt(position).equals(ch);
+        for (Character ch : getCharacters()) {
+            boolean matches = word.charAt(getPosition()).equals(ch);
             if (matches) {
                 return false;
             }
         }
         return true;
-    }
-
-    public RuleType getType() {
-        return type;
     }
 
     public String getCharactersAsString() {
@@ -159,56 +153,13 @@ public class RuleImpl implements Rule {
 
     @Override
     public String toString() {
-        return switch (type) {
-            case MATCH -> charsAsString + "*[" + position + "]";
-            case NOT -> charsAsString + "![" + position + "]";
-            case WRONG_PLACE -> charsAsString + "?[" + position + "]";
-            case MUST_NOT_HAVE -> charsAsString + "!";
-            case MUST_HAVE_AT_LEAST -> charsAsString + ">=" + amount;
-            case MUST_HAVE_AT_MOST -> charsAsString + "<=" + amount;
+        return switch (getType()) {
+            case MATCH -> getCharactersAsString() + "*[" + getPosition() + "]";
+            case NOT -> getCharactersAsString() + "![" + getPosition() + "]";
+            case WRONG_PLACE -> getCharactersAsString() + "?[" + getPosition() + "]";
+            case MUST_NOT_HAVE -> getCharactersAsString() + "!";
+            case MUST_HAVE_AT_LEAST -> getCharactersAsString() + ">=" + getAmount();
+            case MUST_HAVE_AT_MOST -> getCharactersAsString() + "<=" + getAmount();
         };
-    }
-
-    @Override
-    public int compareTo(Rule oo) {
-        RuleImpl o = (RuleImpl) oo; //todo
-        int result;
-
-        if (position == -1 && o.position != -1) {
-            return 1;
-        }
-
-        if (position != -1 && o.position == -1) {
-            return -1;
-        }
-
-        result = Integer.compare(position, o.position);
-        if (result != 0) {
-            return result;
-        }
-
-        result = type.compareTo(o.type);
-        if (result != 0) {
-            return result;
-        }
-
-        result = charsAsString.compareTo(o.charsAsString);
-        if (result != 0) {
-            return result;
-        }
-
-        return Integer.compare(amount, o.amount);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        RuleImpl rule = (RuleImpl) o;
-        return position == rule.position && amount == rule.amount && type == rule.type && Objects.equals(charsAsString, rule.charsAsString);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(type, charsAsString, position, amount);
     }
 }

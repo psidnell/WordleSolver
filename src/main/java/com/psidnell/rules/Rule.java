@@ -20,7 +20,7 @@ public interface Rule extends Comparable<Rule> {
     boolean match(Word word);
 
     static Rule createMatch(Character ch, int position) {
-        return new RuleImpl(RuleType.MATCH, ch, position, -1);
+        return new MatchRule(ch, position);
     }
 
     static Rule createNoMatch(Character ch, int position) {

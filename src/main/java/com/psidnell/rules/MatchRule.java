@@ -1,0 +1,61 @@
+package com.psidnell.rules;
+
+import com.psidnell.words.Word;
+
+import java.util.Set;
+
+public class MatchRule extends AbstractRule {
+    private final Character ch;
+    private final int position;
+
+    public MatchRule(Character ch, int position) {
+        super(RuleType.MATCH);
+        this.ch = ch;
+        this.position = position;
+    }
+
+    @Override
+    public Rule combine(Rule o) {
+        MatchRule other = (MatchRule) o;
+
+        if (this.getPosition() != other.getPosition()) {
+            throw new IllegalArgumentException("Cannot combine with different positions " + position + " and " + position);
+        }
+
+        if (!getCharactersAsString().equals(other.getCharactersAsString())) {
+            throw new IllegalArgumentException("Cannot combine different matches " + ch + " and " + other.ch);
+        }
+
+        return Rule.createMatch(getCharactersAsString().charAt(0), getPosition());
+    }
+
+    @Override
+    public int getPosition() {
+        return position;
+    }
+
+    @Override
+    public String getCharactersAsString() {
+        return Character.toString(ch);
+    }
+
+    @Override
+    public int getAmount() {
+        return -1;
+    }
+
+    @Override
+    public Set<Character> getCharacters() {
+        return Set.of(ch);
+    }
+
+    @Override
+    public boolean match(Word word) {
+        return ch.equals(word.charAt(position));
+    }
+
+    @Override
+    public String toString() {
+        return getCharactersAsString() + "*[" + position + "]";
+    }
+}
