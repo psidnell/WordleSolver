@@ -41,6 +41,6 @@ public interface Rule extends Comparable<Rule> {
     }
 
     static Rule createMustHaveAtMost(Character ch, int amount) {
-        return new RuleImpl(RuleType.MUST_HAVE_AT_MOST, ch, -1, amount);
+        return new MustHaveAtMostRule(ch, amount);
     }
 }
