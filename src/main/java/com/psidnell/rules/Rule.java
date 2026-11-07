@@ -38,15 +38,17 @@ public class Rule implements Comparable<Rule> {
     }
 
     public static Rule createNoMatch(Character ch, int position) {
-        return new Rule(RuleType.NO_MATCH, ch, position, -1);
+        return new Rule(RuleType.NOT, ch, position, -1);
     }
 
     public static Rule createWrongPlace(Character ch, int position) {
         return new Rule(RuleType.WRONG_PLACE, ch, position, -1);
     }
 
+    //todo Inline - BUT it makes it slower
     public static Rule createMustNotHave(Character ch) {
         return new Rule(RuleType.MUST_NOT_HAVE, ch, -1, -1);
+        //return createMustHaveAtMost(ch, 0);
     }
 
     public static Rule createMustHaveAtLeast(Character ch, int amount) {
@@ -71,10 +73,10 @@ public class Rule implements Comparable<Rule> {
                     throw new IllegalArgumentException("Cannot combine different matches " + charsAsString + " and " + other.charsAsString);
                 }
                 return createMatch(charsAsString.charAt(0), position);
-            case NO_MATCH: {
+            case NOT: {
                 Set<Character> combinedChars = new HashSet<>(chars);
                 combinedChars.addAll(other.chars);
-                return new Rule(RuleType.NO_MATCH, combinedChars, position, amount);
+                return new Rule(RuleType.NOT, combinedChars, position, amount);
             }
             case WRONG_PLACE: {
                 Set<Character> combinedChars = new HashSet<>(chars);
@@ -106,7 +108,7 @@ public class Rule implements Comparable<Rule> {
     public boolean match(Word word) {
         return switch (type) {
             case MATCH -> chars.contains(word.charAt(position));
-            case NO_MATCH -> !chars.contains(word.charAt(position));
+            case NOT -> !chars.contains(word.charAt(position));
             case WRONG_PLACE -> wrongPlace(word);
             case MUST_NOT_HAVE -> mustNotHave(word);
             case MUST_HAVE_AT_LEAST -> mustHaveAtLeast(word);
@@ -178,7 +180,7 @@ public class Rule implements Comparable<Rule> {
     public String toString() {
         return switch (type) {
             case MATCH -> charsAsString + "*[" + position + "]";
-            case NO_MATCH -> charsAsString + "![" + position + "]";
+            case NOT -> charsAsString + "![" + position + "]";
             case WRONG_PLACE -> charsAsString + "?[" + position + "]";
             case MUST_NOT_HAVE -> charsAsString + "!";
             case MUST_HAVE_AT_LEAST -> charsAsString + ">=" + amount;

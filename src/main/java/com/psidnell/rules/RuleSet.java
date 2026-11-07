@@ -14,7 +14,7 @@ public class RuleSet {
 
     private final Rule[] matches = new Rule[5];
     private final Rule[] wrongPlaces = new Rule[5];
-    private final Rule[] noMatches = new Rule[5];
+    private final Rule[] not = new Rule[5];
     private final Map<Character, Rule> mustHaveAtLeast = new TreeMap<>();
     private final Map<Character, Rule> mustHaveAtMost = new TreeMap<>();
     private Rule mustNotHave = null;
@@ -145,7 +145,7 @@ public class RuleSet {
         switch (r.getType()) {
             case MATCH -> matches[r.getPosition()] = combine(r, matches[r.getPosition()]);
             case WRONG_PLACE -> wrongPlaces[r.getPosition()] = combine(r, wrongPlaces[r.getPosition()]);
-            case NO_MATCH -> noMatches[r.getPosition()] = combine(r, noMatches[r.getPosition()]);
+            case NOT -> not[r.getPosition()] = combine(r, not[r.getPosition()]);
             case MUST_NOT_HAVE -> mustNotHave = combine(r, mustNotHave);
             case MUST_HAVE_AT_LEAST -> {
                 char firstAndOnlyChar = r.getCharactersAsString().charAt(0);
@@ -181,11 +181,11 @@ public class RuleSet {
         }
         output.append(String.join(",", wrongPlacesArr));
 
-        output.append("} NoMatch{");
+        output.append("} Not{");
 
         final String[] noMatchesArr = new String[]{"_", "_", "_", "_", "_"};
         for (int i = 0; i < 5; i++) {
-            Rule r = noMatches[i];
+            Rule r = not[i];
             if (r != null) {
                 noMatchesArr[i] = r.getCharactersAsString();
             }
@@ -249,7 +249,7 @@ public class RuleSet {
         TreeSet<Rule> result = new TreeSet<>();
         Arrays.asList(matches).forEach(r -> addNotNull(r, result));
         Arrays.asList(wrongPlaces).forEach(r -> addNotNull(r, result));
-        Arrays.asList(noMatches).forEach(r -> addNotNull(r, result));
+        Arrays.asList(not).forEach(r -> addNotNull(r, result));
         addNotNull(mustNotHave, result);
         result.addAll(mustHaveAtLeast.values());
         result.addAll(mustHaveAtMost.values());
