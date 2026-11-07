@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class CharacterSet {
-    // TODO Can I speed this up?
-    private Character[] chars = new Character[26];
+    private final Character[] chars = new Character[26];
 
     public CharacterSet() {
     }
