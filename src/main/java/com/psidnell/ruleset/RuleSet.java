@@ -21,12 +21,12 @@ import java.util.TreeMap;
 
 public class RuleSet {
 
-    private final Rule[] matches = new Rule[5];
-    private final Rule[] wrongPlaces = new Rule[5];
-    private final Rule[] not = new Rule[5];
-    private final Map<Character, Rule> mustHaveAtLeast = new TreeMap<>();
-    private final Map<Character, Rule> mustHaveAtMost = new TreeMap<>();
-    private Rule mustNotHave = null;
+    private final MatchRule[] matches = new MatchRule[5];
+    private final WrongPlaceRule[] wrongPlaces = new WrongPlaceRule[5];
+    private final NotRule[] not = new NotRule[5];
+    private final Map<Character, MustHaveAtLeastRule> mustHaveAtLeast = new TreeMap<>();
+    private final Map<Character, MustHaveAtMostRule> mustHaveAtMost = new TreeMap<>();
+    private MustNotHaveRule mustNotHave = null;
 
     public RuleSet() {
     }
@@ -157,19 +157,20 @@ public class RuleSet {
      *
      * @param r
      */
+    // TODO This looks horrible
     private void addRule(Rule r) {
         switch (r.getType()) {
-            case MATCH -> matches[r.getPosition()] = combine(r, matches[r.getPosition()]);
-            case WRONG_PLACE -> wrongPlaces[r.getPosition()] = combine(r, wrongPlaces[r.getPosition()]);
-            case NOT -> not[r.getPosition()] = combine(r, not[r.getPosition()]);
-            case MUST_NOT_HAVE -> mustNotHave = combine(r, mustNotHave);
+            case MATCH -> matches[((MatchRule)r).getPosition()] = (MatchRule) combine(r, matches[((MatchRule)r).getPosition()]);
+            case WRONG_PLACE -> wrongPlaces[((WrongPlaceRule)r).getPosition()] = (WrongPlaceRule) combine(r, wrongPlaces[((WrongPlaceRule)r).getPosition()]);
+            case NOT -> not[((NotRule)r).getPosition()] = (NotRule) combine(r, not[((NotRule)r).getPosition()]);
+            case MUST_NOT_HAVE -> mustNotHave = (MustNotHaveRule) combine(r, mustNotHave);
             case MUST_HAVE_AT_LEAST -> {
                 char firstAndOnlyChar = ((MustHaveAtLeastRule)r).getCharacter();
-                mustHaveAtLeast.put(firstAndOnlyChar, combine(r, mustHaveAtLeast.get(firstAndOnlyChar)));
+                mustHaveAtLeast.put(firstAndOnlyChar, (MustHaveAtLeastRule) combine(r, mustHaveAtLeast.get(firstAndOnlyChar)));
             }
             case MUST_HAVE_AT_MOST -> {
                 char firstAndOnlyChar = ((MustHaveAtMostRule)r).getCharacter();
-                mustHaveAtMost.put(firstAndOnlyChar, combine(r, mustHaveAtMost.get(firstAndOnlyChar)));
+                mustHaveAtMost.put(firstAndOnlyChar, (MustHaveAtMostRule) combine(r, mustHaveAtMost.get(firstAndOnlyChar)));
             }
         }
     }
@@ -216,11 +217,11 @@ public class RuleSet {
         output.append("} AtLeast{");
 
         boolean first = true;
-        for (Rule r : mustHaveAtLeast.values()) {
+        for (MustHaveAtLeastRule r : mustHaveAtLeast.values()) {
             if (!first) {
                 output.append(',');
             }
-            Character firstChar = ((MustHaveAtLeastRule)r).getCharacter();
+            Character firstChar = r.getCharacter();
             output.append(firstChar).append(':').append(r.getAmount());
             first = false;
         }
@@ -228,7 +229,7 @@ public class RuleSet {
         output.append("} AtMost{");
 
         first = true;
-        for (Rule r : mustHaveAtMost.values()) {
+        for (MustHaveAtMostRule r : mustHaveAtMost.values()) {
             if (!first) {
                 output.append(',');
             }

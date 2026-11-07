@@ -39,11 +39,6 @@ public class MustNotHaveRule extends AbstractRule {
         return true;
     }
 
-    @Override
-    public int getPosition() {
-        return -1;
-    }
-
     public String getCharactersAsString() {
         // TODO cache in constructor?
         StringBuilder b = new StringBuilder(chars.size());
@@ -51,12 +46,10 @@ public class MustNotHaveRule extends AbstractRule {
         return b.toString();
     }
 
-    @Override
     public int getAmount() {
         return -1;
     }
 
-    @Override
     public Set<Character> getCharacters() {
         return chars;
     }

@@ -40,7 +40,6 @@ public class NotRule extends AbstractRule {
         return !chars.contains(word.charAt(getPosition()));
     }
 
-    @Override
     public int getPosition() {
         return position;
     }
@@ -52,12 +51,6 @@ public class NotRule extends AbstractRule {
         return b.toString();
     }
 
-    @Override
-    public int getAmount() {
-        return -1;
-    }
-
-    @Override
     public Set<Character> getCharacters() {
         return chars;
     }

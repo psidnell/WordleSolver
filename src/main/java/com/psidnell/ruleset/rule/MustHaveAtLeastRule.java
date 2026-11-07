@@ -25,7 +25,6 @@ public class MustHaveAtLeastRule extends AbstractRule {
         return new MustHaveAtLeastRule(ch, Math.max(amount, other.amount));
     }
 
-    @Override
     public int getPosition() {
         return -1;
     }
@@ -35,7 +34,6 @@ public class MustHaveAtLeastRule extends AbstractRule {
         return ch.toString();
     }
 
-    @Override
     public int getAmount() {
         return amount;
     }
@@ -44,7 +42,6 @@ public class MustHaveAtLeastRule extends AbstractRule {
         return ch;
     }
 
-    @Override
     public Set<Character> getCharacters() {
         return Set.of(ch);
     }

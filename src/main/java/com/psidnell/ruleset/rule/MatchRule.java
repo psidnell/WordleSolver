@@ -34,7 +34,6 @@ public class MatchRule extends AbstractRule {
         return ch.equals(word.charAt(position));
     }
 
-    @Override
     public int getPosition() {
         return position;
     }
@@ -48,12 +47,10 @@ public class MatchRule extends AbstractRule {
         return ch;
     }
 
-    @Override
     public int getAmount() {
         return -1;
     }
 
-    @Override
     public Set<Character> getCharacters() {
         return Set.of(ch);
     }

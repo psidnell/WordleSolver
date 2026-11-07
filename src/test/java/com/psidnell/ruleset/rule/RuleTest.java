@@ -145,7 +145,6 @@ public class RuleTest {
         MustNotHaveRule r = new MustNotHaveRule('A');
         MustNotHaveRule combined = (MustNotHaveRule) r.combine(new MustNotHaveRule('B'));
         assertEquals("AB", combined.getCharactersAsString());
-        assertEquals (-1, combined.getPosition());
     }
 
     @Test()
@@ -169,12 +168,10 @@ public class RuleTest {
         MustHaveAtMostRule combined = (MustHaveAtMostRule) r.combine(new MustHaveAtMostRule('A', 2));
         assertEquals("A", combined.getCharactersAsString());
         assertEquals(1, combined.getAmount());
-        assertEquals (-1, combined.getPosition());
 
         r = new MustHaveAtMostRule('A', 2);
         combined = (MustHaveAtMostRule) r.combine(new MustHaveAtMostRule('A', 1));
         assertEquals('A', combined.getCharacter());
         assertEquals(1, combined.getAmount());
-        assertEquals (-1, combined.getPosition());
     }
 }

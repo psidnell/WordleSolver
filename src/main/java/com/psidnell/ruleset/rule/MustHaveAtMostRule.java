@@ -35,17 +35,11 @@ public class MustHaveAtMostRule extends AbstractRule {
         return true;
     }
 
-    @Override
-    public int getPosition() {
-        return -1;
-    }
-
     public String getCharactersAsString() {
         // TODO cache in constructor?
         return ch.toString();
     }
 
-    @Override
     public int getAmount() {
         return amount;
     }
@@ -54,7 +48,6 @@ public class MustHaveAtMostRule extends AbstractRule {
         return ch;
     }
 
-    @Override
     public Set<Character> getCharacters() {
         return Set.of(ch);
     }
