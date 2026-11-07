@@ -6,7 +6,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-public record CharacterFrequency(Map<Character, Integer> frequencies) {
+// TODO Can I improve on this?
+public record CharacterFrequency(
+        Map<Character, Integer> frequencies
+) {
     public CharacterFrequency(Word word) {
         this(word.getWord());
     }
