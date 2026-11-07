@@ -36,6 +36,11 @@ public class WrongPlaceRule extends AbstractRule {
     }
 
     @Override
+    public boolean match(Word word) {
+        return !chars.contains(word.charAt(getPosition()));
+    }
+
+    @Override
     public int getPosition() {
         return position;
     }
@@ -56,11 +61,6 @@ public class WrongPlaceRule extends AbstractRule {
     @Override
     public Set<Character> getCharacters() {
         return chars;
-    }
-
-    @Override
-    public boolean match(Word word) {
-        return !chars.contains(word.charAt(getPosition()));
     }
 
     @Override

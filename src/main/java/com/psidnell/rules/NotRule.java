@@ -2,12 +2,12 @@ package com.psidnell.rules;
 
 import com.psidnell.words.Word;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class NotRule extends AbstractRule {
-    private final Set<Character> chars;
+    //todo Make it an array
+    private final TreeSet<Character> chars;
     private final int position;
 
     public NotRule(Character ch, int position) {
@@ -16,7 +16,7 @@ public class NotRule extends AbstractRule {
         this(chars, position);
     }
 
-    public NotRule(Set<Character> chars, int position) {
+    public NotRule(TreeSet<Character> chars, int position) {
         super(RuleType.NOT);
         this.chars = chars;
         this.position = position;
@@ -30,9 +30,14 @@ public class NotRule extends AbstractRule {
             throw new IllegalArgumentException("Cannot combine with different positions " + position + " and " + position);
         }
 
-        Set<Character> combinedChars = new HashSet<>(getCharacters());
+        TreeSet<Character> combinedChars = new TreeSet<>(getCharacters());
         combinedChars.addAll(other.getCharacters());
         return new NotRule(combinedChars, position);
+    }
+
+    @Override
+    public boolean match(Word word) {
+        return !chars.contains(word.charAt(getPosition()));
     }
 
     @Override
@@ -56,11 +61,6 @@ public class NotRule extends AbstractRule {
     @Override
     public Set<Character> getCharacters() {
         return chars;
-    }
-
-    @Override
-    public boolean match(Word word) {
-        return !chars.contains(word.charAt(getPosition()));
     }
 
     @Override

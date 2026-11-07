@@ -30,6 +30,11 @@ public class MatchRule extends AbstractRule {
     }
 
     @Override
+    public boolean match(Word word) {
+        return ch.equals(word.charAt(position));
+    }
+
+    @Override
     public int getPosition() {
         return position;
     }
@@ -48,11 +53,6 @@ public class MatchRule extends AbstractRule {
     @Override
     public Set<Character> getCharacters() {
         return Set.of(ch);
-    }
-
-    @Override
-    public boolean match(Word word) {
-        return ch.equals(word.charAt(position));
     }
 
     @Override

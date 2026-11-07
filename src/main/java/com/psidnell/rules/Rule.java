@@ -33,7 +33,7 @@ public interface Rule extends Comparable<Rule> {
     }
 
     static Rule createMustNotHave(Character ch) {
-        return new RuleImpl(RuleType.MUST_NOT_HAVE, ch, -1, -1);
+        return new MustNotHaveRule(ch);
     }
 
     static Rule createMustHaveAtLeast(Character ch, int amount) {

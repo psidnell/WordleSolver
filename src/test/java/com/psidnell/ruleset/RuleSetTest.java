@@ -1,5 +1,6 @@
-package com.psidnell.rules;
+package com.psidnell.ruleset;
 
+import com.psidnell.rules.RuleSet;
 import com.psidnell.words.Word;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

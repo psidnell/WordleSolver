@@ -26,6 +26,16 @@ public class MustHaveAtMostRule extends AbstractRule {
     }
 
     @Override
+    public boolean match(Word word) {
+        boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) <= amount;
+        if (!mustHaveAtLeastMatch) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
     public int getPosition() {
         return -1;
     }
@@ -44,16 +54,6 @@ public class MustHaveAtMostRule extends AbstractRule {
     @Override
     public Set<Character> getCharacters() {
         return Set.of(ch);
-    }
-
-    @Override
-    public boolean match(Word word) {
-        boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) <= amount;
-        if (!mustHaveAtLeastMatch) {
-            return false;
-        }
-
-        return true;
     }
 
     @Override

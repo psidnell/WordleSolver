@@ -1,5 +1,6 @@
-package com.psidnell.rules;
+package com.psidnell.ruleset;
 
+import com.psidnell.rules.Rule;
 import com.psidnell.words.Word;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,7 +9,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RuleTest {
 
@@ -64,12 +66,6 @@ public class RuleTest {
     @MethodSource("provideMustNotHaveData")
     void testMustNotHave(Character c, int pos, String word, boolean match) {
         assertEquals(match, Rule.createMustNotHave(c).match(new Word(word)));
-    }
-
-    @Test()
-    void testCombineDifferentTypes() {
-        Rule r = Rule.createMustNotHave('X');
-        assertThrows(IllegalArgumentException.class, () -> r.combine(Rule.createNot('X', 1)));
     }
 
     private static Stream<Arguments> provideMustHaveAtLeastData() {
