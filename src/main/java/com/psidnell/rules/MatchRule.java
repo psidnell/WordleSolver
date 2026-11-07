@@ -36,7 +36,8 @@ public class MatchRule extends AbstractRule {
 
     @Override
     public String getCharactersAsString() {
-        return Character.toString(ch);
+        // TODO cache in constructor?
+        return ch.toString();
     }
 
     @Override

@@ -23,7 +23,6 @@ public interface Rule extends Comparable<Rule> {
         return new MatchRule(ch, position);
     }
 
-
     // TODO Inline all these
     static Rule createNot(Character ch, int position) {
         return new NotRule(ch, position);
@@ -33,14 +32,12 @@ public interface Rule extends Comparable<Rule> {
         return new WrongPlaceRule(ch, position);
     }
 
-    //todo Inline - BUT it makes it slower
     static Rule createMustNotHave(Character ch) {
         return new RuleImpl(RuleType.MUST_NOT_HAVE, ch, -1, -1);
-        //return createMustHaveAtMost(ch, 0);
     }
 
     static Rule createMustHaveAtLeast(Character ch, int amount) {
-        return new RuleImpl(RuleType.MUST_HAVE_AT_LEAST, ch, -1, amount);
+        return new MustHaveAtLeastRule(ch, amount);
     }
 
     static Rule createMustHaveAtMost(Character ch, int amount) {
