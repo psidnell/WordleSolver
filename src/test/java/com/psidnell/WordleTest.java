@@ -125,7 +125,7 @@ public class WordleTest {
     @MethodSource("provideSolutions")
     void testSolvingInFixedTurns(String solution, int tries, String[] guesses, boolean succeeds) throws Exception {
         try {
-            Profiler.enable(false);
+            Profiler.enable(true);
             Context context = new Context();
             Wordle wordle = context.get("wordle", Wordle.class);
             wordle.setContext(context);

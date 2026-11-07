@@ -2,7 +2,6 @@ package com.psidnell.profile;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -44,41 +43,5 @@ public class Profiler {
         probes.forEach(p -> {
             System.out.println(" - " + p.getName() + " count:" + p.getCount() + " time:" + p.getDuration() + "ms");
         });
-    }
-
-    private static class Record implements Comparable<Record> {
-        private String name;
-        private long duration = 0;
-        private long count = 0;
-
-        public Record(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public int compareTo(Record o) {
-            int result = Long.compare(o.duration, duration);
-            if (result != 0) {
-                return result;
-            }
-
-            result = Long.compare(o.count, count);
-            if (result != 0) {
-                return result;
-            }
-
-            return name.compareTo(o.name);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof Record record)) return false;
-            return duration == record.duration && count == record.count && Objects.equals(name, record.name);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, duration, count);
-        }
     }
 }

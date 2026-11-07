@@ -61,7 +61,7 @@ public class Probe implements Closeable, Comparable<Probe> {
     }
 
     public long getCount() {
-        return duration;
+        return count;
     }
 
     public void reset() {
