@@ -23,8 +23,10 @@ public interface Rule extends Comparable<Rule> {
         return new MatchRule(ch, position);
     }
 
-    static Rule createNoMatch(Character ch, int position) {
-        return new RuleImpl(RuleType.NOT, ch, position, -1);
+
+    // TODO Inline all these
+    static Rule createNot(Character ch, int position) {
+        return new NotRule(ch, position);
     }
 
     static Rule createWrongPlace(Character ch, int position) {

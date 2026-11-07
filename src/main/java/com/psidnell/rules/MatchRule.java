@@ -26,7 +26,7 @@ public class MatchRule extends AbstractRule {
             throw new IllegalArgumentException("Cannot combine different matches " + ch + " and " + other.ch);
         }
 
-        return Rule.createMatch(getCharactersAsString().charAt(0), getPosition());
+        return new MatchRule(getCharactersAsString().charAt(0), getPosition());
     }
 
     @Override

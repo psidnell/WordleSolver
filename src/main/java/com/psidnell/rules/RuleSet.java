@@ -65,12 +65,12 @@ public class RuleSet {
                         mustHaveAtLeast.increase(gc);
                         commonLettersRemaining.decrease(gc);
                     } else {
-                        addRule(Rule.createNoMatch(gc, i));
+                        addRule(Rule.createNot(gc, i));
                         addRule(Rule.createMustHaveAtMost(gc, seenSoFar.occurrences(gc) - 1));
                     }
                 } else if (comparison.getMismatches()[i]) {
                     addRule(Rule.createMustNotHave(gc));
-                    addRule(Rule.createNoMatch(gc, i));
+                    addRule(Rule.createNot(gc, i));
                 }
             }
 
@@ -109,7 +109,7 @@ public class RuleSet {
             Character ch = answer.charAt(i);
             Character chUc = Character.toUpperCase(ch);
             if (ch.equals('_')) {
-                addRule(Rule.createNoMatch(guess.charAt(i), i));
+                addRule(Rule.createNot(guess.charAt(i), i));
                 addRule(Rule.createWrongPlace(guess.charAt(i), i));
             } else if (Character.isUpperCase(ch)) {
                 addRule(Rule.createMatch(chUc, i));

@@ -33,8 +33,7 @@ public class RuleImpl extends AbstractRule {
         this.charsAsString = b.toString();
     }
 
-    public Rule combine(Rule o) {
-        RuleImpl other = (RuleImpl) o; //todo
+    public Rule combine(Rule other) {
         if (!this.getType().equals(other.getType())) {
             throw new IllegalArgumentException("Cannot combine with different types " + getType() + " and " + other.getType());
         }

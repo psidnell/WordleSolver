@@ -35,7 +35,7 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideNoMatchData")
     void testNoMatch(Character c, int pos, String word, boolean match) {
-        assertEquals(match, Rule.createNoMatch(c, pos).match(new Word(word)));
+        assertEquals(match, Rule.createNot(c, pos).match(new Word(word)));
     }
 
     private static Stream<Arguments> provideWrongPlaceData() {
@@ -69,7 +69,7 @@ public class RuleTest {
     @Test()
     void testCombineDifferentTypes() {
         Rule r = Rule.createMustNotHave('X');
-        assertThrows(IllegalArgumentException.class, () -> r.combine(Rule.createNoMatch('X', 1)));
+        assertThrows(IllegalArgumentException.class, () -> r.combine(Rule.createNot('X', 1)));
     }
 
     private static Stream<Arguments> provideMustHaveAtLeastData() {
@@ -118,31 +118,31 @@ public class RuleTest {
 
     void testCombineMatchWithDifferentChars() {
         Rule r = Rule.createMatch('A', 3);
-        Rule combined = r.combine(Rule.createNoMatch('B', 3));
+        Rule combined = r.combine(Rule.createNot('B', 3));
         assertEquals("A", combined.getCharactersAsString());
         assertEquals (3, combined.getPosition());
     }
 
     @Test()
     void testCombineNoMatchWithDifferentChars() {
-        Rule r = Rule.createNoMatch('A', 3);
-        Rule combined = r.combine(Rule.createNoMatch('B', 3));
+        Rule r = Rule.createNot('A', 3);
+        Rule combined = r.combine(Rule.createNot('B', 3));
         assertEquals("AB", combined.getCharactersAsString());
         assertEquals (3, combined.getPosition());
     }
 
     @Test()
     void testCombineNoMatchWithSameChars() {
-        Rule r = Rule.createNoMatch('A', 3);
-        Rule combined = r.combine(Rule.createNoMatch('A', 3));
+        Rule r = Rule.createNot('A', 3);
+        Rule combined = r.combine(Rule.createNot('A', 3));
         assertEquals("A", combined.getCharactersAsString());
         assertEquals (3, combined.getPosition());
     }
 
     @Test()
     void testCombineNoMatchMismatchedPositions() {
-        Rule r = Rule.createNoMatch('A', 3);
-        assertThrows(IllegalArgumentException.class, () -> r.combine(Rule.createNoMatch('B', 4)));
+        Rule r = Rule.createNot('A', 3);
+        assertThrows(IllegalArgumentException.class, () -> r.combine(Rule.createNot('B', 4)));
     }
 
     @Test()
