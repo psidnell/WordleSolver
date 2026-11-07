@@ -44,19 +44,16 @@ public class NotRule extends AbstractRule {
         return position;
     }
 
-    public String getCharactersAsString() {
-        // TODO cache in constructor?
-        StringBuilder b = new StringBuilder(chars.size());
-        chars.forEach(b::append);
-        return b.toString();
-    }
-
     public Set<Character> getCharacters() {
         return chars;
     }
 
+    public String getCharactersAsString() {
+        return charactersToString(chars);
+    }
+
     @Override
     public String toString() {
-        return getCharactersAsString() + "![" + position + "]";
+        return charactersToString(chars) + "![" + position + "]";
     }
 }

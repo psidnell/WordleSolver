@@ -2,12 +2,11 @@ package com.psidnell.ruleset.rule;
 
 import com.psidnell.words.Word;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class WrongPlaceRule extends AbstractRule {
-    private final Set<Character> chars;
+    private final TreeSet<Character> chars;
     private final int position;
 
     public WrongPlaceRule(Character ch, int position) {
@@ -16,7 +15,7 @@ public class WrongPlaceRule extends AbstractRule {
         this(chars, position);
     }
 
-    public WrongPlaceRule(Set<Character> chars, int position) {
+    public WrongPlaceRule(TreeSet<Character> chars, int position) {
         super(RuleType.WRONG_PLACE);
         this.chars = chars;
         this.position = position;
@@ -30,7 +29,7 @@ public class WrongPlaceRule extends AbstractRule {
             throw new IllegalArgumentException("Cannot combine with different positions " + position + " and " + position);
         }
 
-        Set<Character> combinedChars = new HashSet<>(getCharacters());
+        TreeSet<Character> combinedChars = new TreeSet<>(getCharacters());
         combinedChars.addAll(other.getCharacters());
         return new WrongPlaceRule(combinedChars, position);
     }
@@ -44,19 +43,18 @@ public class WrongPlaceRule extends AbstractRule {
         return position;
     }
 
-    public String getCharactersAsString() {
-        // TODO cache in constructor?
-        StringBuilder b = new StringBuilder(chars.size());
-        chars.forEach(b::append);
-        return b.toString();
-    }
-
     public Set<Character> getCharacters() {
         return chars;
     }
 
+
+    public String getCharactersAsString() {
+        return charactersToString(chars);
+    }
     @Override
     public String toString() {
-        return getCharactersAsString() + "![" + position + "]";
+        return charactersToString(chars) + "![" + position + "]";
     }
+
+
 }

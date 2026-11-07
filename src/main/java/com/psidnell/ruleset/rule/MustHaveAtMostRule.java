@@ -2,8 +2,6 @@ package com.psidnell.ruleset.rule;
 
 import com.psidnell.words.Word;
 
-import java.util.Set;
-
 public class MustHaveAtMostRule extends AbstractRule {
     private final Character ch;
     private final int amount;
@@ -18,7 +16,7 @@ public class MustHaveAtMostRule extends AbstractRule {
     public Rule combine(Rule o) {
         MustHaveAtMostRule other = (MustHaveAtMostRule) o;
 
-        if (!getCharactersAsString().equals(other.getCharactersAsString())) {
+        if (!ch.equals(other.ch)) {
             throw new IllegalArgumentException("Cannot combine different matches " + ch + " and " + other.ch);
         }
 
@@ -35,21 +33,12 @@ public class MustHaveAtMostRule extends AbstractRule {
         return true;
     }
 
-    public String getCharactersAsString() {
-        // TODO cache in constructor?
-        return ch.toString();
-    }
-
     public int getAmount() {
         return amount;
     }
 
     public Character getCharacter() {
         return ch;
-    }
-
-    public Set<Character> getCharacters() {
-        return Set.of(ch);
     }
 
     @Override

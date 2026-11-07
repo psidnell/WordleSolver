@@ -39,23 +39,12 @@ public class MustNotHaveRule extends AbstractRule {
         return true;
     }
 
-    public String getCharactersAsString() {
-        // TODO cache in constructor?
-        StringBuilder b = new StringBuilder(chars.size());
-        chars.forEach(b::append);
-        return b.toString();
-    }
-
-    public int getAmount() {
-        return -1;
-    }
-
     public Set<Character> getCharacters() {
         return chars;
     }
 
     @Override
     public String toString() {
-        return getCharactersAsString() + "!";
+        return charactersToString(chars) + "!";
     }
 }

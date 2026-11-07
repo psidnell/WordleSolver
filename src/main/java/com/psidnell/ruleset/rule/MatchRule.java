@@ -2,8 +2,6 @@ package com.psidnell.ruleset.rule;
 
 import com.psidnell.words.Word;
 
-import java.util.Set;
-
 public class MatchRule extends AbstractRule {
     private final Character ch;
     private final int position;
@@ -26,7 +24,7 @@ public class MatchRule extends AbstractRule {
             throw new IllegalArgumentException("Cannot combine different matches " + ch + " and " + other.ch);
         }
 
-        return new MatchRule(getCharactersAsString().charAt(0), getPosition());
+        return new MatchRule(getCharacter(), getPosition());
     }
 
     @Override
@@ -38,25 +36,12 @@ public class MatchRule extends AbstractRule {
         return position;
     }
 
-    public String getCharactersAsString() {
-        // TODO cache in constructor?
-        return ch.toString();
-    }
-
     public Character getCharacter() {
         return ch;
     }
 
-    public int getAmount() {
-        return -1;
-    }
-
-    public Set<Character> getCharacters() {
-        return Set.of(ch);
-    }
-
     @Override
     public String toString() {
-        return getCharactersAsString() + "*[" + position + "]";
+        return getCharacter() + "*[" + position + "]";
     }
 }

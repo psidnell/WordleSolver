@@ -144,7 +144,7 @@ public class RuleTest {
     void testCombineMustNotHave() {
         MustNotHaveRule r = new MustNotHaveRule('A');
         MustNotHaveRule combined = (MustNotHaveRule) r.combine(new MustNotHaveRule('B'));
-        assertEquals("AB", combined.getCharactersAsString());
+        assertEquals("[A, B]", combined.getCharacters().toString());
     }
 
     @Test()
@@ -166,7 +166,7 @@ public class RuleTest {
     void testCombineMustHaveAtMost() {
         MustHaveAtMostRule r = new MustHaveAtMostRule('A', 1);
         MustHaveAtMostRule combined = (MustHaveAtMostRule) r.combine(new MustHaveAtMostRule('A', 2));
-        assertEquals("A", combined.getCharactersAsString());
+        assertEquals('A', combined.getCharacter());
         assertEquals(1, combined.getAmount());
 
         r = new MustHaveAtMostRule('A', 2);

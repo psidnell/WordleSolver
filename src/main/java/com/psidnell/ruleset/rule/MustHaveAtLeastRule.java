@@ -2,8 +2,6 @@ package com.psidnell.ruleset.rule;
 
 import com.psidnell.words.Word;
 
-import java.util.Set;
-
 public class MustHaveAtLeastRule extends AbstractRule {
     private final Character ch;
     private final int amount;
@@ -40,10 +38,6 @@ public class MustHaveAtLeastRule extends AbstractRule {
 
     public Character getCharacter() {
         return ch;
-    }
-
-    public Set<Character> getCharacters() {
-        return Set.of(ch);
     }
 
     @Override

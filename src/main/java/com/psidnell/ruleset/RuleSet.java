@@ -191,9 +191,9 @@ public class RuleSet {
 
         final String[] wrongPlacesArr = new String[]{"_", "_", "_", "_", "_"};
         for (int i = 0; i < 5; i++) {
-            Rule r = wrongPlaces[i];
+            WrongPlaceRule r = wrongPlaces[i];
             if (r != null) {
-                wrongPlacesArr[i] = ((WrongPlaceRule)r).getCharactersAsString();
+                wrongPlacesArr[i] = r.getCharactersAsString();
             }
         }
         output.append(String.join(",", wrongPlacesArr));
@@ -202,9 +202,9 @@ public class RuleSet {
 
         final String[] noMatchesArr = new String[]{"_", "_", "_", "_", "_"};
         for (int i = 0; i < 5; i++) {
-            Rule r = not[i];
+            NotRule r = not[i];
             if (r != null) {
-                noMatchesArr[i] = ((NotRule)r).getCharactersAsString();
+                noMatchesArr[i] = r.getCharactersAsString();
             }
         }
         output.append(String.join(",", noMatchesArr));
