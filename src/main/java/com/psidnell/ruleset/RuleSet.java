@@ -3,7 +3,13 @@ package com.psidnell.ruleset;
 import com.psidnell.PlayerException;
 import com.psidnell.profile.Probe;
 import com.psidnell.profile.Profiler;
+import com.psidnell.ruleset.rule.MatchRule;
+import com.psidnell.ruleset.rule.MustHaveAtLeastRule;
+import com.psidnell.ruleset.rule.MustHaveAtMostRule;
+import com.psidnell.ruleset.rule.MustNotHaveRule;
+import com.psidnell.ruleset.rule.NotRule;
 import com.psidnell.ruleset.rule.Rule;
+import com.psidnell.ruleset.rule.WrongPlaceRule;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
@@ -50,34 +56,34 @@ public class RuleSet {
                 Character gc = guess.charAt(i);
                 seenSoFar.increase(gc);
                 if (comparison.getCorrectPositions()[i]) {
-                    addRule(Rule.createMatch(gc, i));
+                    addRule(new MatchRule(gc, i));
                     // We might have already consumed all the letters in a wrong place match
                     int remaining = commonLettersRemaining.occurrences(gc);
                     if (remaining > 0) {
                         mustHaveAtLeast.increase(gc);
                         commonLettersRemaining.decrease(gc);
                     } else {
-                        addRule(Rule.createMustHaveAtMost(gc, seenSoFar.occurrences(gc) - 1));
+                        addRule(new MustHaveAtMostRule(gc, seenSoFar.occurrences(gc) - 1));
                     }
                 } else if (comparison.getIncorrectPositions()[i]) {
                     int remaining = commonLettersRemaining.occurrences(gc);
                     if (remaining > 0) {
-                        addRule(Rule.createWrongPlace(gc, i));
+                        addRule(new WrongPlaceRule(gc, i));
                         mustHaveAtLeast.increase(gc);
                         commonLettersRemaining.decrease(gc);
                     } else {
-                        addRule(Rule.createNot(gc, i));
-                        addRule(Rule.createMustHaveAtMost(gc, seenSoFar.occurrences(gc) - 1));
+                        addRule(new NotRule(gc, i));
+                        addRule(new MustHaveAtMostRule(gc, seenSoFar.occurrences(gc) - 1));
                     }
                 } else if (comparison.getMismatches()[i]) {
-                    addRule(Rule.createMustNotHave(gc));
-                    addRule(Rule.createNot(gc, i));
+                    addRule(new MustNotHaveRule(gc));
+                    addRule(new NotRule(gc, i));
                 }
             }
 
             // Can derive this
             mustHaveAtLeast.frequencies().forEach((ch, min) -> {
-                addRule(Rule.createMustHaveAtLeast(ch, min));
+                addRule(new MustHaveAtLeastRule(ch, min));
             });
         }
     }
@@ -110,26 +116,28 @@ public class RuleSet {
             Character ch = answer.charAt(i);
             Character chUc = Character.toUpperCase(ch);
             if (ch.equals('_')) {
-                addRule(Rule.createNot(guess.charAt(i), i));
-                addRule(Rule.createWrongPlace(guess.charAt(i), i));
+                Character ch1 = guess.charAt(i);
+                addRule(new NotRule(ch1, i));
+                Character ch2 = guess.charAt(i);
+                addRule(new WrongPlaceRule(ch2, i));
             } else if (Character.isUpperCase(ch)) {
-                addRule(Rule.createMatch(chUc, i));
+                addRule(new MatchRule(chUc, i));
             } else {
-                addRule(Rule.createWrongPlace(chUc, i));
+                addRule(new WrongPlaceRule(chUc, i));
             }
         }
 
         answerFrequencies.frequencies().forEach((ch, answerOccurrences) -> {
-            addRule(Rule.createMustHaveAtLeast(ch, answerOccurrences));
+            addRule(new MustHaveAtLeastRule(ch, answerOccurrences));
             if (answerOccurrences < guessFrequencies.occurrences((ch))) {
-                addRule(Rule.createMustHaveAtMost(ch, answerOccurrences));
+                addRule(new MustHaveAtMostRule(ch, answerOccurrences));
             }
         });
 
         for (int i = 0; i < 5; i++) {
             Character ch = guess.charAt(i);
             if (answerFrequencies.occurrences(ch) == 0) {
-                addRule(Rule.createMustNotHave(guess.charAt(i)));
+                addRule(new MustNotHaveRule(guess.charAt(i)));
             }
         }
     }
@@ -156,11 +164,11 @@ public class RuleSet {
             case NOT -> not[r.getPosition()] = combine(r, not[r.getPosition()]);
             case MUST_NOT_HAVE -> mustNotHave = combine(r, mustNotHave);
             case MUST_HAVE_AT_LEAST -> {
-                char firstAndOnlyChar = r.getCharactersAsString().charAt(0);
+                char firstAndOnlyChar = ((MustHaveAtLeastRule)r).getCharacter();
                 mustHaveAtLeast.put(firstAndOnlyChar, combine(r, mustHaveAtLeast.get(firstAndOnlyChar)));
             }
             case MUST_HAVE_AT_MOST -> {
-                char firstAndOnlyChar = r.getCharactersAsString().charAt(0);
+                char firstAndOnlyChar = ((MustHaveAtMostRule)r).getCharacter();
                 mustHaveAtMost.put(firstAndOnlyChar, combine(r, mustHaveAtMost.get(firstAndOnlyChar)));
             }
         }
@@ -169,11 +177,11 @@ public class RuleSet {
     public String toString() {
         StringBuilder output = new StringBuilder();
 
-        final String[] matchedChars = new String[]{"_", "_", "_", "_", "_"};
+        final Character[] matchedChars = new Character[]{'_', '_', '_', '_', '_'};
         for (int i = 0; i < 5; i++) {
             Rule r = matches[i];
             if (r != null) {
-                matchedChars[i] = r.getCharactersAsString();
+                matchedChars[i] = ((MatchRule)r).getCharacter();
             }
         }
         output.append("Matched{");
@@ -184,7 +192,7 @@ public class RuleSet {
         for (int i = 0; i < 5; i++) {
             Rule r = wrongPlaces[i];
             if (r != null) {
-                wrongPlacesArr[i] = r.getCharactersAsString();
+                wrongPlacesArr[i] = ((WrongPlaceRule)r).getCharactersAsString();
             }
         }
         output.append(String.join(",", wrongPlacesArr));
@@ -195,7 +203,7 @@ public class RuleSet {
         for (int i = 0; i < 5; i++) {
             Rule r = not[i];
             if (r != null) {
-                noMatchesArr[i] = r.getCharactersAsString();
+                noMatchesArr[i] = ((NotRule)r).getCharactersAsString();
             }
         }
         output.append(String.join(",", noMatchesArr));
@@ -212,7 +220,7 @@ public class RuleSet {
             if (!first) {
                 output.append(',');
             }
-            Character firstChar = r.getCharactersAsString().charAt(0);
+            Character firstChar = ((MustHaveAtLeastRule)r).getCharacter();
             output.append(firstChar).append(':').append(r.getAmount());
             first = false;
         }
@@ -224,7 +232,7 @@ public class RuleSet {
             if (!first) {
                 output.append(',');
             }
-            Character firstChar = r.getCharactersAsString().charAt(0);
+            Character firstChar = ((MustHaveAtMostRule)r).getCharacter();
             output.append(firstChar).append(':').append(r.getAmount());
             first = false;
         }

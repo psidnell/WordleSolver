@@ -22,7 +22,7 @@ public class MatchRule extends AbstractRule {
             throw new IllegalArgumentException("Cannot combine with different positions " + position + " and " + position);
         }
 
-        if (!getCharactersAsString().equals(other.getCharactersAsString())) {
+        if (!ch.equals(other.ch)) {
             throw new IllegalArgumentException("Cannot combine different matches " + ch + " and " + other.ch);
         }
 
@@ -39,10 +39,13 @@ public class MatchRule extends AbstractRule {
         return position;
     }
 
-    @Override
     public String getCharactersAsString() {
         // TODO cache in constructor?
         return ch.toString();
+    }
+
+    public Character getCharacter() {
+        return ch;
     }
 
     @Override

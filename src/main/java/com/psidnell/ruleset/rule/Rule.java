@@ -11,36 +11,11 @@ public interface Rule {
 
     int getPosition();
 
-    String getCharactersAsString();
+    //String getCharactersAsString();
 
     int getAmount();
 
     Set<Character> getCharacters();
 
     boolean match(Word word);
-
-    static Rule createMatch(Character ch, int position) {
-        return new MatchRule(ch, position);
-    }
-
-    // TODO Inline all these
-    static Rule createNot(Character ch, int position) {
-        return new NotRule(ch, position);
-    }
-
-    static Rule createWrongPlace(Character ch, int position) {
-        return new WrongPlaceRule(ch, position);
-    }
-
-    static Rule createMustNotHave(Character ch) {
-        return new MustNotHaveRule(ch);
-    }
-
-    static Rule createMustHaveAtLeast(Character ch, int amount) {
-        return new MustHaveAtLeastRule(ch, amount);
-    }
-
-    static Rule createMustHaveAtMost(Character ch, int amount) {
-        return new MustHaveAtMostRule(ch, amount);
-    }
 }

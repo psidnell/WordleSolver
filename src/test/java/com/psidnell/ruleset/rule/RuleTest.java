@@ -23,7 +23,7 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideMatchData")
     void testMatch(Character c, int pos, String word, boolean match) {
-        assertEquals(match, Rule.createMatch(c, pos).match(new Word(word)));
+        assertEquals(match, new MatchRule(c, pos).match(new Word(word)));
     }
 
     private static Stream<Arguments> provideNoMatchData() {
@@ -36,7 +36,7 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideNoMatchData")
     void testNoMatch(Character c, int pos, String word, boolean match) {
-        assertEquals(match, Rule.createNot(c, pos).match(new Word(word)));
+        assertEquals(match, new NotRule(c, pos).match(new Word(word)));
     }
 
     private static Stream<Arguments> provideWrongPlaceData() {
@@ -51,7 +51,7 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideWrongPlaceData")
     void testWrongPlace(Character c, int pos, String word, boolean match) {
-        assertEquals(match, Rule.createWrongPlace(c, pos).match(new Word(word)));
+        assertEquals(match, new WrongPlaceRule(c, pos).match(new Word(word)));
     }
 
     private static Stream<Arguments> provideMustNotHaveData() {
@@ -64,7 +64,7 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideMustNotHaveData")
     void testMustNotHave(Character c, int pos, String word, boolean match) {
-        assertEquals(match, Rule.createMustNotHave(c).match(new Word(word)));
+        assertEquals(match, new MustNotHaveRule(c).match(new Word(word)));
     }
 
     private static Stream<Arguments> provideMustHaveAtLeastData() {
@@ -82,7 +82,7 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideMustHaveAtLeastData")
     void testMustHaveAtLeast(Character c, int count, String word, boolean match) {
-        assertEquals(match, Rule.createMustHaveAtLeast(c, count).match(new Word(word)));
+        assertEquals(match, new MustHaveAtLeastRule(c, count).match(new Word(word)));
     }
 
     private static Stream<Arguments> provideMustHaveAtMostData() {
@@ -100,80 +100,80 @@ public class RuleTest {
     @ParameterizedTest
     @MethodSource("provideMustHaveAtMostData")
     void testMustHaveAtMost(Character c, int count, String word, boolean match) {
-        assertEquals(match, Rule.createMustHaveAtMost(c, count).match(new Word(word)));
+        assertEquals(match, new MustHaveAtMostRule(c, count).match(new Word(word)));
     }
 
     @Test()
     void testCombineMatch() {
-        Rule r = Rule.createMatch('A', 3);
-        Rule combined = r.combine(Rule.createMatch('A', 3));
-        assertEquals("A", combined.getCharactersAsString());
+        MatchRule r = new MatchRule('A', 3);
+        MatchRule combined = (MatchRule) r.combine(new MatchRule('A', 3));
+        assertEquals('A', combined.getCharacter());
         assertEquals (3, combined.getPosition());
     }
 
     void testCombineMatchWithDifferentChars() {
-        Rule r = Rule.createMatch('A', 3);
-        Rule combined = r.combine(Rule.createNot('B', 3));
-        assertEquals("A", combined.getCharactersAsString());
+        MatchRule r = new MatchRule('A', 3);
+        MatchRule combined = (MatchRule) r.combine(new NotRule('B', 3));
+        assertEquals('A', combined.getCharacter());
         assertEquals (3, combined.getPosition());
     }
 
     @Test()
     void testCombineNoMatchWithDifferentChars() {
-        Rule r = Rule.createNot('A', 3);
-        Rule combined = r.combine(Rule.createNot('B', 3));
+        NotRule r = new NotRule('A', 3);
+        NotRule combined = (NotRule) r.combine(new NotRule('B', 3));
         assertEquals("AB", combined.getCharactersAsString());
         assertEquals (3, combined.getPosition());
     }
 
     @Test()
     void testCombineNoMatchWithSameChars() {
-        Rule r = Rule.createNot('A', 3);
-        Rule combined = r.combine(Rule.createNot('A', 3));
+        NotRule r = new NotRule('A', 3);
+        NotRule combined = (NotRule) r.combine(new NotRule('A', 3));
         assertEquals("A", combined.getCharactersAsString());
         assertEquals (3, combined.getPosition());
     }
 
     @Test()
     void testCombineNoMatchMismatchedPositions() {
-        Rule r = Rule.createNot('A', 3);
-        assertThrows(IllegalArgumentException.class, () -> r.combine(Rule.createNot('B', 4)));
+        Rule r = new NotRule('A', 3);
+        assertThrows(IllegalArgumentException.class, () -> r.combine(new NotRule('B', 4)));
     }
 
     @Test()
     void testCombineMustNotHave() {
-        Rule r = Rule.createMustNotHave('A');
-        Rule combined = r.combine(Rule.createMustNotHave('B'));
+        MustNotHaveRule r = new MustNotHaveRule('A');
+        MustNotHaveRule combined = (MustNotHaveRule) r.combine(new MustNotHaveRule('B'));
         assertEquals("AB", combined.getCharactersAsString());
         assertEquals (-1, combined.getPosition());
     }
 
     @Test()
     void testCombineMustHaveAtLeast() {
-        Rule r = Rule.createMustHaveAtLeast('A', 1);
-        Rule combined = r.combine(Rule.createMustHaveAtLeast('A', 2));
-        assertEquals("A", combined.getCharactersAsString());
+        MustHaveAtLeastRule r = new MustHaveAtLeastRule('A', 1);
+        MustHaveAtLeastRule combined = (MustHaveAtLeastRule) r.combine(new MustHaveAtLeastRule('A', 2));
+        assertEquals('A', combined.getCharacter());
         assertEquals(2, combined.getAmount());
         assertEquals (-1, combined.getPosition());
 
-        r = Rule.createMustHaveAtLeast('A', 2);
-        combined = r.combine(Rule.createMustHaveAtLeast('A', 1));
-        assertEquals("A", combined.getCharactersAsString());
+        r = new MustHaveAtLeastRule('A', 2);
+        combined = (MustHaveAtLeastRule) r.combine(new MustHaveAtLeastRule('A', 1));
+        assertEquals('A', combined.getCharacter());
         assertEquals(2, combined.getAmount());
         assertEquals (-1, combined.getPosition());
     }
 
     @Test()
     void testCombineMustHaveAtMost() {
-        Rule r = Rule.createMustHaveAtMost('A', 1);
-        Rule combined = r.combine(Rule.createMustHaveAtMost('A', 2));
+        MustHaveAtMostRule r = new MustHaveAtMostRule('A', 1);
+        MustHaveAtMostRule combined = (MustHaveAtMostRule) r.combine(new MustHaveAtMostRule('A', 2));
         assertEquals("A", combined.getCharactersAsString());
         assertEquals(1, combined.getAmount());
         assertEquals (-1, combined.getPosition());
 
-        r = Rule.createMustHaveAtMost('A', 2);
-        combined = r.combine(Rule.createMustHaveAtMost('A', 1));
-        assertEquals("A", combined.getCharactersAsString());
+        r = new MustHaveAtMostRule('A', 2);
+        combined = (MustHaveAtMostRule) r.combine(new MustHaveAtMostRule('A', 1));
+        assertEquals('A', combined.getCharacter());
         assertEquals(1, combined.getAmount());
         assertEquals (-1, combined.getPosition());
     }

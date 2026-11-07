@@ -30,7 +30,6 @@ public class MustHaveAtLeastRule extends AbstractRule {
         return -1;
     }
 
-    @Override
     public String getCharactersAsString() {
         // TODO cache in constructor?
         return ch.toString();
@@ -39,6 +38,10 @@ public class MustHaveAtLeastRule extends AbstractRule {
     @Override
     public int getAmount() {
         return amount;
+    }
+
+    public Character getCharacter() {
+        return ch;
     }
 
     @Override

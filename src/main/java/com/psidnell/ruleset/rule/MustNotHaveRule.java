@@ -44,7 +44,6 @@ public class MustNotHaveRule extends AbstractRule {
         return -1;
     }
 
-    @Override
     public String getCharactersAsString() {
         // TODO cache in constructor?
         StringBuilder b = new StringBuilder(chars.size());
