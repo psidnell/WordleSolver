@@ -1,5 +1,7 @@
 package com.psidnell.ruleset.rule;
 
+import com.psidnell.profile.Probe;
+import com.psidnell.profile.Profiler;
 import com.psidnell.util.CharacterSet;
 import com.psidnell.words.Word;
 
@@ -17,13 +19,17 @@ public class MustNotHaveRule extends AbstractRule {
         this.chars = chars;
     }
 
+    private static final Probe PROBE = Profiler.getProbe(MustNotHaveRule.class, "match");
+
     @Override
     public Rule combine(Rule o) {
-        MustNotHaveRule other = (MustNotHaveRule) o;
+        try (Probe p = PROBE.open()) {
+            MustNotHaveRule other = (MustNotHaveRule) o;
 
-        CharacterSet combinedChars = new CharacterSet(chars);
-        combinedChars.addAll(other.getCharacters());
-        return new MustNotHaveRule(combinedChars);
+            CharacterSet combinedChars = new CharacterSet(chars);
+            combinedChars.addAll(other.getCharacters());
+            return new MustNotHaveRule(combinedChars);
+        }
     }
 
     @Override

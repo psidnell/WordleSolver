@@ -146,7 +146,6 @@ public class WordleTest {
 
     @Test
     void testSolvingRandomWords() throws Exception {
-
         for (int i = 0; i < 5; i++) {
             Context context = new Context();
             Wordle wordle = context.get("wordle", Wordle.class);

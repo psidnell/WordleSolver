@@ -1,5 +1,7 @@
 package com.psidnell.ruleset.rule;
 
+import com.psidnell.profile.Probe;
+import com.psidnell.profile.Profiler;
 import com.psidnell.words.Word;
 
 public class MustHaveAtLeastRule extends AbstractRule {
@@ -40,14 +42,17 @@ public class MustHaveAtLeastRule extends AbstractRule {
         return ch;
     }
 
+    private static final Probe PROBE = Profiler.getProbe(MustHaveAtLeastRule.class, "match");
     @Override
     public boolean match(Word word) {
-        boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) >= amount;
-        if (!mustHaveAtLeastMatch) {
-            return false;
-        }
+        try (Probe p = PROBE.open()) {
+            boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) >= amount;
+            if (!mustHaveAtLeastMatch) {
+                return false;
+            }
 
-        return true;
+            return true;
+        }
     }
 
     @Override

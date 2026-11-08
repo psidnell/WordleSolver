@@ -229,20 +229,12 @@ public class Wordle extends ComponentImpl {
             for (Word wordFromSolutions : solutions.getWords()) {
                 int originalSize = solutions.getWords().size();
 
-                // todo don't optimise yet
-//                if (!dictionaryWordGuess.haveCommonCharacters(wordFromSolutions)) {
-//                    LOG.log(Level.DEBUG, "No common letters {0}/{1}", dictionaryWordGuess, wordFromSolutions);
-//                    totalSolutionsForWord += originalSize;
-//                    continue;
-//                }
-
                 RuleSet r = combinedRuleSet.combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
                 int removed = solutions.countWordsNotMatching(r);
                 int prunedSize = originalSize - removed;
 
                 totalSolutionsForWord += prunedSize;
 
-                //todo why is this so bad?
                 if (totalSolutionsForWord > lowestSolutionsCount) {
                     // This guess is never going to be the best word - bail to save time
                     shortcuts++;

@@ -1,5 +1,7 @@
 package com.psidnell.ruleset.rule;
 
+import com.psidnell.profile.Probe;
+import com.psidnell.profile.Profiler;
 import com.psidnell.words.Word;
 
 public class MatchRule extends AbstractRule {
@@ -27,9 +29,12 @@ public class MatchRule extends AbstractRule {
         return new MatchRule(getCharacter(), getPosition());
     }
 
+    private static final Probe PROBE = Profiler.getProbe(MatchRule.class, "match");
     @Override
     public boolean match(Word word) {
-        return ch.equals(word.charAt(position));
+        try (Probe p = PROBE.open()) {
+            return ch.equals(word.charAt(position));
+        }
     }
 
     public int getPosition() {

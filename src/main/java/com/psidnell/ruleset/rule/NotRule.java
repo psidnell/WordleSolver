@@ -1,5 +1,7 @@
 package com.psidnell.ruleset.rule;
 
+import com.psidnell.profile.Probe;
+import com.psidnell.profile.Profiler;
 import com.psidnell.util.CharacterSet;
 import com.psidnell.words.Word;
 
@@ -33,9 +35,13 @@ public class NotRule extends AbstractRule {
         return new NotRule(combinedChars, position);
     }
 
+    private static final Probe PROBE = Profiler.getProbe(NotRule.class, "match");
+
     @Override
     public boolean match(Word word) {
-        return !chars.contains(word.charAt(getPosition()));
+        try (Probe p = PROBE.open()) {
+            return !chars.contains(word.charAt(getPosition()));
+        }
     }
 
     public int getPosition() {
