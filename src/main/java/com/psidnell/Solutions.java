@@ -18,6 +18,10 @@ public class Solutions {
         solutions = new TreeSet<>(dictionary.getWords());
     }
 
+    public Solutions(Solutions o) {
+        solutions = new TreeSet<>(o.solutions);
+    }
+
     public Solutions(Collection<Word> words) {
         solutions = new TreeSet<>(words);
     }

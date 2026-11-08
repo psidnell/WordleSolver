@@ -2,16 +2,15 @@ package com.psidnell;
 
 import com.psidnell.ruleset.RuleSet;
 import com.psidnell.util.ComponentImpl;
+import com.psidnell.util.Pair;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -274,6 +273,45 @@ public class Wordle extends ComponentImpl {
         return bestWord;
     }
 
+//    private Word getBestWordByRecursion(Collection<Word> guesses) {
+//        return recurse(guesses, solutions, combinedRuleSet, guessesRemaining).left();
+//    }
+//
+//    private Pair<Word, Integer> recurse(Collection<Word> guesses, Solutions solutions, RuleSet r, int guessesRemaining) {
+//        LOG.log(Level.INFO, "guessesRem {0} guesses {1} solutions {2}", guessesRemaining, guesses.size(), solutions.size());
+//
+//        if (solutions.size() == 1) {
+//            return new Pair<>(solutions.getWords().stream().findFirst().orElseThrow(), 1);
+//        }
+//
+//        if (guessesRemaining == 0) {
+//            return null;
+//        }
+//
+//        Word bestWord = null;
+//        int bestDepths = Integer.MAX_VALUE;
+//
+//        for (Word guess : guesses) {
+//            int totalDepthsForGuess = 0;
+//            Set<Word> reducedGuesses = new TreeSet<>(guesses);
+//            reducedGuesses.remove(guess);
+//            for (Word wordFromSolutions : solutions.getWords()) {
+//                LOG.log(Level.INFO, "{0}/{1}", guess, wordFromSolutions);
+//                Solutions reducedSolutions = new Solutions(solutions);
+//                RuleSet r2 = r.combineRuleSet(new RuleSet(guess, wordFromSolutions));
+//                reducedSolutions.prune(r2);
+//                Pair<Word, Integer> p = recurse(reducedGuesses, reducedSolutions, r2, guessesRemaining - 1);
+//                if (p != null) {
+//                    totalDepthsForGuess += p.right();
+//                }
+//            }
+//            if (totalDepthsForGuess < bestDepths) {
+//                bestWord = guess;
+//            }
+//        }
+//        return new Pair<>(bestWord, bestDepths);
+//    }
+
     private Word getBestWordByRank(Collection<Word> guesses) {
         int totalCombinations = guesses.size() * solutions.size();
         LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
@@ -347,10 +385,11 @@ public class Wordle extends ComponentImpl {
         }
     }
 
+    // TODO Needed?
     private Solutions shrinkWordsByRank(Collection<Word> guesses, int limit) {
         LOG.log(Level.INFO, "Shrinking words: {0}", guesses.size());
 
-        ArrayList<Map.Entry<Word, Integer>> collectedWordsAndRanks = new ArrayList<>();
+        ArrayList<Pair<Word, Integer>> collectedWordsAndRanks = new ArrayList<>();
 
         for (Word dictionaryWordGuess : guesses) {
 
@@ -361,12 +400,12 @@ public class Wordle extends ComponentImpl {
                 totalRankForWord += comparison.charactersInCommon();
             }
 
-            collectedWordsAndRanks.add(new AbstractMap.SimpleEntry<Word, Integer>(dictionaryWordGuess, totalRankForWord));
+            collectedWordsAndRanks.add(new Pair<>(dictionaryWordGuess, totalRankForWord));
         }
 
-        collectedWordsAndRanks.sort((a, b) ->Integer.compare(b.getValue(), a.getValue()));
-        List<Map.Entry<Word, Integer>> truncatedWordsAndRanks = collectedWordsAndRanks.stream().limit(limit).toList();
-        List<Word> truncatedWords = truncatedWordsAndRanks.stream().map(Map.Entry::getKey).toList();
+        collectedWordsAndRanks.sort((a, b) ->Integer.compare(b.right(), a.right()));
+        List<Pair<Word, Integer>> truncatedWordsAndRanks = collectedWordsAndRanks.stream().limit(limit).toList();
+        List<Word> truncatedWords = truncatedWordsAndRanks.stream().map(Pair::left).toList();
         LOG.log(Level.INFO, "Shrunk words: {0}", truncatedWords.size());
         return new Solutions(truncatedWords);
     }
