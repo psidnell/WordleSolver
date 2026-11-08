@@ -102,6 +102,7 @@ public class WordleTest {
                 Arguments.of("nunks", 6, new String[]{}, false),
 
                  // Successes
+                Arguments.of("first", 3, new String[]{}, true),
                 Arguments.of("prate", 3, new String[]{}, true),
                 Arguments.of("soyle", 4, new String[]{}, true),
                 Arguments.of("dreck", 2, new String[]{}, true),

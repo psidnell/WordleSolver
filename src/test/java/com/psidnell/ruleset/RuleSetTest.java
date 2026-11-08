@@ -47,6 +47,8 @@ public class RuleSetTest
     void testMWouldEliminate(String solution, String guess, String elimWord, boolean eliminated) {
         RuleSet m = new RuleSet(new Word(guess), new Word(solution));
         assertEquals(eliminated, m.match(new Word(elimWord)));
+        // The RS should not match the guess unless the guess was correct
+        assertEquals(solution.equals(guess) || !eliminated, m.match(new Word(guess)));
     }
 
     private static Stream<Arguments> provideAnswerData() {

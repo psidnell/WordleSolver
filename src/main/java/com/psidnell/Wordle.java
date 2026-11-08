@@ -130,6 +130,7 @@ public class Wordle extends ComponentImpl {
 
         LOG.log(Level.DEBUG, "Pre Cumulative: {0}", combinedRuleSet);
 
+        // TODO ugly!
         int solutionsBefore = solutions.getWords().size();
         AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
         RuleSet match = new RuleSet(guessWord, solution);
