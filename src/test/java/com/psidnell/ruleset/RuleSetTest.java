@@ -52,12 +52,12 @@ public class RuleSetTest
     private static Stream<Arguments> provideAnswerData() {
         return Stream.of(
                 // Guess, Answer, toString
-                Arguments.of("AAAAA", "_____", "Matched{_____} WrongPlace{A,A,A,A,A} Not{A,A,A,A,A} None{A} AtLeast{} AtMost{}"),
-                Arguments.of("AXXXX", "A____", "Matched{A____} WrongPlace{_,X,X,X,X} Not{_,X,X,X,X} None{X} AtLeast{A:1} AtMost{}"),
-                Arguments.of("AAXXX", "Aa___", "Matched{A____} WrongPlace{_,A,X,X,X} Not{_,_,X,X,X} None{X} AtLeast{A:2} AtMost{}"),
-                Arguments.of("AAAXX", "Aa___", "Matched{A____} WrongPlace{_,A,A,X,X} Not{_,_,A,X,X} None{X} AtLeast{A:2} AtMost{A:2}"),
-                Arguments.of("AAAXX", "aA___", "Matched{_A___} WrongPlace{A,_,A,X,X} Not{_,_,A,X,X} None{X} AtLeast{A:2} AtMost{A:2}"),
-                Arguments.of("TRACE", "___C_", "Matched{___C_} WrongPlace{T,R,A,_,E} Not{T,R,A,_,E} None{AERT} AtLeast{C:1} AtMost{}")
+                Arguments.of("AAAAA", "_____", "Matched{_____} WrongPlace{_,_,_,_,_} Not{A,A,A,A,A} None{A} AtLeast{} AtMost{}"),
+                Arguments.of("AXXXX", "A____", "Matched{A____} WrongPlace{_,_,_,_,_} Not{_,X,X,X,X} None{X} AtLeast{A:1} AtMost{}"),
+                Arguments.of("AAXXX", "Aa___", "Matched{A____} WrongPlace{_,A,_,_,_} Not{_,_,X,X,X} None{X} AtLeast{A:2} AtMost{}"),
+                Arguments.of("AAAXX", "Aa___", "Matched{A____} WrongPlace{_,A,_,_,_} Not{_,_,A,X,X} None{X} AtLeast{A:2} AtMost{A:2}"),
+                Arguments.of("AAAXX", "aA___", "Matched{_A___} WrongPlace{A,_,_,_,_} Not{_,_,A,X,X} None{X} AtLeast{A:2} AtMost{A:2}"),
+                Arguments.of("TRACE", "___C_", "Matched{___C_} WrongPlace{_,_,_,_,_} Not{T,R,A,_,E} None{AERT} AtLeast{C:1} AtMost{}")
         );
     }
     @ParameterizedTest

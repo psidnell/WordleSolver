@@ -5,6 +5,8 @@ import com.psidnell.profile.Profiler;
 import com.psidnell.util.CharacterSet;
 import com.psidnell.words.Word;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class WrongPlaceRule extends AbstractRule {
     private final CharacterSet chars;
     private final int position;
@@ -39,6 +41,16 @@ public class WrongPlaceRule extends AbstractRule {
     @Override
     public boolean match(Word word) {
         try (Probe p = PROBE.open()) {
+            final AtomicBoolean matched = new AtomicBoolean(true);
+            chars.forEach(ch ->{
+                if (matched.get()) {
+                    matched.set(word.occurrencesOf(ch) > 0);
+                }
+            });
+            if (!matched.get()) {
+                return false;
+            }
+
             return !chars.contains(word.charAt(getPosition()));
         }
     }
@@ -50,7 +62,6 @@ public class WrongPlaceRule extends AbstractRule {
     public CharacterSet getCharacters() {
         return chars;
     }
-
 
     public String getCharactersAsString() {
         return chars.toString();

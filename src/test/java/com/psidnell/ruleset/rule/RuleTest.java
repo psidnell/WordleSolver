@@ -42,10 +42,10 @@ public class RuleTest {
     private static Stream<Arguments> provideWrongPlaceData() {
         return Stream.of(
                 // Character, Position, Word, matches
-                Arguments.of('G', 0, "XXXXX", true),
+                Arguments.of('G', 0, "XXXXX", false),
                 Arguments.of('G', 0, "XXXXG", true),
-                Arguments.of('G', 0, "GXXXX", false),
-                Arguments.of('T', 0, "PXXXX", true)
+                Arguments.of('G', 0, "XGGGG", true),
+                Arguments.of('T', 0, "GXXXX", false)
         );
     }
     @ParameterizedTest

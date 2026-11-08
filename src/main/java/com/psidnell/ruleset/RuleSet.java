@@ -15,10 +15,10 @@ import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class RuleSet {
 
@@ -33,7 +33,7 @@ public class RuleSet {
     }
 
     public RuleSet(RuleSet other) {
-        other.allRules().forEach(this::addRule);
+        other.forEach(this::addRule);
     }
 
 
@@ -117,13 +117,14 @@ public class RuleSet {
             Character ch = answer.charAt(i);
             Character chUc = Character.toUpperCase(ch);
             if (ch.equals('_')) {
+                // No match
                 Character ch1 = guess.charAt(i);
                 addRule(new NotRule(ch1, i));
-                Character ch2 = guess.charAt(i);
-                addRule(new WrongPlaceRule(ch2, i));
             } else if (Character.isUpperCase(ch)) {
+                // Full match
                 addRule(new MatchRule(chUc, i));
             } else {
+                // Wrong place
                 addRule(new WrongPlaceRule(chUc, i));
             }
         }
@@ -245,37 +246,52 @@ public class RuleSet {
     private static final Probe PROBE2 = Profiler.getProbe(RuleSet.class, "match");
 
     public boolean match(Word word) {
+        final AtomicBoolean matched = new AtomicBoolean(true);
         try (Probe p = PROBE2.open()) {
-            for (Rule rule : allRules()) {
-                if (!rule.match(word)) {
-                    return false;
+            forEach(r -> {
+                if (matched.get()) {
+                    matched.set(r.match(word));
                 }
-            }
-            return true;
+            });
+            return matched.get();
         }
     }
 
     public RuleSet combineRuleSet(RuleSet other) {
         RuleSet result = new RuleSet(this);
-        other.allRules().forEach(result::addRule);
+        other.forEach(result::addRule);
         return result;
     }
 
-    private void addNotNull(Rule r, List<Rule> rules) {
-        if (r != null) {
-            rules.add(r);
+    public void forEach(Consumer<? super Rule> c) {
+        for (int i = 0; i < matches.length; i++) {
+            Rule r = matches[i];
+            if (r != null) {
+                c.accept(r);
+            }
         }
-    }
 
-    private List<Rule> allRules() {
-        List<Rule> result = new LinkedList<>();
-        Arrays.asList(matches).forEach(r -> addNotNull(r, result));
-        Arrays.asList(wrongPlaces).forEach(r -> addNotNull(r, result));
-        Arrays.asList(not).forEach(r -> addNotNull(r, result));
-        addNotNull(mustNotHave, result);
-        result.addAll(mustHaveAtLeast.values());
-        result.addAll(mustHaveAtMost.values());
-        return result;
+        for (int i = 0; i < wrongPlaces.length; i++) {
+            Rule r = wrongPlaces[i];
+            if (r != null) {
+                c.accept(r);
+            }
+        }
+
+        for (int i = 0; i < not.length; i++) {
+            Rule r = not[i];
+            if (r != null) {
+                c.accept(r);
+            }
+        }
+
+        if (mustNotHave != null) {
+            c.accept(mustNotHave);
+        }
+
+        mustHaveAtLeast.values().forEach(c);
+
+        mustHaveAtMost.values().forEach(c);
     }
 
     public boolean isSolved() {
