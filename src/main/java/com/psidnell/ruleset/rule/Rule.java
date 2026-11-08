@@ -6,7 +6,7 @@ public interface Rule {
 
     RuleType getType();
 
-    Rule combine(Rule r2);
+    <T extends Rule> T combine(T r2);
 
     boolean match(Word word);
 }

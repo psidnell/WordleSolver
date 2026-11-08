@@ -32,6 +32,7 @@ public class RuleSet {
     public RuleSet() {
     }
 
+    @SuppressWarnings("all")
     public RuleSet(RuleSet other) {
         other.forEach(this::addRule);
     }
@@ -43,8 +44,8 @@ public class RuleSet {
      * When we provide a guess against a know solution, create a rule set
      * that encapsulates what we learned from the guess.
      *
-     * @param guess
-     * @param solution
+     * @param guess the guess
+     * @param solution the solution
      */
     public RuleSet(Word guess, Word solution) {
         try (Probe p = PROBE.open()) {
@@ -95,7 +96,7 @@ public class RuleSet {
      * Lower case means we got it in the wrong position.
      * '_' means that there was no match
      *
-     * @param answer
+     * @param answer the answer
      */
     public RuleSet(Word guess, String answer) {
         if (answer.length() != 5) {
@@ -144,35 +145,51 @@ public class RuleSet {
         }
     }
 
-    private Rule combine(Rule r1, Rule r2) {
+    private <T extends Rule> T combine(T r1, T r2) {
         if (r1 == null) {
             return r2;
         }
         if (r2 == null) {
             return r1;
         }
-        return r1.combine(r2);
+        return (T) r1.combine(r2);
     }
 
     /**
      * Add the rule by optimally combining it with existing rules.
      *
-     * @param r
+     * @param r the rule
      */
-    // TODO This looks horrible
     private void addRule(Rule r) {
         switch (r.getType()) {
-            case MATCH -> matches[((MatchRule)r).getPosition()] = (MatchRule) combine(r, matches[((MatchRule)r).getPosition()]);
-            case WRONG_PLACE -> wrongPlaces[((WrongPlaceRule)r).getPosition()] = (WrongPlaceRule) combine(r, wrongPlaces[((WrongPlaceRule)r).getPosition()]);
-            case NOT -> not[((NotRule)r).getPosition()] = (NotRule) combine(r, not[((NotRule)r).getPosition()]);
-            case MUST_NOT_HAVE -> mustNotHave = (MustNotHaveRule) combine(r, mustNotHave);
+            case MATCH -> {
+                MatchRule rule = (MatchRule) r;
+                int position = rule.getPosition();
+                matches[position] = combine(rule, matches[position]);
+            }
+            case WRONG_PLACE -> {
+                WrongPlaceRule rule = (WrongPlaceRule) r;
+                int position = rule.getPosition();
+                wrongPlaces[position] =  combine(rule, wrongPlaces[position]);
+            }
+            case NOT -> {
+                NotRule rule = (NotRule) r;
+                int position = rule.getPosition();
+                not[position] = combine(rule, not[position]);
+            }
+            case MUST_NOT_HAVE -> {
+                MustNotHaveRule rule = (MustNotHaveRule) r;
+                mustNotHave = combine(rule, mustNotHave);
+            }
             case MUST_HAVE_AT_LEAST -> {
-                char firstAndOnlyChar = ((MustHaveAtLeastRule)r).getCharacter();
-                mustHaveAtLeast.put(firstAndOnlyChar, (MustHaveAtLeastRule) combine(r, mustHaveAtLeast.get(firstAndOnlyChar)));
+                MustHaveAtLeastRule rule = (MustHaveAtLeastRule) r;
+                char ch = rule.getCharacter();
+                mustHaveAtLeast.put(ch, combine(rule, mustHaveAtLeast.get(ch)));
             }
             case MUST_HAVE_AT_MOST -> {
-                char firstAndOnlyChar = ((MustHaveAtMostRule)r).getCharacter();
-                mustHaveAtMost.put(firstAndOnlyChar, (MustHaveAtMostRule) combine(r, mustHaveAtMost.get(firstAndOnlyChar)));
+                MustHaveAtMostRule rule = (MustHaveAtMostRule) r;
+                char ch = rule.getCharacter();
+                mustHaveAtMost.put(ch, combine(rule, mustHaveAtMost.get(ch)));
             }
         }
     }
@@ -182,9 +199,9 @@ public class RuleSet {
 
         final Character[] matchedChars = new Character[]{'_', '_', '_', '_', '_'};
         for (int i = 0; i < 5; i++) {
-            Rule r = matches[i];
+            MatchRule r = matches[i];
             if (r != null) {
-                matchedChars[i] = ((MatchRule)r).getCharacter();
+                matchedChars[i] = r.getCharacter();
             }
         }
         output.append("Matched{");
@@ -264,22 +281,19 @@ public class RuleSet {
     }
 
     public void forEach(Consumer<? super Rule> c) {
-        for (int i = 0; i < matches.length; i++) {
-            Rule r = matches[i];
+        for (MatchRule r : matches) {
             if (r != null) {
                 c.accept(r);
             }
         }
 
-        for (int i = 0; i < wrongPlaces.length; i++) {
-            Rule r = wrongPlaces[i];
+        for (WrongPlaceRule r : wrongPlaces) {
             if (r != null) {
                 c.accept(r);
             }
         }
 
-        for (int i = 0; i < not.length; i++) {
-            Rule r = not[i];
+        for (NotRule r : not) {
             if (r != null) {
                 c.accept(r);
             }
