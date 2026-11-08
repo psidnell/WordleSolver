@@ -77,15 +77,17 @@ public class WordComparison {
         return charactersInCommon;
     }
 
+    /**
+     * The higher the number the better the match
+     * @return
+     */
     public int getRank() {
         return
-                10000 * trueCount(correctPositions) +
-                1000 * charactersInCommon +
-                100 * lettersMissing.length() +
-                10 * trueCount(incorrectPositions) +
-                trueCount(mismatches);
-
-
+            10000 * trueCount(correctPositions) +
+            1000 *trueCount(mismatches) +
+            100 * trueCount(incorrectPositions) +
+            10 * lettersMissing.length() +
+            charactersInCommon;
     }
 
     private int trueCount(Boolean[] array) {

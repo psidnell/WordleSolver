@@ -330,7 +330,7 @@ public class Wordle extends ComponentImpl {
 
             for (Word wordFromSolutions : solutions.getWords()) {
                 WordComparison comparison = dictionaryWordGuess.compareWords(wordFromSolutions);
-                totalRankForWord += comparison.charactersInCommon();
+                totalRankForWord += comparison.getRank();
             }
 
             LOG.log(Level.DEBUG, "Analysed: {0} Total Rank: {1}", dictionaryWordGuess, totalRankForWord);

@@ -73,11 +73,11 @@ public class WordTest
     public static Stream<Arguments> compareWordsData() {
         return Stream.of(
                 // Word1, Word2, toString
-                Arguments.of("AAAAA", "BBBBB", "Correct{_____} Incorrect{_____} Mismatches{YYYYY} Missing{A} Freq{} Cmn:0 Cmp:false Mis{A} Rnk:105"),
-                Arguments.of("AAAAA", "AAAAA", "Correct{YYYYY} Incorrect{_____} Mismatches{_____} Missing{} Freq{A:5} Cmn:5 Cmp:true Mis{} Rnk:55000"),
-                Arguments.of("AAAAA", "AABBB", "Correct{YY___} Incorrect{__YYY} Mismatches{_____} Missing{} Freq{A:2} Cmn:2 Cmp:false Mis{} Rnk:22030"),
-                Arguments.of("AAABB", "BBAAA", "Correct{__Y__} Incorrect{YY_YY} Mismatches{_____} Missing{} Freq{A:3,B:2} Cmn:5 Cmp:false Mis{} Rnk:15040"),
-                Arguments.of("ABCDE", "BCXXX", "Correct{_____} Incorrect{_YY__} Mismatches{Y__YY} Missing{ADE} Freq{B:1,C:1} Cmn:2 Cmp:false Mis{ADE} Rnk:2323")
+                Arguments.of("AAAAA", "BBBBB", "Correct{_____} Incorrect{_____} Mismatches{YYYYY} Missing{A} Freq{} Cmn:0 Cmp:false Mis{A} Rnk:5010"),
+                Arguments.of("AAAAA", "AAAAA", "Correct{YYYYY} Incorrect{_____} Mismatches{_____} Missing{} Freq{A:5} Cmn:5 Cmp:true Mis{} Rnk:50005"),
+                Arguments.of("AAAAA", "AABBB", "Correct{YY___} Incorrect{__YYY} Mismatches{_____} Missing{} Freq{A:2} Cmn:2 Cmp:false Mis{} Rnk:20302"),
+                Arguments.of("AAABB", "BBAAA", "Correct{__Y__} Incorrect{YY_YY} Mismatches{_____} Missing{} Freq{A:3,B:2} Cmn:5 Cmp:false Mis{} Rnk:10405"),
+                Arguments.of("ABCDE", "BCXXX", "Correct{_____} Incorrect{_YY__} Mismatches{Y__YY} Missing{ADE} Freq{B:1,C:1} Cmn:2 Cmp:false Mis{ADE} Rnk:3232")
         );
     }
     @ParameterizedTest

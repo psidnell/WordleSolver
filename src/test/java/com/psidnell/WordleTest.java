@@ -97,25 +97,25 @@ public class WordleTest {
                 // Solution, guesses, succeeds
 
                 // Falures
-                Arguments.of("wangs", 6, new String[]{}, false),
-                Arguments.of("waxes", 6, new String[]{}, false),
                 Arguments.of("nunks", 6, new String[]{}, false),
 
                  // Successes
+                Arguments.of("wangs", 6, new String[]{}, true),
+                Arguments.of("waxes", 6, new String[]{}, true),
                 Arguments.of("first", 3, new String[]{}, true),
                 Arguments.of("prate", 3, new String[]{}, true),
                 Arguments.of("soyle", 4, new String[]{}, true),
                 Arguments.of("dreck", 2, new String[]{}, true),
                 Arguments.of("parch", 4, new String[]{}, true),
-                Arguments.of("nutty", 3, new String[]{}, true),
-                Arguments.of("noggs", 5, new String[]{}, true),
+                Arguments.of("nutty", 5, new String[]{}, true),
+                Arguments.of("noggs", 4, new String[]{}, true),
                 Arguments.of("legno", 4, new String[]{}, true),
                 Arguments.of("pouch", 4, new String[]{}, true),
                 Arguments.of("scoot", 3, new String[]{}, true),
                 Arguments.of("viper", 5, new String[]{}, true),
-                Arguments.of("yahoo", 5, new String[]{}, true),
+                Arguments.of("yahoo", 4, new String[]{}, true),
                 Arguments.of("grist", 3, new String[]{}, true),
-                Arguments.of("align", 3, new String[]{}, true),
+                Arguments.of("align", 4, new String[]{}, true),
                 Arguments.of("aloft", 3, new String[]{}, true),
                 Arguments.of("grump", 4, new String[]{}, true),
                 Arguments.of("geeky", 4, new String[]{}, true),
