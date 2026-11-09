@@ -20,8 +20,18 @@ public class GameState {
         this.solutions = solutions;
     }
 
+    public void registerGuess(Word guess) {
+        previousGuesses.add(guess);
+        guessesRemaining--;
+        guessesMade++;
+    }
+
     public Dictionary getDictionary() {
         return dictionary;
+    }
+
+    public WordList getSolutions() {
+        return solutions;
     }
 
     public List<Word> getPreviousGuesses() {
@@ -36,12 +46,6 @@ public class GameState {
         return guessesRemaining;
     }
 
-    public void registerGuess(Word guess) {
-        previousGuesses.add(guess);
-        guessesRemaining--;
-        guessesMade++;
-    }
-
     public Word getLastGuess() {
         return previousGuesses.getLast();
     }
@@ -49,8 +53,4 @@ public class GameState {
     public boolean haveAlreadyGuessed(Word guess) {
         return previousGuesses.contains(guess);
     }
-//
-//    public WordList getSolutions() {
-//        return solutions;
-//    }
 }

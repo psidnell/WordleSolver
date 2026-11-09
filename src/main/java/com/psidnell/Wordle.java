@@ -31,13 +31,11 @@ public class Wordle extends ComponentImpl {
 
     private Word solution;
     private RuleSet combinedRuleSet = new RuleSet();
-    private WordList solutions;
 
     @Override
     public void init() {
         super.init();
-        this.state = new GameState(dictionary, dictionary);
-        this.solutions = new WordList(dictionary);
+        this.state = new GameState(dictionary, new WordList(dictionary));
     }
 
     public void setSolution(String solutionStr) {
@@ -63,10 +61,10 @@ public class Wordle extends ComponentImpl {
             System.out.println("Not Solved");
         }
 
-        System.out.println("Solutions: " + solutions.getWords().size());
-        if (solutions.getWords().size() <= 10) {
+        System.out.println("Solutions: " + state.getSolutions().getWords().size());
+        if (state.getSolutions().getWords().size() <= 10) {
             System.out.print("Solutions Remaining:");
-            System.out.println(solutions.getWords().stream().map(Word::toString).collect(Collectors.joining(",")));
+            System.out.println(state.getSolutions().getWords().stream().map(Word::toString).collect(Collectors.joining(",")));
         }
     }
 
@@ -77,14 +75,14 @@ public class Wordle extends ComponentImpl {
         RuleSet r = new RuleSet(guessWord, answer);
         combinedRuleSet = combinedRuleSet.combineRuleSet(r);
 
-        int solutionsBefore = solutions.getWords().size();
+        int solutionsBefore = state.getSolutions().getWords().size();
 
-        solutions.prune(combinedRuleSet);
+        state.getSolutions().prune(combinedRuleSet);
 
-        int solutionsAfter = solutions.getWords().size();
+        int solutionsAfter = state.getSolutions().getWords().size();
 
         state.registerGuess(guessWord);
-        userGuessSolutionsRemaining.add(solutions.getWords().size());
+        userGuessSolutionsRemaining.add(state.getSolutions().getWords().size());
         previousRuleSets.add(combinedRuleSet);
 
         System.out.println("Solutions dropped from " + solutionsBefore + " to " + solutionsAfter);
@@ -99,7 +97,7 @@ public class Wordle extends ComponentImpl {
             return false;
         }
 
-        if (solutions.getWords().isEmpty()) {
+        if (state.getSolutions().getWords().isEmpty()) {
             throw new IllegalArgumentException("Cannot have no words left");
         }
 
@@ -133,15 +131,15 @@ public class Wordle extends ComponentImpl {
         LOG.log(Level.DEBUG, "Pre Cumulative: {0}", combinedRuleSet);
 
         // TODO ugly!
-        int solutionsBefore = solutions.getWords().size();
+        int solutionsBefore = state.getSolutions().getWords().size();
         AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
         RuleSet match = new RuleSet(guessWord, solution);
         rulesSoFarRef.set(match.combineRuleSet(rulesSoFarRef.get()));
-        solutions.prune(rulesSoFarRef.get());
+        state.getSolutions().prune(rulesSoFarRef.get());
         combinedRuleSet = rulesSoFarRef.get();
-        userGuessSolutionsRemaining.add(solutions.getWords().size());
+        userGuessSolutionsRemaining.add(state.getSolutions().getWords().size());
         previousRuleSets.add(combinedRuleSet);
-        int solutionsAfter = solutions.getWords().size();
+        int solutionsAfter = state.getSolutions().getWords().size();
 
         LOG.log(Level.DEBUG, "Derived Match:   {0}", match);
         LOG.log(Level.DEBUG, "Post Cumulative: {0}", combinedRuleSet);
@@ -152,7 +150,7 @@ public class Wordle extends ComponentImpl {
             return true;
         }
 
-        if (solutions.getWords().isEmpty()) {
+        if (state.getSolutions().getWords().isEmpty()) {
             throw new IllegalArgumentException("Solutions are empty");
         }
 
@@ -168,9 +166,9 @@ public class Wordle extends ComponentImpl {
             return FIRST_GUESS;
         }
 
-        int solutionCount = solutions.getWords().size();
+        int solutionCount = state.getSolutions().getWords().size();
         if (solutionCount == 1) {
-            String lastWord = solutions.getWords().stream().findFirst().orElseThrow().getWord();
+            String lastWord = state.getSolutions().getWords().stream().findFirst().orElseThrow().getWord();
             System.out.println("Last Word:" + lastWord);
             return lastWord;
         }
@@ -194,11 +192,11 @@ public class Wordle extends ComponentImpl {
 
         if (solutionCount > l1) { // Max to L1
             System.out.println("(1) Quick Search on reduced guesses above " + l1);
-            Collection<Word> guesses = solutions.getWords();
+            Collection<Word> guesses = state.getSolutions().getWords();
             bestWord = getBestWordByRank(guesses);
         } else if (solutionCount > l2) {
             System.out.println("(2) Exhaustive Search on reduced guesses between " + l2 + " and " + l1);
-            Collection<Word> guesses = solutions.getWords();
+            Collection<Word> guesses = state.getSolutions().getWords();
             bestWord = getBestWordByExhaustiveSearch(guesses);
         } else {
             System.out.println("(3) Exhaustive Search on maximum guesses below " + l2);
@@ -212,7 +210,7 @@ public class Wordle extends ComponentImpl {
     }
 
     private Word getBestWordByExhaustiveSearch(Collection<Word> guesses) {
-        int totalCombinations = guesses.size() * solutions.size();
+        int totalCombinations = guesses.size() * state.getSolutions().size();
         LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
 
         Word bestWord = null;
@@ -229,11 +227,11 @@ public class Wordle extends ComponentImpl {
 
             int totalSolutionsForWord = 0;
 
-            for (Word wordFromSolutions : solutions.getWords()) {
-                int originalSize = solutions.getWords().size();
+            for (Word wordFromSolutions : state.getSolutions().getWords()) {
+                int originalSize = state.getSolutions().getWords().size();
 
                 RuleSet r = combinedRuleSet.combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
-                int removed = solutions.countWordsNotMatching(r);
+                int removed = state.getSolutions().countWordsNotMatching(r);
                 int prunedSize = originalSize - removed;
 
                 totalSolutionsForWord += prunedSize;
@@ -247,8 +245,8 @@ public class Wordle extends ComponentImpl {
 
             LOG.log(Level.DEBUG, "{0}", "Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
-            boolean dictWordInSolutions = solutions.contains(dictionaryWordGuess);
-            boolean preferDictionaryWord = bestWord != null && dictWordInSolutions && !solutions.contains(bestWord);
+            boolean dictWordInSolutions = state.getSolutions().contains(dictionaryWordGuess);
+            boolean preferDictionaryWord = bestWord != null && dictWordInSolutions && !state.getSolutions().contains(bestWord);
             if (totalSolutionsForWord <= lowestSolutionsCount && preferDictionaryWord) {
                 // Prefer a guess if it's in the solution set
                 LOG.log(Level.INFO, "Best (solution) word so far: {0} solutions: {1} {2} {3} ", dictionaryWordGuess, totalSolutionsForWord, dictWordInSolutions, shortcuts);
@@ -277,7 +275,7 @@ public class Wordle extends ComponentImpl {
     }
 
     private Word getBestWordByRecursion(Collection<Word> guesses) {
-        return recurse(guesses, solutions, combinedRuleSet, state.getGuessesRemaining()).left();
+        return recurse(guesses, state.getSolutions(), combinedRuleSet, state.getGuessesRemaining()).left();
     }
 
     private Pair<Word, Integer> recurse(Collection<Word> guesses, WordList solutions, RuleSet r, int guessesRemaining) {
@@ -316,7 +314,7 @@ public class Wordle extends ComponentImpl {
     }
 
     private Word getBestWordByRank(Collection<Word> guesses) {
-        int totalCombinations = guesses.size() * solutions.size();
+        int totalCombinations = guesses.size() * state.getSolutions().size();
         LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
         Word bestWord = null;
         int dictWords = dictionary.getWords().size();
@@ -331,15 +329,15 @@ public class Wordle extends ComponentImpl {
 
             int totalRankForWord = 0;
 
-            for (Word wordFromSolutions : solutions.getWords()) {
+            for (Word wordFromSolutions : state.getSolutions().getWords()) {
                 WordComparison comparison = dictionaryWordGuess.compareWords(wordFromSolutions);
                 totalRankForWord += comparison.getRank();
             }
 
             LOG.log(Level.DEBUG, "Analysed: {0} Total Rank: {1}", dictionaryWordGuess, totalRankForWord);
 
-            boolean dictWordInSolutions = solutions.contains(dictionaryWordGuess);
-            boolean preferDictionaryWord = bestWord != null && dictWordInSolutions && !solutions.contains(bestWord);
+            boolean dictWordInSolutions = state.getSolutions().contains(dictionaryWordGuess);
+            boolean preferDictionaryWord = bestWord != null && dictWordInSolutions && !state.getSolutions().contains(bestWord);
             if (totalRankForWord >= highestRank && preferDictionaryWord) {
                 LOG.log(Level.INFO, "Best (solution) word so far: {0} Rank: {1} {2}", dictionaryWordGuess, totalRankForWord, dictWordInSolutions);
                 bestWord = dictionaryWordGuess;
@@ -384,7 +382,7 @@ public class Wordle extends ComponentImpl {
 
     public void showRemaining() {
 
-        TreeSet<Word> sorted = new TreeSet<>(solutions.getWords());
+        TreeSet<Word> sorted = new TreeSet<>(state.getSolutions().getWords());
 
         for (Word word : sorted) {
             System.out.println(word);
@@ -401,7 +399,7 @@ public class Wordle extends ComponentImpl {
 
             int totalRankForWord = 0;
 
-            for (Word wordFromSolutions : solutions.getWords()) {
+            for (Word wordFromSolutions : state.getSolutions().getWords()) {
                 WordComparison comparison = dictionaryWordGuess.compareWords(wordFromSolutions);
                 totalRankForWord += comparison.charactersInCommon();
             }
