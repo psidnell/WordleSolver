@@ -5,12 +5,14 @@ import com.psidnell.util.ComponentImpl;
 import com.psidnell.util.Pair;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
+import com.psidnell.words.WordList;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -24,13 +26,13 @@ public class Wordle extends ComponentImpl {
     public int guessesMade = 0;
     int guessesRemaining = 6;
     private Word solution;
-    private Solutions solutions;
+    private WordList solutions;
     private RuleSet combinedRuleSet = new RuleSet();
 
     @Override
     public void init() {
         super.init();
-        this.solutions = new Solutions(dictionary);
+        this.solutions = new WordList(dictionary);
     }
 
     public void setSolution(String solutionStr) {
@@ -380,13 +382,16 @@ public class Wordle extends ComponentImpl {
     }
 
     public void showRemaining() {
-        for (Word word : solutions.getWords()) {
+
+        TreeSet<Word> sorted = new TreeSet<>(solutions.getWords());
+
+        for (Word word : sorted) {
             System.out.println(word);
         }
     }
 
     // TODO Needed?
-    private Solutions shrinkWordsByRank(Collection<Word> guesses, int limit) {
+    private WordList shrinkWordsByRank(Collection<Word> guesses, int limit) {
         LOG.log(Level.INFO, "Shrinking words: {0}", guesses.size());
 
         ArrayList<Pair<Word, Integer>> collectedWordsAndRanks = new ArrayList<>();
@@ -407,7 +412,7 @@ public class Wordle extends ComponentImpl {
         List<Pair<Word, Integer>> truncatedWordsAndRanks = collectedWordsAndRanks.stream().limit(limit).toList();
         List<Word> truncatedWords = truncatedWordsAndRanks.stream().map(Pair::left).toList();
         LOG.log(Level.INFO, "Shrunk words: {0}", truncatedWords.size());
-        return new Solutions(truncatedWords);
+        return new WordList(truncatedWords);
     }
 
 }
