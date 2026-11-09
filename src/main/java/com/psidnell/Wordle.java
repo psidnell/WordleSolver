@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class Wordle extends ComponentImpl {
@@ -30,7 +29,6 @@ public class Wordle extends ComponentImpl {
     private final Settings settings = Settings.getInstance();
 
     private Word solution;
-    private RuleSet combinedRuleSet = new RuleSet();
 
     @Override
     public void init() {
@@ -53,7 +51,7 @@ public class Wordle extends ComponentImpl {
             System.out.println("  - " + state.getPreviousGuesses().get(i) + " " +
                     previousRuleSets.get(i) + " Solutions: " + userGuessSolutionsRemaining.get(i));
         }
-        System.out.println("Knowledge: " + combinedRuleSet.toString());
+        System.out.println("Knowledge: " + state.getCombinedRuleSet().toString());
         System.out.println("Guesses Remaining: " + state.getGuessesRemaining());
         if (isSolved()) {
             System.out.println("Solved: " + state.getLastGuess());
@@ -73,21 +71,16 @@ public class Wordle extends ComponentImpl {
         System.out.println("ANSWER:");
         Word guessWord = new Word(guess);
         RuleSet r = new RuleSet(guessWord, answer);
-        combinedRuleSet = combinedRuleSet.combineRuleSet(r);
-
         int solutionsBefore = state.getSolutions().getWords().size();
-
-        state.getSolutions().prune(combinedRuleSet);
+        state.registerGuess(guessWord, r);
 
         int solutionsAfter = state.getSolutions().getWords().size();
-
-        state.registerGuess(guessWord);
         userGuessSolutionsRemaining.add(state.getSolutions().getWords().size());
-        previousRuleSets.add(combinedRuleSet);
+        previousRuleSets.add(state.getCombinedRuleSet());
 
         System.out.println("Solutions dropped from " + solutionsBefore + " to " + solutionsAfter);
 
-        if (combinedRuleSet.isSolved()) {
+        if (state.getCombinedRuleSet().isSolved()) {
             System.out.println("Solved: " + guess);
             return false;
         }
@@ -126,23 +119,18 @@ public class Wordle extends ComponentImpl {
         }
 
         // We have a valid guess
-        state.registerGuess(guessWord);
-
-        LOG.log(Level.DEBUG, "Pre Cumulative: {0}", combinedRuleSet);
-
-        // TODO ugly!
         int solutionsBefore = state.getSolutions().getWords().size();
-        AtomicReference<RuleSet> rulesSoFarRef = new AtomicReference<>(combinedRuleSet);
-        RuleSet match = new RuleSet(guessWord, solution);
-        rulesSoFarRef.set(match.combineRuleSet(rulesSoFarRef.get()));
-        state.getSolutions().prune(rulesSoFarRef.get());
-        combinedRuleSet = rulesSoFarRef.get();
+        RuleSet r = new RuleSet(guessWord, solution);
+        state.registerGuess(guessWord, r);
+
+        LOG.log(Level.DEBUG, "Pre Cumulative: {0}", state.getCombinedRuleSet());
+
         userGuessSolutionsRemaining.add(state.getSolutions().getWords().size());
-        previousRuleSets.add(combinedRuleSet);
+        previousRuleSets.add(state.getCombinedRuleSet());
         int solutionsAfter = state.getSolutions().getWords().size();
 
-        LOG.log(Level.DEBUG, "Derived Match:   {0}", match);
-        LOG.log(Level.DEBUG, "Post Cumulative: {0}", combinedRuleSet);
+        LOG.log(Level.DEBUG, "Derived Match:   {0}", r);
+        LOG.log(Level.DEBUG, "Post Cumulative: {0}", state.getCombinedRuleSet());
         LOG.log(Level.DEBUG, "Solutions dropped from: {0} to {1}", solutionsBefore, solutionsAfter);
 
         if (guessWord.equals(solution)) {
@@ -230,7 +218,7 @@ public class Wordle extends ComponentImpl {
             for (Word wordFromSolutions : state.getSolutions().getWords()) {
                 int originalSize = state.getSolutions().getWords().size();
 
-                RuleSet r = combinedRuleSet.combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
+                RuleSet r = state.getCombinedRuleSet().combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
                 int removed = state.getSolutions().countWordsNotMatching(r);
                 int prunedSize = originalSize - removed;
 
@@ -275,7 +263,7 @@ public class Wordle extends ComponentImpl {
     }
 
     private Word getBestWordByRecursion(Collection<Word> guesses) {
-        return recurse(guesses, state.getSolutions(), combinedRuleSet, state.getGuessesRemaining()).left();
+        return recurse(guesses, state.getSolutions(), state.getCombinedRuleSet(), state.getGuessesRemaining()).left();
     }
 
     private Pair<Word, Integer> recurse(Collection<Word> guesses, WordList solutions, RuleSet r, int guessesRemaining) {
@@ -370,7 +358,7 @@ public class Wordle extends ComponentImpl {
 
     public boolean isSolved() {
         if (solution == null) {
-            return combinedRuleSet.isSolved();
+            return state.getCombinedRuleSet().isSolved();
         }
 
         if (state.getPreviousGuesses().isEmpty()) {

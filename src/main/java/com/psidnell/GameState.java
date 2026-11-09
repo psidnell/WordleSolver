@@ -1,5 +1,6 @@
 package com.psidnell;
 
+import com.psidnell.ruleset.RuleSet;
 import com.psidnell.words.Dictionary;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordList;
@@ -12,6 +13,8 @@ public class GameState {
     private final Dictionary dictionary;
     private final WordList solutions;
     private final List<Word> previousGuesses = new ArrayList<>(6);
+    private RuleSet combinedRuleSet = new RuleSet();
+
     public int guessesMade = 0;
     private int guessesRemaining = 6;
 
@@ -20,7 +23,9 @@ public class GameState {
         this.solutions = solutions;
     }
 
-    public void registerGuess(Word guess) {
+    public void registerGuess(Word guess, RuleSet ruleSetForGuess) {
+        combinedRuleSet = combinedRuleSet.combineRuleSet(ruleSetForGuess);
+        solutions.prune(combinedRuleSet);
         previousGuesses.add(guess);
         guessesRemaining--;
         guessesMade++;
@@ -52,5 +57,9 @@ public class GameState {
 
     public boolean haveAlreadyGuessed(Word guess) {
         return previousGuesses.contains(guess);
+    }
+
+    public RuleSet getCombinedRuleSet() {
+        return combinedRuleSet;
     }
 }
