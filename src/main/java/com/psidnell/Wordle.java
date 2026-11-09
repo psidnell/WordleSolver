@@ -11,9 +11,12 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class Wordle extends ComponentImpl {
@@ -171,10 +174,12 @@ public class Wordle extends ComponentImpl {
         // Don't touch the higher levels when we provide a default first guess
 
         // Greater than: Uses solution 1
-        final int l1 = settings.getSearchThresholdWorst();
+        final int l1 = settings.getSearchThreshold1();
         // Between: Uses solution 2
-        final int l2 = settings.getSearchThresholdBest();
-        // Below: Uses solution 3
+        final int l2 = settings.getSearchThreshold2();
+        // Between: Uses solution 3
+        final int l3 = settings.getSearchThreshold3();
+        // Below: Uses solution 4
 
         long startTime = System.currentTimeMillis();
 
@@ -186,10 +191,18 @@ public class Wordle extends ComponentImpl {
             System.out.println("(2) Exhaustive Search on reduced guesses between " + l2 + " and " + l1);
             Collection<Word> guesses = state.getSolutions().getWords();
             bestWord = getBestWordByExhaustiveSearch(guesses);
-        } else {
+        } else if (solutionCount > l3) {
             System.out.println("(3) Exhaustive Search on maximum guesses below " + l2);
             Collection<Word> guesses = dictionary.getWords();
             bestWord = getBestWordByExhaustiveSearch(guesses);
+        } else {
+            System.out.println("(4) Exhaustive Search on maximum guesses below " + l3);
+            Collection<Word> guesses = dictionary.getWords();
+            bestWord = getBestWordByExhaustiveSearch(guesses);
+
+//            System.out.println("(4) Recursive Search on maximum guesses below " + l3);
+//            WordList guesses = state.getSolutions();
+//            bestWord = getBestWordByRecursion(guesses);
         }
         long endTime = System.currentTimeMillis();
         System.out.println("Time elapsed: " + (endTime - startTime) / 1000 + "s");
@@ -262,43 +275,99 @@ public class Wordle extends ComponentImpl {
         return bestWord;
     }
 
-    private Word getBestWordByRecursion(Collection<Word> guesses) {
-        return recurse(guesses, state.getSolutions(), state.getCombinedRuleSet(), state.getGuessesRemaining()).left();
+    private Word getBestWordByRecursion(WordList guesses) {
+        int totalCombinations = guesses.size() * state.getSolutions().size();
+        LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
+
+        AtomicInteger lowestFailures = new AtomicInteger(Integer.MAX_VALUE);
+        AtomicReference<Word> bestWord = new AtomicReference<>(null);
+
+        for (Word solution : state.getSolutions().getWords()) {
+            LOG.log(Level.INFO, "Dry run {0}", solution);
+            GameState subState = new GameState(state, guesses);
+            Pair<Word, Integer> p = dryRun(subState, solution);
+
+            // TODO prefer solution
+            if (p.right() < lowestFailures.get()) {
+                lowestFailures.set(p.right());
+                bestWord.set(p.left());
+                LOG.log(Level.INFO, "Best word: so far {0} Failures: {1}", bestWord.get(), lowestFailures.get());
+            }
+        }
+
+        LOG.log(Level.INFO, "Best word: {0} Failures: {1}", bestWord.get(), lowestFailures.get());
+
+        return bestWord.get();
     }
 
-    private Pair<Word, Integer> recurse(Collection<Word> guesses, WordList solutions, RuleSet r, int guessesRemaining) {
-        LOG.log(Level.INFO, "guessesRem {0} guesses {1} solutions {2}", guessesRemaining, guesses.size(), solutions.size());
+    /**
+     * Return the Guess with the lowest failure count
+     * @param state
+     * @param solution
+     * @return
+     */
+    private Pair<Word, Integer> dryRun(GameState state, Word solution) {
+        Map<Word, Integer> counts = new HashMap<>();
 
-        if (solutions.size() == 1) {
-            return new Pair<>(solutions.getWords().stream().findFirst().orElseThrow(), 1);
+        for (Word guess : state.getSolutions().getWords()) {
+            GameState subState = new GameState(state, state.getDictionary());
+            RuleSet r = new RuleSet(guess, solution);
+            subState.registerGuess(guess, r);
+            int failuresForGuess = recurse(subState, solution);
+            counts.put(guess, failuresForGuess);
         }
 
-        if (guessesRemaining == 0) {
-            return null;
-        }
-
-        Word bestWord = null;
-        int bestDepths = Integer.MAX_VALUE;
-
-        for (Word guess : guesses) {
-            int totalDepthsForGuess = 0;
-            Set<Word> reducedGuesses = new TreeSet<>(guesses);
-            reducedGuesses.remove(guess);
-            for (Word wordFromSolutions : solutions.getWords()) {
-                LOG.log(Level.INFO, "{0}/{1}", guess, wordFromSolutions);
-                WordList reducedSolutions = new WordList(solutions);
-                RuleSet r2 = r.combineRuleSet(new RuleSet(guess, wordFromSolutions));
-                reducedSolutions.prune(r2);
-                Pair<Word, Integer> p = recurse(reducedGuesses, reducedSolutions, r2, guessesRemaining - 1);
-                if (p != null) {
-                    totalDepthsForGuess += p.right();
-                }
+        // Find the worst case
+        // TODO prefer solution
+        AtomicReference<Pair<Word, Integer>> bestWord = new AtomicReference<>(null);
+        AtomicInteger lowestFailures = new AtomicInteger(Integer.MAX_VALUE);
+        counts.forEach((w, c) -> {
+            if (c < lowestFailures.get()) {
+                bestWord.set(new Pair<>(w, c));
+                lowestFailures.set(c);
             }
-            if (totalDepthsForGuess < bestDepths) {
-                bestWord = guess;
-            }
+        });
+
+        LOG.log(Level.INFO, "Best dry run for {0} is {1} with {2}", solution, bestWord, lowestFailures);
+
+        return bestWord.get();
+    }
+
+    /**
+     * Return the failure count
+     * @param state
+     * @param solution
+     * @return
+     */
+    private int recurse(GameState state, Word solution) {
+        if (state.isSolved()) {
+            //LOG.log(Level.INFO, "Solved {0}", state.getPreviousGuesses());
+            return 0;
         }
-        return new Pair<>(bestWord, bestDepths);
+
+        if (state.getGuessesRemaining() == 0) {
+            //LOG.log(Level.INFO, "Failed {0}", state.getPreviousGuesses());
+            return 1;
+        }
+
+        int count = 0;
+        for (Word guess : state.getSolutions().getWords()) {
+            GameState subState = new GameState(state, state.getDictionary());
+            RuleSet r = new RuleSet(guess, solution);
+            subState.registerGuess(guess, r);
+            count += recurse(subState, solution);
+        }
+        return count;
+    }
+
+    private void setMax(HashMap<Word, Integer> totals, Word word, int i) {
+        int val = totals.getOrDefault(word, 0);
+        totals.put(word, Math.max(val, i));
+    }
+
+    private void add(HashMap<Word, Integer> totals, Word word, int i) {
+        int total = totals.getOrDefault(word, 0);
+        totals.put(word, total + i);
     }
 
     private Word getBestWordByRank(Collection<Word> guesses) {

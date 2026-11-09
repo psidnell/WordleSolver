@@ -70,4 +70,11 @@ public class WordList {
     public void remove(Word guess) {
         words.remove(guess);
     }
+
+    public Word getLastWord() {
+        if (words.size() != 1) {
+            throw new IllegalStateException("Must have only one word");
+        }
+        return words.toArray(new Word[1])[0];
+    }
 }

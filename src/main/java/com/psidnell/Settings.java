@@ -37,11 +37,15 @@ public class Settings {
         return System.Logger.Level.valueOf(properties.getProperty("LogLevel", "DEBUG"));
     }
 
-    public int getSearchThresholdWorst() {
-        return Integer.parseInt(properties.getProperty("SearchThresholdWorst", "500"));
+    public int getSearchThreshold1() {
+        return Integer.parseInt(properties.getProperty("SearchThreshold1", "1000"));
     }
 
-    public int getSearchThresholdBest() {
-        return Integer.parseInt(properties.getProperty("SearchThresholdBest", "150"));
+    public int getSearchThreshold2() {
+        return Integer.parseInt(properties.getProperty("SearchThreshold2", "500"));
+    }
+
+    public int getSearchThreshold3() {
+        return Integer.parseInt(properties.getProperty("SearchThreshold3", "250"));
     }
 }

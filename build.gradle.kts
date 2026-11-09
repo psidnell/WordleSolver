@@ -20,6 +20,7 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    maxHeapSize = "10G"
 }
 
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {

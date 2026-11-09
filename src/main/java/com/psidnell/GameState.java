@@ -32,7 +32,17 @@ public class GameState {
         this.dictionary = new WordList(o.dictionary);
         this.solutions = new WordList(o.solutions);
         combinedRuleSet = new RuleSet().combineRuleSet(o.combinedRuleSet);
-        allGuesses = new WordList(o.dictionary);
+        allGuesses = new WordList(o.allGuesses);
+        previousOrderedGuesses = new ArrayList<>(o.previousOrderedGuesses);
+        guessesMade = o.guessesMade;
+        guessesRemaining = o.guessesRemaining;
+    }
+
+    public GameState(GameState o, WordList dictionary) {
+        this.dictionary = new WordList(dictionary);
+        this.solutions = new WordList(o.solutions);
+        combinedRuleSet = new RuleSet().combineRuleSet(o.combinedRuleSet);
+        allGuesses = new WordList(o.allGuesses);
         previousOrderedGuesses = new ArrayList<>(o.previousOrderedGuesses);
         guessesMade = o.guessesMade;
         guessesRemaining = o.guessesRemaining;
@@ -92,5 +102,9 @@ public class GameState {
 
     public RuleSet getCombinedRuleSet() {
         return combinedRuleSet;
+    }
+
+    public boolean isSolved() {
+        return combinedRuleSet.isSolved();
     }
 }
