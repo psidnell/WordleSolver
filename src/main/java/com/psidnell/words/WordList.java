@@ -51,15 +51,23 @@ public class WordList {
         return words.contains(word);
     }
 
-    public void add(WordList other) {
-        this.words.addAll(other.getWords());
-    }
-
     public int size() {
         return words.size();
     }
 
     public boolean hasWord(String word) {
         return words.contains(new Word(word));
+    }
+
+    public void addAll(WordList other) {
+        this.words.addAll(other.getWords());
+    }
+
+    public void add(Word word) {
+        this.words.add(word);
+    }
+
+    public void remove(Word guess) {
+        words.remove(guess);
     }
 }
