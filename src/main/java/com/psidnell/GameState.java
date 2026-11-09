@@ -7,12 +7,14 @@ import com.psidnell.words.WordList;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 public class GameState {
     private final Dictionary dictionary;
     private final WordList solutions;
-    private final List<Word> previousGuesses = new ArrayList<>(6);
+    private final List<Word> previousOrderedGuesses = new ArrayList<>(6);
+    private final HashSet<Word> allGuesses = new HashSet<>();
     private RuleSet combinedRuleSet = new RuleSet();
 
     public int guessesMade = 0;
@@ -24,9 +26,17 @@ public class GameState {
     }
 
     public void registerGuess(Word guess, RuleSet ruleSetForGuess) {
+        if (guessesRemaining == 0) {
+            throw new PlayerException("No guesses remaining");
+        }
+        if (allGuesses.contains(guess)) {
+            throw new PlayerException("Have already guessed " + guess);
+        }
+
         combinedRuleSet = combinedRuleSet.combineRuleSet(ruleSetForGuess);
         solutions.prune(combinedRuleSet);
-        previousGuesses.add(guess);
+        previousOrderedGuesses.add(guess);
+        allGuesses.add(guess);
         guessesRemaining--;
         guessesMade++;
     }
@@ -40,7 +50,7 @@ public class GameState {
     }
 
     public List<Word> getPreviousGuesses() {
-        return Collections.unmodifiableList(previousGuesses);
+        return Collections.unmodifiableList(previousOrderedGuesses);
     }
 
     public int getGuessesMade() {
@@ -52,11 +62,11 @@ public class GameState {
     }
 
     public Word getLastGuess() {
-        return previousGuesses.getLast();
+        return previousOrderedGuesses.getLast();
     }
 
     public boolean haveAlreadyGuessed(Word guess) {
-        return previousGuesses.contains(guess);
+        return previousOrderedGuesses.contains(guess);
     }
 
     public RuleSet getCombinedRuleSet() {

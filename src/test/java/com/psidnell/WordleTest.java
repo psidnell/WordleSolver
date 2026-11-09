@@ -43,11 +43,11 @@ public class WordleTest {
         wordle.init();
 
         wordle.setSolution("geeky");
-        assertFalse(wordle.guess("wonky"));
-        assertFalse(wordle.guess("wonky"));
-        assertFalse(wordle.guess("wonky"));
-        assertFalse(wordle.guess("wonky"));
-        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("pinky"));
+        assertFalse(wordle.guess("binky"));
+        assertFalse(wordle.guess("lanky"));
+        assertFalse(wordle.guess("sinky"));
+        assertFalse(wordle.guess("dinky"));
         assertTrue(wordle.guess("geeky"));
     }
 
@@ -59,12 +59,12 @@ public class WordleTest {
         wordle.init();
 
         wordle.setSolution("geeky");
-        assertFalse(wordle.guess("wonky"));
-        assertFalse(wordle.guess("wonky"));
-        assertFalse(wordle.guess("wonky"));
-        assertFalse(wordle.guess("wonky"));
-        assertFalse(wordle.guess("wonky"));
-        assertFalse(wordle.guess("wonky"));
+        assertFalse(wordle.guess("pinky"));
+        assertFalse(wordle.guess("binky"));
+        assertFalse(wordle.guess("lanky"));
+        assertFalse(wordle.guess("sinky"));
+        assertFalse(wordle.guess("dinky"));
+        assertFalse(wordle.guess("linky"));
         assertFalse(wordle.guess("geeky"));
     }
 
