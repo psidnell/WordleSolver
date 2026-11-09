@@ -140,7 +140,7 @@ public class WordleTest {
             }
 
             solve(wordle, succeeds);
-            assertEquals(tries, wordle.guessesMade);
+            assertEquals(tries, wordle.getState().getGuessesMade());
         } finally {
             Profiler.report();
         }
@@ -188,9 +188,9 @@ public class WordleTest {
         wordle.printStatus();
         assertEquals(expectSuccess, wordle.isSolved());
         if (expectSuccess) {
-            assertTrue(wordle.guessesMade <= 6);
+            assertTrue(wordle.getState().getGuessesMade() <= 6);
         } else {
-            assertEquals(6, wordle.guessesMade);
+            assertEquals(6, wordle.getState().getGuessesMade());
         }
     }
 }

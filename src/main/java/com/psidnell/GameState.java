@@ -1,0 +1,56 @@
+package com.psidnell;
+
+import com.psidnell.words.Dictionary;
+import com.psidnell.words.Word;
+import com.psidnell.words.WordList;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class GameState {
+    private final Dictionary dictionary;
+    private final WordList solutions;
+    private final List<Word> previousGuesses = new ArrayList<>(6);
+    public int guessesMade = 0;
+    private int guessesRemaining = 6;
+
+    public GameState(Dictionary dictionary, WordList solutions) {
+        this.dictionary = dictionary;
+        this.solutions = solutions;
+    }
+
+    public Dictionary getDictionary() {
+        return dictionary;
+    }
+
+    public List<Word> getPreviousGuesses() {
+        return Collections.unmodifiableList(previousGuesses);
+    }
+
+    public int getGuessesMade() {
+        return guessesMade;
+    }
+
+    public int getGuessesRemaining() {
+        return guessesRemaining;
+    }
+
+    public void registerGuess(Word guess) {
+        previousGuesses.add(guess);
+        guessesRemaining--;
+        guessesMade++;
+    }
+
+    public Word getLastGuess() {
+        return previousGuesses.getLast();
+    }
+
+    public boolean haveAlreadyGuessed(Word guess) {
+        return previousGuesses.contains(guess);
+    }
+//
+//    public WordList getSolutions() {
+//        return solutions;
+//    }
+}
