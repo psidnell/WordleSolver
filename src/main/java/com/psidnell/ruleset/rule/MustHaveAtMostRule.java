@@ -28,6 +28,11 @@ public class MustHaveAtMostRule extends AbstractRule {
     private static final Probe PROBE = Profiler.getProbe(MustHaveAtMostRule.class, "match");
 
     @Override
+    public Rule copy() {
+        return new MustHaveAtMostRule(ch, amount);
+    }
+
+    @Override
     public boolean match(Word word) {
         try (Probe p = PROBE.open()) {
             boolean mustHaveAtLeastMatch = word.occurrencesOf(ch) <= amount;

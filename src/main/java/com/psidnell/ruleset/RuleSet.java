@@ -147,10 +147,10 @@ public class RuleSet {
 
     private <T extends Rule> T combine(T r1, T r2) {
         if (r1 == null) {
-            return r2;
+            return (T) r2.copy();
         }
         if (r2 == null) {
-            return r1;
+            return (T) r1.copy();
         }
         return (T) r1.combine(r2);
     }

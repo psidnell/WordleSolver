@@ -30,6 +30,7 @@ public class MatchRule extends AbstractRule {
     }
 
     private static final Probe PROBE = Profiler.getProbe(MatchRule.class, "match");
+
     @Override
     public boolean match(Word word) {
         try (Probe p = PROBE.open()) {
@@ -48,5 +49,10 @@ public class MatchRule extends AbstractRule {
     @Override
     public String toString() {
         return getCharacter() + "*[" + position + "]";
+    }
+
+    @Override
+    public Rule copy() {
+        return new MatchRule(ch, position);
     }
 }

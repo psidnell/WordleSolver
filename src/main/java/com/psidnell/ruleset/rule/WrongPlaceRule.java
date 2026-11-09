@@ -39,6 +39,11 @@ public class WrongPlaceRule extends AbstractRule {
     private static final Probe PROBE = Profiler.getProbe(WrongPlaceRule.class, "match");
 
     @Override
+    public Rule copy() {
+        return new WrongPlaceRule(new CharacterSet(chars), position);
+    }
+
+    @Override
     public boolean match(Word word) {
         try (Probe p = PROBE.open()) {
             final AtomicBoolean matched = new AtomicBoolean(true);

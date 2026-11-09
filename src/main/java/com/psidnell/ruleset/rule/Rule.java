@@ -8,5 +8,7 @@ public interface Rule {
 
     <T extends Rule> T combine(T r2);
 
+    Rule copy();
+
     boolean match(Word word);
 }

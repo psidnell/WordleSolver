@@ -59,4 +59,9 @@ public class MustHaveAtLeastRule extends AbstractRule {
     public String toString() {
         return ch + ">=" + amount;
     }
+
+    @Override
+    public Rule copy() {
+        return new MustHaveAtLeastRule(ch, amount);
+    }
 }

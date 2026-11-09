@@ -33,6 +33,11 @@ public class MustNotHaveRule extends AbstractRule {
     }
 
     @Override
+    public Rule copy() {
+        return new MustNotHaveRule(new CharacterSet(chars));
+    }
+
+    @Override
     public boolean match(Word word) {
         for (Character ch : getCharacters().values()) {
             boolean mustNotHaveMatch = word.occurrencesOf(ch) == 0;

@@ -38,6 +38,11 @@ public class NotRule extends AbstractRule {
     private static final Probe PROBE = Profiler.getProbe(NotRule.class, "match");
 
     @Override
+    public Rule copy() {
+        return new NotRule(new CharacterSet(chars), position);
+    }
+
+    @Override
     public boolean match(Word word) {
         try (Probe p = PROBE.open()) {
             return !chars.contains(word.charAt(getPosition()));

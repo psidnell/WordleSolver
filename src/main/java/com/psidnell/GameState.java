@@ -1,7 +1,6 @@
 package com.psidnell;
 
 import com.psidnell.ruleset.RuleSet;
-import com.psidnell.words.Dictionary;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordList;
 
@@ -10,18 +9,33 @@ import java.util.Collections;
 import java.util.List;
 
 public class GameState {
-    private final Dictionary dictionary;
+    private final WordList dictionary;
     private final WordList solutions;
-    private final List<Word> previousOrderedGuesses = new ArrayList<>(6);
-    private final WordList allGuesses = new WordList();
-    private RuleSet combinedRuleSet = new RuleSet();
+    private final List<Word> previousOrderedGuesses;
+    private final WordList allGuesses;
+    private RuleSet combinedRuleSet;
 
-    public int guessesMade = 0;
-    private int guessesRemaining = 6;
+    public int guessesMade;
+    private int guessesRemaining;
 
-    public GameState(Dictionary dictionary, WordList solutions) {
+    public GameState(WordList dictionary, WordList solutions) {
         this.dictionary = dictionary;
         this.solutions = solutions;
+        combinedRuleSet = new RuleSet();
+        allGuesses = new WordList();
+        previousOrderedGuesses = new ArrayList<>(6);
+        guessesMade = 0;
+        guessesRemaining = 6;
+    }
+
+    public GameState(GameState o) {
+        this.dictionary = new WordList(o.dictionary);
+        this.solutions = new WordList(o.solutions);
+        combinedRuleSet = new RuleSet().combineRuleSet(o.combinedRuleSet);
+        allGuesses = new WordList(o.dictionary);
+        previousOrderedGuesses = new ArrayList<>(o.previousOrderedGuesses);
+        guessesMade = o.guessesMade;
+        guessesRemaining = o.guessesRemaining;
     }
 
     public void registerGuess(Word guess, RuleSet ruleSetForGuess) {
@@ -48,7 +62,7 @@ public class GameState {
         }
     }
 
-    public Dictionary getDictionary() {
+    public WordList getDictionary() {
         return dictionary;
     }
 
