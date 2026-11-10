@@ -266,6 +266,7 @@ public class RuleSet {
         final AtomicBoolean matched = new AtomicBoolean(true);
         try (Probe p = PROBE2.open()) {
             forEach(r -> {
+                // Only continue matching if we've succeeded so far
                 if (matched.get()) {
                     matched.set(r.match(word));
                 }

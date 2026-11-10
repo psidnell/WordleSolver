@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class WordList {
 
@@ -23,7 +22,6 @@ public class WordList {
         this.words.addAll(words);
     }
 
-    //todo no?
     public Collection<Word> getWords() {
         return words;
     }
@@ -35,16 +33,6 @@ public class WordList {
                 words.remove(word);
             }
         });
-    }
-
-    public int countWordsNotMatching(RuleSet match) {
-        AtomicInteger count = new AtomicInteger(0);
-        words.forEach(word -> {
-            if (!match.match(word)) {
-                count.incrementAndGet();
-            }
-        });
-        return count.get();
     }
 
     public boolean contains(Word word) {

@@ -3,6 +3,7 @@ package com.psidnell.solution;
 import com.psidnell.GameState;
 import com.psidnell.ruleset.RuleSet;
 import com.psidnell.words.Word;
+import com.psidnell.words.WordList;
 
 /**
  * This (or something like it) looks like it could work, but the time/memory requirements are exponential.
@@ -36,16 +37,10 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
             int totalSolutionsForWord = 0;
 
             for (Word wordFromSolutions : state.getSolutions().getWords()) {
-                int originalSize = state.getSolutions().getWords().size();
-
                 RuleSet r = state.getCombinedRuleSet().combineRuleSet(new RuleSet(dictionaryWordGuess, wordFromSolutions));
-                int removed = state.getSolutions().countWordsNotMatching(r);
-                int prunedSize = originalSize - removed;
-
-                totalSolutionsForWord += prunedSize;
-
+                totalSolutionsForWord = countWordsMatching(state.getSolutions(), r, totalSolutionsForWord, lowestSolutionsCount);
                 if (totalSolutionsForWord > lowestSolutionsCount) {
-                    // This guess is never going to be the best word - bail to save time
+                    // We bailed after hitting the threshold
                     shortcuts++;
                     break;
                 }
@@ -53,28 +48,30 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
 
             LOG.log(System.Logger.Level.DEBUG, "{0}", "Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
-            boolean dictWordInSolutions = state.getSolutions().contains(dictionaryWordGuess);
 
-            boolean preferDictionaryWord = bestWord != null &&
-                    dictWordInSolutions &&
-                    !state.getSolutions().contains(bestWord);
+            if (totalSolutionsForWord <= lowestSolutionsCount) {
+                boolean dictWordInSolutions = state.getSolutions().contains(dictionaryWordGuess);
+                boolean bestWordInSolutions = bestWord != null && state.getSolutions().contains(bestWord);
 
-            if (totalSolutionsForWord <= lowestSolutionsCount && preferDictionaryWord) {
-                // Prefer a guess if it's in the solution set
-                LOG.log(System.Logger.Level.INFO, "Best (solution) word so far: {0} solutions: {1} {2} {3} ", dictionaryWordGuess, totalSolutionsForWord, dictWordInSolutions, shortcuts);
-                bestWord = dictionaryWordGuess;
-                lowestSolutionsCount = totalSolutionsForWord;
-            } else if (totalSolutionsForWord < lowestSolutionsCount) {
-                LOG.log(System.Logger.Level.INFO, "Best word so far: {0} solutions: {1} {2} {3}", dictionaryWordGuess, totalSolutionsForWord, dictWordInSolutions, shortcuts);
-                bestWord = dictionaryWordGuess;
-                lowestSolutionsCount = totalSolutionsForWord;
+                boolean preferDictionaryWord = dictWordInSolutions && !bestWordInSolutions;
+
+                if (preferDictionaryWord) {
+                    // Prefer a guess if it's in the solution set
+                    LOG.log(System.Logger.Level.INFO, "Best (solution) word so far: {0} solutions: {1} {2} {3} ", dictionaryWordGuess, totalSolutionsForWord, dictWordInSolutions, shortcuts);
+                    bestWord = dictionaryWordGuess;
+                } else if (totalSolutionsForWord < lowestSolutionsCount) {
+                    LOG.log(System.Logger.Level.INFO, "Best word so far: {0} solutions: {1} {2} {3}", dictionaryWordGuess, totalSolutionsForWord, dictWordInSolutions, shortcuts);
+                    bestWord = dictionaryWordGuess;
+                }
+
+                lowestSolutionsCount = aggression(totalSolutionsForWord);
             }
 
             wordsDone++;
             int nextPercentDome = (100 * wordsDone) / dictWords;
             if (percentDone != nextPercentDome) {
                 percentDone = nextPercentDome;
-                LOG.log(System.Logger.Level.DEBUG, "PercentDone {0}%", percentDone);
+                LOG.log(System.Logger.Level.INFO, "PercentDone {0}% ({1}, {2})", percentDone, dictionaryWordGuess, totalSolutionsForWord);
             }
         }
 
@@ -84,5 +81,30 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
 
         LOG.log(System.Logger.Level.INFO, "Best word: {0} Solutions {1} Shortcuts {2}", bestWord, lowestSolutionsCount, shortcuts);
         return bestWord;
+    }
+
+    private int aggression(int totalSolutionsForWord) {
+        if (totalSolutionsForWord > 1000000) {
+            return totalSolutionsForWord / 10;
+        } else if (totalSolutionsForWord > 500000) {
+            return totalSolutionsForWord / 2;
+        } else if (totalSolutionsForWord > 250000) {
+            return (2 * totalSolutionsForWord) / 3;
+        } else {
+            return totalSolutionsForWord;
+        }
+    }
+
+    public int countWordsMatching(WordList words, RuleSet match, int count, int threshold) {
+        for (Word word : words.getWords()) {
+            if (match.match(word)) {
+                count++;
+                if (count > threshold) {
+                    // This guess is never going to be the best word - bail to save time
+                    return count;
+                }
+            }
+        }
+        return count;
     }
 }
