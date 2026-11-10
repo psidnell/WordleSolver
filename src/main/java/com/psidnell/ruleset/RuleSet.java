@@ -71,6 +71,7 @@ public class RuleSet {
                     int remaining = commonLettersRemaining.occurrences(gc);
                     if (remaining > 0) {
                         addRule(new WrongPlaceRule(gc, i));
+                        addRule(new NotRule(gc, i));
                         mustHaveAtLeast.increase(gc);
                         commonLettersRemaining.decrease(gc);
                     } else {

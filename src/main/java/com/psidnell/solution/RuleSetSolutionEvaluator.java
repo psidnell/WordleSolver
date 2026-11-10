@@ -27,7 +27,7 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
         int wordsDone = 0;
         int percentDone = -1;
         int shortcuts = 0;
-        int lowestSolutionsCount = Integer.MAX_VALUE;
+        int lowestSolutionsCount = aggression(totalCombinations);
 
         for (Word dictionaryWordGuess : state.getDictionary().getWords()) {
             if (state.haveAlreadyGuessed(dictionaryWordGuess)) {
@@ -83,6 +83,11 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
         return bestWord;
     }
 
+    /**
+     * When bringing down the limit we can assume that when there are lots of solutions, there will be far better words remaining
+     * @param totalSolutionsForWord
+     * @return
+     */
     private int aggression(int totalSolutionsForWord) {
         if (totalSolutionsForWord > 1000000) {
             return totalSolutionsForWord / 10;
