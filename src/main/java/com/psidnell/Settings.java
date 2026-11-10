@@ -1,15 +1,17 @@
 package com.psidnell;
 
+import com.psidnell.util.ComponentImpl;
+
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
 
-public class Settings {
+public class Settings extends ComponentImpl {
 
     private final Properties properties;
     private static Settings instance = null;
 
-    private Settings() {
+    public Settings() {
         properties = loadProperties();
     }
 
@@ -45,7 +47,4 @@ public class Settings {
         return Integer.parseInt(properties.getProperty("SearchThreshold2", "500"));
     }
 
-    public int getSearchThreshold3() {
-        return Integer.parseInt(properties.getProperty("SearchThreshold3", "250"));
-    }
 }

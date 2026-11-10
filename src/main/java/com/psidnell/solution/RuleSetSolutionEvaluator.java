@@ -4,32 +4,31 @@ import com.psidnell.GameState;
 import com.psidnell.ruleset.RuleSet;
 import com.psidnell.words.Word;
 
-import java.util.Collection;
-
+/**
+ * This (or something like it) looks like it could work, but the time/memory requirements are exponential.
+ */
 public class RuleSetSolutionEvaluator implements SolutionEvaluator {
     private static final System.Logger LOG = System.getLogger(RuleSetSolutionEvaluator.class.getName());
 
     private final GameState state;
-    private final Collection<Word> guesses;
 
-    public RuleSetSolutionEvaluator(GameState state, Collection<Word> guesses) {
+    public RuleSetSolutionEvaluator(GameState state) {
         this.state = state;
-        this.guesses = guesses;
     }
 
     @Override
     public Word evaluateBestWord() {
-        int totalCombinations = guesses.size() * state.getSolutions().size();
+        int totalCombinations = state.getDictionary().size() * state.getSolutions().size();
         LOG.log(System.Logger.Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
 
         Word bestWord = null;
-        int dictWords = guesses.size();
+        int dictWords = state.getDictionary().size();
         int wordsDone = 0;
         int percentDone = -1;
         int shortcuts = 0;
         int lowestSolutionsCount = Integer.MAX_VALUE;
 
-        for (Word dictionaryWordGuess : guesses) {
+        for (Word dictionaryWordGuess : state.getDictionary().getWords()) {
             if (state.haveAlreadyGuessed(dictionaryWordGuess)) {
                 continue;
             }
@@ -55,7 +54,11 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
             LOG.log(System.Logger.Level.DEBUG, "{0}", "Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
             boolean dictWordInSolutions = state.getSolutions().contains(dictionaryWordGuess);
-            boolean preferDictionaryWord = bestWord != null && dictWordInSolutions && !state.getSolutions().contains(bestWord);
+
+            boolean preferDictionaryWord = bestWord != null &&
+                    dictWordInSolutions &&
+                    !state.getSolutions().contains(bestWord);
+
             if (totalSolutionsForWord <= lowestSolutionsCount && preferDictionaryWord) {
                 // Prefer a guess if it's in the solution set
                 LOG.log(System.Logger.Level.INFO, "Best (solution) word so far: {0} solutions: {1} {2} {3} ", dictionaryWordGuess, totalSolutionsForWord, dictWordInSolutions, shortcuts);

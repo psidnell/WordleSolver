@@ -4,22 +4,18 @@ import com.psidnell.GameState;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 
-import java.util.Collection;
-
 public class RankSolutionEvaluator implements SolutionEvaluator {
     private static final System.Logger LOG = System.getLogger(RankSolutionEvaluator.class.getName());
 
     private final GameState state;
-    private final Collection<Word> guesses;
 
-    public RankSolutionEvaluator(GameState state, Collection<Word> guesses) {
+    public RankSolutionEvaluator(GameState state) {
         this.state = state;
-        this.guesses = guesses;
     }
 
     @Override
     public Word evaluateBestWord() {
-        int totalCombinations = guesses.size() * state.getSolutions().size();
+        int totalCombinations = state.getDictionary().size() * state.getSolutions().size();
         LOG.log(System.Logger.Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
         Word bestWord = null;
         int dictWords = state.getDictionary().getWords().size();
@@ -27,7 +23,7 @@ public class RankSolutionEvaluator implements SolutionEvaluator {
         int percentDone = -1;
         int highestRank = 0;
 
-        for (Word dictionaryWordGuess : guesses) {
+        for (Word dictionaryWordGuess : state.getDictionary().getWords()) {
             if (state.getPreviousGuesses().contains(dictionaryWordGuess.getWord())) {
                 continue;
             }

@@ -2,50 +2,54 @@ package com.psidnell.solution;
 
 import com.psidnell.GameState;
 import com.psidnell.ruleset.RuleSet;
-import com.psidnell.util.Pair;
 import com.psidnell.words.Word;
-import com.psidnell.words.WordList;
 
+import java.lang.System.Logger.Level;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Objects;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class RecursiveEvaluator implements SolutionEvaluator {
     private static final System.Logger LOG = System.getLogger(RecursiveEvaluator.class.getName());
 
     private final GameState state;
-    private final WordList guesses;
 
-    public RecursiveEvaluator(GameState state, WordList guesses) {
+    public RecursiveEvaluator(GameState state) {
         this.state = state;
-        this.guesses = guesses;
     }
 
     @Override
     public Word evaluateBestWord() {
-        int totalCombinations = guesses.size() * state.getSolutions().size();
-        LOG.log(System.Logger.Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
-
-        AtomicInteger lowestFailures = new AtomicInteger(Integer.MAX_VALUE);
-        AtomicReference<Word> bestWord = new AtomicReference<>(null);
+        TreeMap<Word, Outcome> allOutcomes = new TreeMap<>();
+        int totalCombinations = state.getDictionary().size() * state.getSolutions().size();
+        LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
 
         for (Word solution : state.getSolutions().getWords()) {
-            LOG.log(System.Logger.Level.INFO, "Dry run {0}", solution);
-            GameState subState = new GameState(state, guesses);
-            Pair<Word, Integer> p = dryRun(subState, solution);
+            LOG.log(Level.INFO, "Dry run {0}", solution);
+            GameState subState = new GameState(state);
+            Outcome outcome = dryRun(subState, solution);
 
-            // TODO prefer solution
-            if (p.right() < lowestFailures.get()) {
-                lowestFailures.set(p.right());
-                bestWord.set(p.left());
-                LOG.log(System.Logger.Level.INFO, "Best word: so far {0} Failures: {1}", bestWord.get(), lowestFailures.get());
+            if (allOutcomes.containsKey(outcome.guess)) {
+                allOutcomes.get(outcome.guess).merge(outcome);
+            } else {
+                allOutcomes.put(outcome.guess, outcome);
             }
+
+//            // TODO prefer solution
+//            if (p.right() < lowestFailures.get()) {
+//                lowestFailures.set(p.right());
+//                bestWord.set(p.left());
+//                LOG.log(Level.INFO, "Best word: so far {0} Failures: {1}", bestWord.get(), lowestFailures.get());
+//            }
         }
 
-        LOG.log(System.Logger.Level.INFO, "Best word: {0} Failures: {1}", bestWord.get(), lowestFailures.get());
+        Outcome bestOutcome = allOutcomes.values().stream().findFirst().orElseThrow();
 
-        return bestWord.get();
+        LOG.log(Level.INFO, "Best outcome:{0}", bestOutcome);
+
+        return bestOutcome.guess;
     }
 
     /**
@@ -54,57 +58,162 @@ public class RecursiveEvaluator implements SolutionEvaluator {
      * @param solution
      * @return
      */
-    private Pair<Word, Integer> dryRun(GameState state, Word solution) {
-        Map<Word, Integer> counts = new HashMap<>();
+    private Outcome dryRun(GameState state, Word solution) {
+        Map<Word, Outcome> allOutcomes = new HashMap<>();
 
-        for (Word guess : state.getSolutions().getWords()) {
+        for (Word guess : state.getDictionary().getWords()) {
             GameState subState = new GameState(state, state.getDictionary());
             RuleSet r = new RuleSet(guess, solution);
             subState.registerGuess(guess, r);
-            int failuresForGuess = recurse(subState, solution);
-            counts.put(guess, failuresForGuess);
+            Outcome outcome = new Outcome(guess, solution);
+            solve(subState, solution, outcome);
+
+            allOutcomes.put(outcome.guess, outcome);
+
+            //LOG.log(Level.INFO, "Word: {0}", guess);
         }
 
         // Find the worst case
         // TODO prefer solution
-        AtomicReference<Pair<Word, Integer>> bestWord = new AtomicReference<>(null);
-        AtomicInteger lowestFailures = new AtomicInteger(Integer.MAX_VALUE);
-        counts.forEach((w, c) -> {
-            if (c < lowestFailures.get()) {
-                bestWord.set(new Pair<>(w, c));
-                lowestFailures.set(c);
-            }
-        });
 
-        LOG.log(System.Logger.Level.INFO, "Best dry run for {0} is {1} with {2}", solution, bestWord, lowestFailures);
+        TreeSet<Outcome> sortedOutcomes = new TreeSet<>(allOutcomes.values());
+        Outcome bestGuess = sortedOutcomes.first();
 
-        return bestWord.get();
+        LOG.log(Level.INFO, "Best dry run for {0}", bestGuess);
+
+        return bestGuess;
     }
 
     /**
-     * Return the failure count
+     * We have hypothesised the solution and have made a guess.
+     * Play all possible sub games.
+     *
      * @param state
      * @param solution
      * @return
      */
-    private int recurse(GameState state, Word solution) {
+    private void solve(GameState state, Word solution, Outcome outcome) {
+        outcome.solutionCount += state.getSolutions().size();
+
         if (state.isSolved()) {
-            //LOG.log(Level.INFO, "Solved {0}", state.getPreviousGuesses());
-            return 0;
+            LOG.log(Level.INFO, "Solved {0}", state.getPreviousGuesses());
+            outcome.fastestGuess = Math.min(outcome.fastestGuess, state.getGuessesMade());
+            outcome.slowestGuess = Math.max(outcome.slowestGuess, state.getGuessesMade());
+            outcome.successes++;
+            return;
         }
 
         if (state.getGuessesRemaining() == 0) {
-            //LOG.log(Level.INFO, "Failed {0}", state.getPreviousGuesses());
-            return 1;
+            LOG.log(Level.INFO, "Failed {0}", state.getPreviousGuesses());
+            outcome.failures++;
+            return;
         }
 
-        int count = 0;
         for (Word guess : state.getSolutions().getWords()) {
             GameState subState = new GameState(state, state.getDictionary());
             RuleSet r = new RuleSet(guess, solution);
             subState.registerGuess(guess, r);
-            count += recurse(subState, solution);
+            solve(subState, solution, outcome);
         }
-        return count;
+    }
+
+    private static class Outcome implements Comparable<Outcome>{
+        final Word guess;
+        final Word solution;
+        int fastestGuess = Integer.MAX_VALUE;
+        int slowestGuess = 0;
+        int successes = 0;
+        int failures = 0;
+        int solutionCount = 0;
+
+        Outcome(Word word, Word solution) {
+            this.guess = word;
+            this.solution = solution;
+        }
+
+        void merge(Outcome o) {
+            fastestGuess = Math.min(fastestGuess, o.fastestGuess);
+            slowestGuess = Math.max(slowestGuess, o.slowestGuess);
+            solutionCount += o.solutionCount;
+            successes += o.successes;
+            failures += o.failures;
+        }
+
+        @Override
+        public int compareTo(Outcome o) {
+            int result = 0;
+
+            // Lowest
+            result = Integer.compare(solutionCount, o.solutionCount);
+            if (result != 0) {
+                return result;
+            }
+
+            // Lowest
+            result = Integer.compare(failures, o.failures);
+            if (result != 0) {
+                return result;
+            }
+
+            // Highest
+            result = Integer.compare(o.failures, failures);
+            if (result != 0) {
+                return result;
+            }
+
+            // Highest
+            result = Integer.compare(o.slowestGuess, slowestGuess);
+            if (result != 0) {
+                return result;
+            }
+
+            // Lowest
+            result = Integer.compare(o.fastestGuess, fastestGuess);
+            if (result != 0) {
+                return result;
+            }
+
+            result = guess.compareTo(o.guess);
+            if (result != 0) {
+                return result;
+            }
+
+            result = solution.compareTo(o.solution);
+            if (result != 0) {
+                return result;
+            }
+
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Outcome outcomes)) return false;
+            return fastestGuess == outcomes.fastestGuess &&
+                    slowestGuess == outcomes.slowestGuess &&
+                    successes == outcomes.successes &&
+                    failures == outcomes.failures &&
+                    solutionCount == outcomes.solutionCount &&
+                    Objects.equals(solution, outcomes.solution) &&
+                    Objects.equals(guess, outcomes.guess);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(solution, guess, fastestGuess, slowestGuess, successes, failures, solutionCount);
+        }
+
+        @Override
+        public String toString() {
+            return "Outcome{" +
+                    "guess=" + guess +
+                    ", solution=" + solution +
+                    ", fastestGuess=" + fastestGuess +
+                    ", slowestGuess=" + slowestGuess +
+                    ", successes=" + successes +
+                    ", failures=" + failures +
+                    ", solutionCount=" + solutionCount +
+                    '}';
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.psidnell;
 
 import com.psidnell.profile.Profiler;
+import com.psidnell.solution.Strategy;
 import com.psidnell.util.Context;
 import com.psidnell.words.Dictionary;
 import com.psidnell.words.Word;
@@ -79,10 +80,10 @@ public class WordleTest {
                 "faker", "fakes", "fakie", "fakir", "falaj",
                 "galah", "galas", "galax", "galea", "gales",
                 "hated", "hates", "hatha", "hangs", "hatty",
-                Wordle.FIRST_GUESS, // Must be in dictionary!
+                Strategy.FIRST_GUESS, // Must be in dictionary!
         };
         Dictionary dictionary = new Dictionary(words);
-        Context context = new Context(dictionary, new Wordle());
+        Context context = new Context(dictionary, new Strategy(), new Wordle(), Settings.getInstance());
         Wordle wordle = context.get("wordle", Wordle.class);
         wordle.setContext(context);
         wordle.init();
@@ -100,6 +101,7 @@ public class WordleTest {
                 Arguments.of("nunks", 6, new String[]{}, false),
 
                  // Successes
+                Arguments.of("truce", 3, new String[]{}, true),
                 Arguments.of("loamy", 4, new String[]{}, true),
                 Arguments.of("wangs", 6, new String[]{}, true),
                 Arguments.of("waxes", 6, new String[]{}, true),

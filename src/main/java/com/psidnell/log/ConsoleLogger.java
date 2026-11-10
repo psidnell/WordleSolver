@@ -1,6 +1,7 @@
 package com.psidnell.log;
 
 import com.psidnell.Settings;
+import com.psidnell.util.ComponentImpl;
 
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
@@ -8,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-public class ConsoleLogger implements System.Logger {
+public class ConsoleLogger extends ComponentImpl implements System.Logger {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss ");
 
     private final String loggerName;

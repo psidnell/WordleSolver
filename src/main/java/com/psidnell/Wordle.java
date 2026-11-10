@@ -1,8 +1,8 @@
 package com.psidnell;
 
 import com.psidnell.ruleset.RuleSet;
-import com.psidnell.solution.RankSolutionEvaluator;
-import com.psidnell.solution.RuleSetSolutionEvaluator;
+import com.psidnell.solution.SolutionEvaluator;
+import com.psidnell.solution.Strategy;
 import com.psidnell.util.ComponentImpl;
 import com.psidnell.util.Pair;
 import com.psidnell.words.Word;
@@ -19,15 +19,12 @@ import java.util.stream.Collectors;
 
 public class Wordle extends ComponentImpl {
     private static final Logger LOG = System.getLogger(Wordle.class.getName());
-    public static String FIRST_GUESS = "trace";
 
     private GameState state;
 
     // For info only
     private final List<Integer> userGuessSolutionsRemaining = new ArrayList<>();
     private final List<RuleSet> previousRuleSets = new ArrayList<>();
-
-    private final Settings settings = Settings.getInstance();
 
     private Word solution;
 
@@ -151,8 +148,8 @@ public class Wordle extends ComponentImpl {
         System.out.println("PROPOSE");
 
         if (state.getGuessesRemaining() == 6) {
-            System.out.println("First Guess:" + FIRST_GUESS);
-            return FIRST_GUESS;
+            System.out.println("First Guess:" + Strategy.FIRST_GUESS);
+            return Strategy.FIRST_GUESS;
         }
 
         int solutionCount = state.getSolutions().getWords().size();
@@ -167,41 +164,10 @@ public class Wordle extends ComponentImpl {
         // Choose the strategy and guess solutionCount based on the number of solutions remaining
         // to balance performance against optimal result. On this machine it
         // keeps it under 20s for the 2nd guess
-        Word bestWord;
 
-        // Don't touch the higher levels when we provide a default first guess
-
-        // Greater than: Uses solution 1
-        final int l1 = settings.getSearchThreshold1();
-        // Between: Uses solution 2
-        final int l2 = settings.getSearchThreshold2();
-        // Between: Uses solution 3
-        final int l3 = settings.getSearchThreshold3();
-        // Below: Uses solution 4
-
+        SolutionEvaluator evaluator = strategy.getOptimalStrategy(state);
         long startTime = System.currentTimeMillis();
-
-        if (solutionCount > l1) { // Max to L1
-            System.out.println("(1) Quick Search on reduced guesses above " + l1);
-            Collection<Word> guesses = state.getSolutions().getWords();
-            bestWord = new RankSolutionEvaluator(state, guesses).evaluateBestWord();
-        } else if (solutionCount > l2) {
-            System.out.println("(2) Exhaustive Search on reduced guesses between " + l2 + " and " + l1);
-            Collection<Word> guesses = state.getSolutions().getWords();
-            bestWord = new RuleSetSolutionEvaluator(state, guesses).evaluateBestWord();
-        } else if (solutionCount > l3) {
-            System.out.println("(3) Exhaustive Search on maximum guesses below " + l2);
-            Collection<Word> guesses = dictionary.getWords();
-            bestWord = new RuleSetSolutionEvaluator(state, guesses).evaluateBestWord();
-        } else {
-            System.out.println("(4) Exhaustive Search on maximum guesses below " + l3);
-            Collection<Word> guesses = dictionary.getWords();
-            bestWord = new RuleSetSolutionEvaluator(state, guesses).evaluateBestWord();
-// TODO This doesn't work yet
-//            System.out.println("(4) Recursive Search on maximum guesses below " + l3);
-//            WordList guesses = state.getSolutions();
-//            bestWord = new RecursiveEvaluator(state, guesses).evaluateBestWord();
-        }
+        Word bestWord = evaluator.evaluateBestWord();
         long endTime = System.currentTimeMillis();
         System.out.println("Time elapsed: " + (endTime - startTime) / 1000 + "s");
 
