@@ -42,16 +42,22 @@ public class Wordle extends ComponentImpl {
         if (solution != null) {
             System.out.println("Solution Known: " + solution.getWord());
         }
-        System.out.println("Dictionary Size:" + dictionary.getWords().size());
+        System.out.println("Dictionary Size:" + dictionary.size());
+        System.out.println("Solutions:" + state.getSolutions().size());
         System.out.println("History:");
-        for (int i = 0; i < previousRuleSets.size(); i++) {
-            System.out.println("  - " + state.getPreviousGuesses().get(i) + " " +
-                    previousRuleSets.get(i) + " Solutions: " + userGuessSolutionsRemaining.get(i));
+        for(String line : state.getHistory()) {
+            System.out.println("  " + line);
         }
-        System.out.println("Knowledge: " + state.getCombinedRuleSet().toString());
+        System.out.println("RuleSet: " + state.getCombinedRuleSet().toString());
         System.out.println("Guesses Remaining: " + state.getGuessesRemaining());
-        if (isSolved()) {
-            System.out.println("Solved: " + state.getLastGuess());
+        if (state.isSolved()) {
+            Word lastGuess = getState().getLastGuess();
+            Word inferredGuess = state.getCombinedRuleSet().getSolution();
+            if (inferredGuess.equals(lastGuess)) {
+                System.out.println("Solved: " + lastGuess);
+            } else {
+                System.out.println("Solved (inferred): " + inferredGuess);
+            }
         } else {
             System.out.println("Not Solved");
         }

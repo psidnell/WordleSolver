@@ -5,9 +5,9 @@ import com.psidnell.ruleset.RuleSet;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordList;
 
-/**
- * This (or something like it) looks like it could work, but the time/memory requirements are exponential.
- */
+import java.util.LinkedList;
+
+
 public class RuleSetSolutionEvaluator implements SolutionEvaluator {
     private static final System.Logger LOG = System.getLogger(RuleSetSolutionEvaluator.class.getName());
 
@@ -27,9 +27,17 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
         int wordsDone = 0;
         int percentDone = -1;
         int shortcuts = 0;
-        int lowestSolutionsCount = aggression(totalCombinations);
+        int lowestSolutionsCount = Integer.MAX_VALUE;
 
-        for (Word dictionaryWordGuess : state.getDictionary().getWords()) {
+        LinkedList<Word> prioritisedDictionary = new LinkedList<>(state.getSolutions().getWords());
+        state.getDictionary().getWords().forEach(w -> {
+            if (!state.getSolutions().contains(w)) {
+                prioritisedDictionary.add(w);
+            }
+        });
+        LOG.log(System.Logger.Level.INFO, "Prioritised: {0}", prioritisedDictionary.size());
+
+        for (Word dictionaryWordGuess : prioritisedDictionary) {
             if (state.haveAlreadyGuessed(dictionaryWordGuess)) {
                 continue;
             }
@@ -48,7 +56,6 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
 
             LOG.log(System.Logger.Level.DEBUG, "{0}", "Analysed: " + dictionaryWordGuess + " solutions: " + totalSolutionsForWord);
 
-
             if (totalSolutionsForWord <= lowestSolutionsCount) {
                 boolean dictWordInSolutions = state.getSolutions().contains(dictionaryWordGuess);
                 boolean bestWordInSolutions = bestWord != null && state.getSolutions().contains(bestWord);
@@ -64,7 +71,7 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
                     bestWord = dictionaryWordGuess;
                 }
 
-                lowestSolutionsCount = aggression(totalSolutionsForWord);
+                lowestSolutionsCount = totalSolutionsForWord;
             }
 
             wordsDone++;
@@ -81,23 +88,6 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
 
         LOG.log(System.Logger.Level.INFO, "Best word: {0} Solutions {1} Shortcuts {2}", bestWord, lowestSolutionsCount, shortcuts);
         return bestWord;
-    }
-
-    /**
-     * When bringing down the limit we can assume that when there are lots of solutions, there will be far better words remaining
-     * @param totalSolutionsForWord
-     * @return
-     */
-    private int aggression(int totalSolutionsForWord) {
-        if (totalSolutionsForWord > 1000000) {
-            return totalSolutionsForWord / 10;
-        } else if (totalSolutionsForWord > 500000) {
-            return totalSolutionsForWord / 2;
-        } else if (totalSolutionsForWord > 250000) {
-            return (2 * totalSolutionsForWord) / 3;
-        } else {
-            return totalSolutionsForWord;
-        }
     }
 
     public int countWordsMatching(WordList words, RuleSet match, int count, int threshold) {

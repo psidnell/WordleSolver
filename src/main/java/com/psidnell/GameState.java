@@ -6,6 +6,7 @@ import com.psidnell.words.WordList;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class GameState {
@@ -14,6 +15,7 @@ public class GameState {
     private final List<Word> previousOrderedGuesses;
     private final WordList allGuesses;
     private RuleSet combinedRuleSet;
+    private final List<String> history = new LinkedList<>();
 
     public int guessesMade;
     private int guessesRemaining;
@@ -59,6 +61,7 @@ public class GameState {
             throw new PlayerException("This word is not in the dictionary: " + guess);
         }
 
+        int solutionsBefore = solutions.size();
         combinedRuleSet = combinedRuleSet.combineRuleSet(ruleSetForGuess);
         solutions.prune(combinedRuleSet);
         previousOrderedGuesses.add(guess);
@@ -66,6 +69,11 @@ public class GameState {
         dictionary.remove(guess);
         guessesRemaining--;
         guessesMade++;
+
+        StringBuilder b = new StringBuilder();
+        b.append(guessesMade).append(' ').append(guess).append(' ').append(combinedRuleSet).append(" Solutions ")
+                .append(solutionsBefore).append(" -> ").append(solutions.size());
+        history.add(b.toString());
 
         if (solutions.size() == 0 && !combinedRuleSet.isSolved()) {
             throw new IllegalStateException("Solutions now empty but game is not solved");
@@ -106,5 +114,9 @@ public class GameState {
 
     public boolean isSolved() {
         return combinedRuleSet.isSolved();
+    }
+
+    public List<String> getHistory() {
+        return history;
     }
 }

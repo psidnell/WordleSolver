@@ -11,6 +11,9 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+/**
+ * This (or something like it) looks like it could work, but the time/memory requirements are exponential.
+ */
 public class RecursiveSolutionEvaluator implements SolutionEvaluator {
     private static final System.Logger LOG = System.getLogger(RecursiveSolutionEvaluator.class.getName());
 

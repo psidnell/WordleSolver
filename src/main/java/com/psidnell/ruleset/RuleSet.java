@@ -320,7 +320,7 @@ public class RuleSet {
         return count == 5;
     }
 
-    public String getSolution() {
+    public Word getSolution() {
         StringBuilder b = new StringBuilder();
         for (MatchRule r : matches) {
             if (r != null) {
@@ -329,6 +329,6 @@ public class RuleSet {
                 throw new IllegalStateException("No solution");
             }
         }
-        return b.toString();
+        return new Word(b.toString());
     }
 }
