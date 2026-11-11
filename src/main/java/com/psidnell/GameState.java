@@ -67,8 +67,8 @@ public class GameState {
         guessesRemaining--;
         guessesMade++;
 
-        if (solutions.size() == 0) {
-            throw new IllegalStateException("Solutions now empty");
+        if (solutions.size() == 0 && !combinedRuleSet.isSolved()) {
+            throw new IllegalStateException("Solutions now empty but game is not solved");
         }
     }
 
