@@ -97,10 +97,8 @@ public class WordleTest {
         return Stream.of(
                 // Solution, guesses, succeeds
 
-                // Falures
-                Arguments.of("nunks", 6, new String[]{}, false),
-
                 // Successes
+                Arguments.of("bless", 3, new String[]{}, true),
                 Arguments.of("truce", 3, new String[]{}, true),
                 Arguments.of("loamy", 4, new String[]{}, true),
                 Arguments.of("wangs", 6, new String[]{}, true),
@@ -123,7 +121,10 @@ public class WordleTest {
                 Arguments.of("grump", 4, new String[]{}, true),
                 Arguments.of("geeky", 4, new String[]{}, true),
                 Arguments.of("slide", 4, new String[]{}, true),
-                Arguments.of("motor", 4, new String[]{}, true)
+                Arguments.of("motor", 4, new String[]{}, true),
+
+                // Falures
+                Arguments.of("nunks", 6, new String[]{}, false)
         );
     }
     @ParameterizedTest
