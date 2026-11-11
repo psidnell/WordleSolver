@@ -35,10 +35,5 @@ public class Strategy extends ComponentImpl {
             GameState subState = new GameState(state);
             return new RuleSetSolutionEvaluator(subState);
         }
-//        else {
-//            System.out.println("(4) Recursive Search on maximum guesses below " + l2);
-//            GameState subState = new GameState(state);
-//            return new RecursiveSolutionEvaluator(subState);
-//        }
     }
 }

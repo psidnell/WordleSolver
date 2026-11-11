@@ -54,4 +54,11 @@ public class WordList {
     public void remove(Word guess) {
         words.remove(guess);
     }
+
+    public Word getOnlyWord() {
+        if (words.size() != 1) {
+            throw new IllegalStateException("There are " + words.size() +" words");
+        }
+        return words.stream().findFirst().orElseThrow();
+    }
 }

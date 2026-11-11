@@ -319,4 +319,16 @@ public class RuleSet {
         }
         return count == 5;
     }
+
+    public String getSolution() {
+        StringBuilder b = new StringBuilder();
+        for (MatchRule r : matches) {
+            if (r != null) {
+                b.append(r.getCharacter());
+            } else {
+                throw new IllegalStateException("No solution");
+            }
+        }
+        return b.toString();
+    }
 }

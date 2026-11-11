@@ -61,23 +61,24 @@ public class RecursiveSolutionEvaluator implements SolutionEvaluator {
      * @param solution
      * @return
      */
-    private Outcome dryRun(GameState state, Word solution) {
+    private static Outcome dryRun(GameState state, Word solution) {
         Map<Word, Outcome> allOutcomes = new HashMap<>();
 
         for (Word guess : state.getDictionary().getWords()) {
             GameState subState = new GameState(state, state.getDictionary());
             RuleSet r = new RuleSet(guess, solution);
             subState.registerGuess(guess, r);
-            Outcome outcome = new Outcome(guess, solution);
-            count(subState, solution, outcome);
 
-            allOutcomes.put(outcome.guess, outcome);
+            Outcome outcome = findBestOutcome(subState, solution);
+            if (outcome != null) {
+                allOutcomes.put(outcome.guess, outcome);
+            }
 
             //LOG.log(Level.INFO, "Word: {0}", guess);
         }
 
         // Find the worst case
-        // TODO prefer solution
+        // TODO prefer solution from dictionary
 
         TreeSet<Outcome> sortedOutcomes = new TreeSet<>(allOutcomes.values());
         Outcome bestGuess = sortedOutcomes.first();
@@ -95,126 +96,66 @@ public class RecursiveSolutionEvaluator implements SolutionEvaluator {
      * @param solution
      * @return
      */
-    private void count(GameState state, Word solution, Outcome outcome) {
-        outcome.solutionCount += state.getSolutions().size();
-
-        if (state.isSolved()) {
-            LOG.log(Level.INFO, "Solved {0}", state.getPreviousGuesses());
-            outcome.fastestGuess = Math.min(outcome.fastestGuess, state.getGuessesMade());
-            outcome.slowestGuess = Math.max(outcome.slowestGuess, state.getGuessesMade());
-            outcome.successes++;
-            return;
-        }
+    private static Outcome findBestOutcome(GameState state, Word solution) {
 
         if (state.getGuessesRemaining() == 0) {
-            LOG.log(Level.INFO, "Failed {0}", state.getPreviousGuesses());
-            outcome.failures++;
-            return;
+            //LOG.log(Level.INFO, "Failed if {0} when {1}", solution, state.getPreviousGuesses());
+            return null;
         }
 
-        for (Word guess : state.getSolutions().getWords()) {
-            GameState subState = new GameState(state, state.getDictionary());
+        if (state.getLastGuess().equals(solution)) {
+            LOG.log(Level.INFO, "Solved if {0} then {1}", solution, state.getPreviousGuesses());
+            return new Outcome(solution, 1);
+        }
+
+        TreeSet<Outcome> outcomes = new TreeSet<>();
+        for (Word guess : state.getDictionary().getWords()) {
+            GameState subState = new GameState(state);
             RuleSet r = new RuleSet(guess, solution);
             subState.registerGuess(guess, r);
-            count(subState, solution, outcome);
+            Outcome outcome = findBestOutcome(subState, solution);
+            if (outcome !=  null) {
+                outcomes.add(outcome);
+            }
         }
+        return outcomes.isEmpty() ? null : outcomes.first();
     }
 
-    private static class Outcome implements Comparable<Outcome>{
+    private static class Outcome implements Comparable<Outcome> {
         final Word guess;
-        final Word solution;
-        int fastestGuess = Integer.MAX_VALUE;
-        int slowestGuess = 0;
-        int successes = 0;
-        int failures = 0;
         int solutionCount = 0;
 
-        Outcome(Word word, Word solution) {
+        Outcome(Word word, int solutionCount) {
             this.guess = word;
-            this.solution = solution;
+            this.solutionCount = solutionCount;
         }
 
         void merge(Outcome o) {
-            fastestGuess = Math.min(fastestGuess, o.fastestGuess);
-            slowestGuess = Math.max(slowestGuess, o.slowestGuess);
             solutionCount += o.solutionCount;
-            successes += o.successes;
-            failures += o.failures;
         }
 
         @Override
         public int compareTo(Outcome o) {
-            int result = 0;
-
-            // Lowest
-            result = Integer.compare(solutionCount, o.solutionCount);
-            if (result != 0) {
-                return result;
-            }
-
-            // Lowest
-            result = Integer.compare(failures, o.failures);
-            if (result != 0) {
-                return result;
-            }
-
-            // Highest
-            result = Integer.compare(o.failures, failures);
-            if (result != 0) {
-                return result;
-            }
-
-            // Highest
-            result = Integer.compare(o.slowestGuess, slowestGuess);
-            if (result != 0) {
-                return result;
-            }
-
-            // Lowest
-            result = Integer.compare(o.fastestGuess, fastestGuess);
-            if (result != 0) {
-                return result;
-            }
-
-            result = guess.compareTo(o.guess);
-            if (result != 0) {
-                return result;
-            }
-
-            result = solution.compareTo(o.solution);
-            if (result != 0) {
-                return result;
-            }
-
-            return result;
+            return Integer.compare(solutionCount, o.solutionCount);
         }
 
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof Outcome outcomes)) return false;
-            return fastestGuess == outcomes.fastestGuess &&
-                    slowestGuess == outcomes.slowestGuess &&
-                    successes == outcomes.successes &&
-                    failures == outcomes.failures &&
-                    solutionCount == outcomes.solutionCount &&
-                    Objects.equals(solution, outcomes.solution) &&
-                    Objects.equals(guess, outcomes.guess);
+            return Objects.equals(guess, outcomes.guess) &&
+                    solutionCount == outcomes.solutionCount;
+
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(solution, guess, fastestGuess, slowestGuess, successes, failures, solutionCount);
+            return Objects.hash(guess, solutionCount);
         }
 
         @Override
         public String toString() {
             return "Outcome{" +
                     "guess=" + guess +
-                    ", solution=" + solution +
-                    ", fastestGuess=" + fastestGuess +
-                    ", slowestGuess=" + slowestGuess +
-                    ", successes=" + successes +
-                    ", failures=" + failures +
                     ", solutionCount=" + solutionCount +
                     '}';
         }
