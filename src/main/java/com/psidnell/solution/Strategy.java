@@ -15,11 +15,6 @@ public class Strategy extends ComponentImpl {
         }
 
         int solutionCount = state.getSolutions().getWords().size();
-        if (solutionCount == 1) {
-            String lastWord = state.getSolutions().getWords().stream().findFirst().orElseThrow().getWord();
-            System.out.println("Last Word:" + lastWord);
-            return () -> new Word(lastWord);
-        }
 
         // Greater than: Uses solution 1
         final int l1 = settings.getSearchThreshold1();
@@ -40,5 +35,10 @@ public class Strategy extends ComponentImpl {
             GameState subState = new GameState(state);
             return new RuleSetSolutionEvaluator(subState);
         }
+//        else {
+//            System.out.println("(4) Recursive Search on maximum guesses below " + l2);
+//            GameState subState = new GameState(state);
+//            return new RecursiveSolutionEvaluator(subState);
+//        }
     }
 }

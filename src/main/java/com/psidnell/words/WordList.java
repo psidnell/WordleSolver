@@ -43,12 +43,8 @@ public class WordList {
         return words.size();
     }
 
-    public boolean hasWord(String word) {
-        return words.contains(new Word(word));
-    }
-
-    public void addAll(WordList other) {
-        this.words.addAll(other.getWords());
+    public boolean hasWord(Word word) {
+        return words.contains(word);
     }
 
     public void add(Word word) {
@@ -57,12 +53,5 @@ public class WordList {
 
     public void remove(Word guess) {
         words.remove(guess);
-    }
-
-    public Word getLastWord() {
-        if (words.size() != 1) {
-            throw new IllegalStateException("Must have only one word");
-        }
-        return words.toArray(new Word[1])[0];
     }
 }

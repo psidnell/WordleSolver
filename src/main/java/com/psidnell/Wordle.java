@@ -2,7 +2,6 @@ package com.psidnell;
 
 import com.psidnell.ruleset.RuleSet;
 import com.psidnell.solution.SolutionEvaluator;
-import com.psidnell.solution.Strategy;
 import com.psidnell.util.ComponentImpl;
 import com.psidnell.util.Pair;
 import com.psidnell.words.Word;
@@ -84,8 +83,7 @@ public class Wordle extends ComponentImpl {
         }
 
         if (state.getGuessesRemaining() == 0) {
-            System.out.println("FAILED! No more guesses!");
-            return false;
+            throw new PlayerException("FAILED! No more guesses!");
         }
 
         if (state.getSolutions().getWords().isEmpty()) {
@@ -100,20 +98,13 @@ public class Wordle extends ComponentImpl {
         System.out.println("GUESS");
         System.out.println("Turn " + (7 - state.getGuessesRemaining()) + ": Guessing " + guess);
         if (state.getGuessesRemaining() == 0) {
-            System.out.println("FAILED! No more guesses!");
-            return false;
+            throw new PlayerException("FAILED! No more guesses!");
         }
 
         Word guessWord = new Word(guess);
 
-        if (guess.length() != 5) {
-            System.out.println("Guess must be 5 characters");
-            return false;
-        }
-
-        if (!dictionary.hasWord(guess)) {
-            System.out.println("Unknown word");
-            return false;
+        if (!dictionary.hasWord(guessWord)) {
+            throw new PlayerException("Unknown word (remaining) in dictionary: " + guess);
         }
 
         // We have a valid guess
@@ -144,21 +135,8 @@ public class Wordle extends ComponentImpl {
     }
 
     public String propose() {
-
         System.out.println("PROPOSE");
-
-        if (state.getGuessesRemaining() == 6) {
-            System.out.println("First Guess:" + Strategy.FIRST_GUESS);
-            return Strategy.FIRST_GUESS;
-        }
-
         int solutionCount = state.getSolutions().getWords().size();
-        if (solutionCount == 1) {
-            String lastWord = state.getSolutions().getWords().stream().findFirst().orElseThrow().getWord();
-            System.out.println("Last Word:" + lastWord);
-            return lastWord;
-        }
-
         System.out.println("Solutions: " + solutionCount);
 
         // Choose the strategy and guess solutionCount based on the number of solutions remaining

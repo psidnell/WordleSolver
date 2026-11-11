@@ -66,7 +66,11 @@ public class WordleTest {
         assertFalse(wordle.guess("sinky"));
         assertFalse(wordle.guess("dinky"));
         assertFalse(wordle.guess("linky"));
-        assertFalse(wordle.guess("geeky"));
+        try {
+            assertFalse(wordle.guess("geeky"));
+            fail();
+        } catch (PlayerException _) {
+        }
     }
 
     @Test

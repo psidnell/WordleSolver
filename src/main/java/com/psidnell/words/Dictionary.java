@@ -10,7 +10,6 @@ import com.psidnell.util.Context;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -38,8 +37,9 @@ public class Dictionary extends WordList implements Component {
 
     private static final Probe PROBE = Profiler.getProbe(Dictionary.class, "loadDictionary");
 
-    private void loadDictionary() throws IOException, URISyntaxException {
+    private void loadDictionary() throws IOException {
         try (Probe p = PROBE.open()) {
+            int count = 0;
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                     Objects.requireNonNull(this.getClass().getResourceAsStream("/com/psidnell/Dictionary.json"))));) {
                 ObjectMapper mapper = new ObjectMapper();
@@ -53,9 +53,14 @@ public class Dictionary extends WordList implements Component {
                             String wordText = wordNode.asText().toUpperCase();
                             Word word = new Word(wordText);
                             words.add(word);
+                            count++;
                         }
                     }
                 }
+            }
+            if (count != words.size()) {
+                // Have we got repeated words or has something gone wrong with word uniqueness?
+                throw new IllegalStateException("Mismatch between JSON word count and dictionary size");
             }
         }
     }

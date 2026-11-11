@@ -11,14 +11,17 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class RecursiveEvaluator implements SolutionEvaluator {
-    private static final System.Logger LOG = System.getLogger(RecursiveEvaluator.class.getName());
+public class RecursiveSolutionEvaluator implements SolutionEvaluator {
+    private static final System.Logger LOG = System.getLogger(RecursiveSolutionEvaluator.class.getName());
 
     private final GameState state;
 
-    public RecursiveEvaluator(GameState state) {
+    public RecursiveSolutionEvaluator(GameState state) {
         this.state = state;
     }
+
+
+    // For every possible guess, and all guesses below it ensure that the game is soluble
 
     @Override
     public Word evaluateBestWord() {
@@ -66,7 +69,7 @@ public class RecursiveEvaluator implements SolutionEvaluator {
             RuleSet r = new RuleSet(guess, solution);
             subState.registerGuess(guess, r);
             Outcome outcome = new Outcome(guess, solution);
-            solve(subState, solution, outcome);
+            count(subState, solution, outcome);
 
             allOutcomes.put(outcome.guess, outcome);
 
@@ -92,7 +95,7 @@ public class RecursiveEvaluator implements SolutionEvaluator {
      * @param solution
      * @return
      */
-    private void solve(GameState state, Word solution, Outcome outcome) {
+    private void count(GameState state, Word solution, Outcome outcome) {
         outcome.solutionCount += state.getSolutions().size();
 
         if (state.isSolved()) {
@@ -113,7 +116,7 @@ public class RecursiveEvaluator implements SolutionEvaluator {
             GameState subState = new GameState(state, state.getDictionary());
             RuleSet r = new RuleSet(guess, solution);
             subState.registerGuess(guess, r);
-            solve(subState, solution, outcome);
+            count(subState, solution, outcome);
         }
     }
 
