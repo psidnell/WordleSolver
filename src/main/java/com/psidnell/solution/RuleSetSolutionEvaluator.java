@@ -78,7 +78,7 @@ public class RuleSetSolutionEvaluator implements SolutionEvaluator {
             int nextPercentDome = (100 * wordsDone) / dictWords;
             if (percentDone != nextPercentDome) {
                 percentDone = nextPercentDome;
-                LOG.log(System.Logger.Level.INFO, "PercentDone {0}% ({1}, {2})", percentDone, dictionaryWordGuess, totalSolutionsForWord);
+                //LOG.log(System.Logger.Level.INFO, "PercentDone {0}% ({1}, {2})", percentDone, dictionaryWordGuess, totalSolutionsForWord);
             }
         }
 

@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 public class Wordle extends ComponentImpl {
     private static final Logger LOG = System.getLogger(Wordle.class.getName());
+    public static final int WORDS_TO_SHOW = 20;
 
     private GameState state;
 
@@ -63,8 +64,8 @@ public class Wordle extends ComponentImpl {
         }
 
         System.out.println("Solutions: " + state.getSolutions().getWords().size());
-        if (state.getSolutions().getWords().size() <= 10) {
-            System.out.print("Solutions Remaining:");
+        if (state.getSolutions().getWords().size() <= WORDS_TO_SHOW) {
+            System.out.print("Solutions Remaining: ");
             System.out.println(state.getSolutions().getWords().stream().map(Word::toString).collect(Collectors.joining(",")));
         }
     }
