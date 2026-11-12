@@ -14,7 +14,8 @@ public class Enter implements Command {
 
     @Override
     public boolean accepts(String commandName, List<String> arguments) {
-        return ("e".equals(commandName) || "enter".equals(commandName)) && arguments.isEmpty();
+        return ("e".equals(commandName) || "enter".equals(commandName)) &&
+                arguments.size() == 2;
     }
 
     @Override

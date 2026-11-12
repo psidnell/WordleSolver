@@ -102,6 +102,7 @@ public class WordleTest {
                 // Solution, guesses, succeeds
 
                 // Successes
+                Arguments.of("karat", 3, new String[]{}, true),
                 Arguments.of("bless", 3, new String[]{}, true),
                 Arguments.of("truce", 3, new String[]{}, true),
                 Arguments.of("loamy", 4, new String[]{}, true),

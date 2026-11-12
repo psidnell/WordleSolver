@@ -14,7 +14,8 @@ public class Guess implements Command {
 
     @Override
     public boolean accepts(String commandName, List<String> arguments) {
-        return ("g".equals(commandName) || "guess".equals(commandName)) && arguments.isEmpty();
+        return ("g".equals(commandName) || "guess".equals(commandName)) &&
+                arguments.isEmpty();
     }
 
     @Override
