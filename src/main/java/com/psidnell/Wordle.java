@@ -1,7 +1,6 @@
 package com.psidnell;
 
 import com.psidnell.ruleset.RuleSet;
-import com.psidnell.solution.SolutionEvaluator;
 import com.psidnell.util.ComponentImpl;
 import com.psidnell.util.Pair;
 import com.psidnell.words.Word;
@@ -150,9 +149,8 @@ public class Wordle extends ComponentImpl {
         // to balance performance against optimal result. On this machine it
         // keeps it under 20s for the 2nd guess
 
-        SolutionEvaluator evaluator = strategy.getOptimalStrategy(state);
         long startTime = System.currentTimeMillis();
-        Word bestWord = evaluator.evaluateBestWord();
+        Word bestWord = strategy.evaluateBestWord();
         long endTime = System.currentTimeMillis();
         System.out.println("Time elapsed: " + (endTime - startTime) / 1000 + "s");
 

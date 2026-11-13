@@ -2,7 +2,7 @@ package com.psidnell.util;
 
 import com.psidnell.Settings;
 import com.psidnell.Wordle;
-import com.psidnell.solution.Strategy;
+import com.psidnell.solution.AdaptiveSolutionEvaluator;
 import com.psidnell.words.Dictionary;
 
 import java.util.HashMap;
@@ -16,12 +16,12 @@ public class Context {
     private final Map<String, Component> components = new HashMap<String, Component>();
 
     public Context() throws Exception {
-        this(new Dictionary(), new Strategy(), new Wordle(), Settings.getInstance());
+        this(new Dictionary(), new AdaptiveSolutionEvaluator(), new Wordle(), Settings.getInstance());
     }
 
     public Context(
             Dictionary dictionary,
-            Strategy strategy,
+            AdaptiveSolutionEvaluator strategy,
             Wordle wordle,
             Settings settings
     ) throws Exception {

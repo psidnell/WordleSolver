@@ -4,14 +4,15 @@ import com.psidnell.GameState;
 import com.psidnell.util.ComponentImpl;
 import com.psidnell.words.Word;
 
-public class Strategy extends ComponentImpl {
-    public static String FIRST_GUESS = "trace";
+public class AdaptiveSolutionEvaluator extends ComponentImpl implements SolutionEvaluator {
 
-    public SolutionEvaluator getOptimalStrategy(GameState state) {
+
+    @Override
+    public Word evaluateBestWord() {
+        GameState state = wordle.getState();
 
         if (state.getGuessesRemaining() == 6) {
-            System.out.println("First Guess:" + FIRST_GUESS);
-            return () -> new Word(FIRST_GUESS);
+           return new EarlyGuessSolutionEvaluator(state).evaluateBestWord();
         }
 
         int solutionCount = state.getSolutions().getWords().size();
@@ -25,15 +26,15 @@ public class Strategy extends ComponentImpl {
         if (solutionCount > l1) { // Max to L1
             System.out.println("(1) Quick Search on reduced guesses above " + l1);
             GameState subState = new GameState(state, state.getSolutions());
-            return new RankSolutionEvaluator(subState);
+            return new RankSolutionEvaluator(subState).evaluateBestWord();
         } else if (solutionCount > l2) { // L1..L2
             System.out.println("(2) Exhaustive Search on reduced guesses between " + l2 + " and " + l1);
             GameState subState = new GameState(state, state.getSolutions());
-            return new RuleSetSolutionEvaluator(subState);
+            return new RuleSetSolutionEvaluator(subState).evaluateBestWord();
         } else { // Below L2
             System.out.println("(3) Exhaustive Search on maximum guesses below " + l2);
             GameState subState = new GameState(state);
-            return new RuleSetSolutionEvaluator(subState);
+            return new RuleSetSolutionEvaluator(subState).evaluateBestWord();
         }
     }
 }
