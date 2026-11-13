@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psidnell.profile.Probe;
 import com.psidnell.profile.Profiler;
-import com.psidnell.util.Component;
-import com.psidnell.util.Context;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,26 +12,18 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class Dictionary extends WordList implements Component {
+@Component
+public class Dictionary extends WordList {
 
-    public Dictionary() {
-        super();
+    public Dictionary() throws IOException {
+        loadDictionary();
     }
 
     public Dictionary(String[] testWords) {
-        super();
         Arrays.stream(testWords).forEach(word -> {
             String upperCase = word.toUpperCase();
             words.add(new Word(upperCase));
         });
-    }
-
-    @Override
-    public void setContext(Context context) throws Exception {
-        Component.super.setContext(context);
-        if (words.isEmpty()) {
-            loadDictionary();
-        }
     }
 
     private static final Probe PROBE = Profiler.getProbe(Dictionary.class, "loadDictionary");

@@ -2,36 +2,39 @@ package com.psidnell;
 
 import com.psidnell.profile.Profiler;
 import com.psidnell.solution.EarlyGuessSolutionEvaluator;
-import com.psidnell.solution.AdaptiveSolutionEvaluator;
-import com.psidnell.util.Context;
 import com.psidnell.words.Dictionary;
 import com.psidnell.words.Word;
+import com.psidnell.words.WordList;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.io.IOException;
 import java.util.Random;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class WordleTest {
 
     @Test
     public void testConstruction() throws Exception {
-        Context context = new Context();
-        Wordle wordle = context.get("wordle", Wordle.class);
-        wordle.setContext(context);
-        wordle.init();
+        ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+        Wordle wordle = context.getBean("wordle", Wordle.class);
+        assertNotNull(wordle);
     }
 
     @Test
     public void testImmediateSuccess() throws Exception {
-        Context context = new Context();
-        Wordle wordle = context.get("wordle", Wordle.class);
-        wordle.setContext(context);
-        wordle.init();
+        ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+        Wordle wordle = context.getBean("wordle", Wordle.class);
 
         wordle.setSolution("GEEKY");
         assertTrue(wordle.guess("GEEKY"));
@@ -39,10 +42,8 @@ public class WordleTest {
 
     @Test
     public void testGuessOnLastTry() throws Exception {
-        Context context = new Context();
-        Wordle wordle = context.get("wordle", Wordle.class);
-        wordle.setContext(context);
-        wordle.init();
+        ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+        Wordle wordle = context.getBean("wordle", Wordle.class);
 
         wordle.setSolution("geeky");
         assertFalse(wordle.guess("pinky"));
@@ -55,10 +56,8 @@ public class WordleTest {
 
     @Test
     public void testTooManyGuesses() throws Exception {
-        Context context = new Context();
-        Wordle wordle = context.get("wordle", Wordle.class);
-        wordle.setContext(context);
-        wordle.init();
+        ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+        Wordle wordle = context.getBean("wordle", Wordle.class);
 
         wordle.setSolution("geeky");
         assertFalse(wordle.guess("pinky"));
@@ -74,9 +73,8 @@ public class WordleTest {
         }
     }
 
-    @Test
-    public void testWithSmallDictionary() throws Exception {
-        String[] words = {
+    static class SmallDictionaryApplicationContext extends ApplicationConfiguration {
+        static final String[] words = {
                 "angle", "apple", "ample", "ankle", "aztec",
                 "bable", "bible", "bongo", "bilbo", "bungy",
                 "cable", "cocky", "ching", "chive", "chirp",
@@ -87,11 +85,17 @@ public class WordleTest {
                 "hated", "hates", "hatha", "hangs", "hatty",
                 EarlyGuessSolutionEvaluator.FIRST_GUESS, // Must be in dictionary!
         };
-        Dictionary dictionary = new Dictionary(words);
-        Context context = new Context(dictionary, new AdaptiveSolutionEvaluator(), new Wordle(), Settings.getInstance());
-        Wordle wordle = context.get("wordle", Wordle.class);
-        wordle.setContext(context);
-        wordle.init();
+
+        //@Bean
+        WordList dictionary() throws IOException {
+            return new Dictionary(words);
+        }
+    }
+    @Test
+    public void testWithSmallDictionary() throws Exception {
+
+        ApplicationContext context = new AnnotationConfigApplicationContext(SmallDictionaryApplicationContext.class);
+        Wordle wordle = context.getBean("wordle", Wordle.class);
 
         wordle.setSolution("hated");
         solve(wordle, true);
@@ -139,10 +143,8 @@ public class WordleTest {
     void testSolvingInFixedTurns(String solution, int tries, String[] guesses, boolean succeeds) throws Exception {
         try {
             Profiler.enable(false);
-            Context context = new Context();
-            Wordle wordle = context.get("wordle", Wordle.class);
-            wordle.setContext(context);
-            wordle.init();
+            ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+            Wordle wordle = context.getBean("wordle", Wordle.class);
             wordle.setSolution(solution);
 
             for (String guess : guesses) {
@@ -159,11 +161,9 @@ public class WordleTest {
     @Test
     void testSolvingRandomWords() throws Exception {
         for (int i = 0; i < 10; i++) {
-            Context context = new Context();
-            Wordle wordle = context.get("wordle", Wordle.class);
-            wordle.setContext(context);
-            wordle.init();
-            Dictionary dictionary = context.get("dictionary", Dictionary.class);
+            ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+            Wordle wordle = context.getBean("wordle", Wordle.class);
+            Dictionary dictionary = context.getBean("dictionary", Dictionary.class);
             Word[] dictWords = dictionary.getWords().toArray(new Word[0]);
             Random random = new Random();
             Word randomWord = dictWords[random.nextInt(dictWords.length)];
@@ -174,10 +174,8 @@ public class WordleTest {
 
     @Test
     public void testPlayRealGame() throws Exception {
-        Context context = new Context();
-        Wordle wordle = context.get("wordle", Wordle.class);
-        wordle.setContext(context);
-        wordle.init();
+        ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+        Wordle wordle = context.getBean("wordle", Wordle.class);
 
         wordle.answer("trace", "___C_");
         wordle.printStatus();

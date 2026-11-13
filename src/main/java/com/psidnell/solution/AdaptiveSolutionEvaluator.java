@@ -1,10 +1,23 @@
 package com.psidnell.solution;
 
 import com.psidnell.GameState;
-import com.psidnell.util.ComponentImpl;
+import com.psidnell.Wordle;
 import com.psidnell.words.Word;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-public class AdaptiveSolutionEvaluator extends ComponentImpl implements SolutionEvaluator {
+@Component
+public class AdaptiveSolutionEvaluator implements SolutionEvaluator {
+
+    @Autowired
+    private Wordle wordle;
+
+    @Value("${SearchThreshold1}")
+    private int searchThreshold1;
+
+    @Value("${SearchThreshold2}")
+    private int searchThreshold2;
 
 
     @Override
@@ -18,9 +31,9 @@ public class AdaptiveSolutionEvaluator extends ComponentImpl implements Solution
         int solutionCount = state.getSolutions().getWords().size();
 
         // Greater than: Uses solution 1
-        final int l1 = settings.getSearchThreshold1();
+        final int l1 = searchThreshold1;
         // Between: Uses solution 2
-        final int l2 = settings.getSearchThreshold2();
+        final int l2 = searchThreshold2;
         // Between: Uses solution 3
 
         if (solutionCount > l1) { // Max to L1

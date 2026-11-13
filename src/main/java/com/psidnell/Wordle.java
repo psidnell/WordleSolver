@@ -1,11 +1,14 @@
 package com.psidnell;
 
 import com.psidnell.ruleset.RuleSet;
-import com.psidnell.util.ComponentImpl;
+import com.psidnell.solution.AdaptiveSolutionEvaluator;
 import com.psidnell.util.Pair;
 import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 import com.psidnell.words.WordList;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
@@ -15,22 +18,30 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-public class Wordle extends ComponentImpl {
+@Component
+public class Wordle {
     private static final Logger LOG = System.getLogger(Wordle.class.getName());
     public static final int WORDS_TO_SHOW = 20;
+
+    @Autowired
+    private WordList dictionary;
+
+    @Autowired
+    private AdaptiveSolutionEvaluator strategy;
 
     private GameState state;
 
     // For info only
+    // TODO used?
     private final List<Integer> userGuessSolutionsRemaining = new ArrayList<>();
     private final List<RuleSet> previousRuleSets = new ArrayList<>();
 
     private Word solution;
 
-    @Override
-    public void init() {
-        super.init();
-        this.state = new GameState(dictionary, new WordList(dictionary));
+
+    @PostConstruct
+    void postConstruct() {
+        state = new GameState(dictionary, new WordList(dictionary));
     }
 
     public void setSolution(String solutionStr) {

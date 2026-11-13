@@ -7,7 +7,8 @@ import com.psidnell.cmdline.Help;
 import com.psidnell.cmdline.Quit;
 import com.psidnell.cmdline.ShowWords;
 import com.psidnell.cmdline.Status;
-import com.psidnell.util.Context;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -16,15 +17,18 @@ import java.util.Scanner;
 
 public class Main {
 
+    private final ApplicationContext context;
     private final Wordle wordle;
-    private final Context context;
 
     private Main() throws Exception {
-        this.context = new Context();
-        this.wordle = context.get("wordle", Wordle.class);
+        context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+        this.wordle = context.getBean("wordle", Wordle.class);
+        String logLevel = context.getEnvironment().getProperty("LogLevel");
+        com.psidnell.log.LoggerFinder.setLogLevel(System.Logger.Level.valueOf(logLevel));
     }
 
     static void main(String[] args) throws Exception {
+
         new Main().processCommandLine();
     }
 
