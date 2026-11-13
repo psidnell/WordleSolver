@@ -24,7 +24,7 @@ public class Main {
         context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
         this.wordle = context.getBean("wordle", Wordle.class);
         String logLevel = context.getEnvironment().getProperty("LogLevel");
-        com.psidnell.log.LoggerFinder.setLogLevel(System.Logger.Level.valueOf(logLevel));
+        com.psidnell.log.ConsoleLogger.setLogLevel(System.Logger.Level.valueOf(logLevel));
     }
 
     static void main(String[] args) throws Exception {

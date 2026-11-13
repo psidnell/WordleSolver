@@ -7,14 +7,20 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public class ConsoleLogger implements System.Logger {
+
+    private static System.Logger.Level level = System.Logger.Level.INFO;
+
+    public static void setLogLevel(System.Logger.Level logLevel) {
+        level = logLevel;
+    }
+
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss ");
 
     private final String loggerName;
-    private final System.Logger.Level loggerLevel;
+    private final System.Logger.Level loggerLevel = Level.INFO;
 
     public ConsoleLogger(String name, Module module) {
         this.loggerName = name;
-        this.loggerLevel = LoggerFinder.getLogLevel();
     }
 
     @Override
