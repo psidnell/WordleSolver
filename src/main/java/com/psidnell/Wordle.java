@@ -7,11 +7,10 @@ import com.psidnell.words.Word;
 import com.psidnell.words.WordComparison;
 import com.psidnell.words.WordList;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class Wordle {
-    private static final Logger LOG = System.getLogger(Wordle.class.getName());
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Main.class);
     public static final int WORDS_TO_SHOW = 20;
 
     @Autowired
@@ -129,15 +128,15 @@ public class Wordle {
         RuleSet r = new RuleSet(guessWord, solution);
         state.registerGuess(guessWord, r);
 
-        LOG.log(Level.DEBUG, "Pre Cumulative: {0}", state.getCombinedRuleSet());
+        LOG.debug("Pre Cumulative: {}", state.getCombinedRuleSet());
 
         userGuessSolutionsRemaining.add(state.getSolutions().getWords().size());
         previousRuleSets.add(state.getCombinedRuleSet());
         int solutionsAfter = state.getSolutions().getWords().size();
 
-        LOG.log(Level.DEBUG, "Derived Match:   {0}", r);
-        LOG.log(Level.DEBUG, "Post Cumulative: {0}", state.getCombinedRuleSet());
-        LOG.log(Level.DEBUG, "Solutions dropped from: {0} to {1}", solutionsBefore, solutionsAfter);
+        LOG.debug("Derived Match:   {}", r);
+        LOG.debug("Post Cumulative: {}", state.getCombinedRuleSet());
+        LOG.debug("Solutions dropped from: {} to {}", solutionsBefore, solutionsAfter);
 
         if (guessWord.equals(solution)) {
             System.out.println("SUCCESS Guessed correctly in " + (6 - state.getGuessesRemaining()) + " guesses");
@@ -195,7 +194,7 @@ public class Wordle {
 
     // TODO Needed? A possible optimisation
     private WordList shrinkWordsByRank(Collection<Word> guesses, int limit) {
-        LOG.log(Level.INFO, "Shrinking words: {0}", guesses.size());
+        LOG.info("Shrinking words: {}", guesses.size());
 
         ArrayList<Pair<Word, Integer>> collectedWordsAndRanks = new ArrayList<>();
 
@@ -214,7 +213,7 @@ public class Wordle {
         collectedWordsAndRanks.sort((a, b) ->Integer.compare(b.right(), a.right()));
         List<Pair<Word, Integer>> truncatedWordsAndRanks = collectedWordsAndRanks.stream().limit(limit).toList();
         List<Word> truncatedWords = truncatedWordsAndRanks.stream().map(Pair::left).toList();
-        LOG.log(Level.INFO, "Shrunk words: {0}", truncatedWords.size());
+        LOG.info("Shrunk words: {}", truncatedWords.size());
         return new WordList(truncatedWords);
     }
 

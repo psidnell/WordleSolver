@@ -28,4 +28,9 @@ public class ApplicationConfiguration {
     AdaptiveSolutionEvaluator strategy() {
         return new AdaptiveSolutionEvaluator();
     }
+
+    @Bean
+    public Main main() {
+        return new Main();
+    }
 }

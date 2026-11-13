@@ -12,8 +12,12 @@ repositories {
 
 dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.22.4")
+
     implementation("org.springframework:spring-context:6.2.7")
+
     implementation("jakarta.annotation:jakarta.annotation-api:3.0.0")
+
+    implementation("ch.qos.logback:logback-classic:1.6.6")
 
     testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

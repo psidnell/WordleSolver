@@ -7,29 +7,33 @@ import com.psidnell.cmdline.Help;
 import com.psidnell.cmdline.Quit;
 import com.psidnell.cmdline.ShowWords;
 import com.psidnell.cmdline.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
+@Component
 public class Main {
 
-    private final ApplicationContext context;
-    private final Wordle wordle;
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    private Main() throws Exception {
-        context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
-        this.wordle = context.getBean("wordle", Wordle.class);
-        String logLevel = context.getEnvironment().getProperty("LogLevel");
-        com.psidnell.log.ConsoleLogger.setLogLevel(System.Logger.Level.valueOf(logLevel));
-    }
+
+    @Autowired
+    private Wordle wordle;
 
     static void main(String[] args) throws Exception {
+        ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+        Main main = context.getBean("main", Main.class);
 
-        new Main().processCommandLine();
+        LOG.info("Started");
+        main.processCommandLine();
     }
 
     void processCommandLine() {

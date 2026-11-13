@@ -30,10 +30,10 @@ public class RecursiveSolutionEvaluator implements SolutionEvaluator {
     public Word evaluateBestWord() {
         TreeMap<Word, Outcome> allOutcomes = new TreeMap<>();
         int totalCombinations = state.getDictionary().size() * state.getSolutions().size();
-        LOG.log(Level.INFO, "Total solution/guess combinations to try: {0}", totalCombinations);
+        LOG.log(Level.INFO, "Total solution/guess combinations to try: {}", totalCombinations);
 
         for (Word solution : state.getSolutions().getWords()) {
-            LOG.log(Level.INFO, "Dry run {0}", solution);
+            LOG.log(Level.INFO, "Dry run {}", solution);
             GameState subState = new GameState(state);
             Outcome outcome = dryRun(subState, solution);
 
@@ -47,13 +47,13 @@ public class RecursiveSolutionEvaluator implements SolutionEvaluator {
 //            if (p.right() < lowestFailures.get()) {
 //                lowestFailures.set(p.right());
 //                bestWord.set(p.left());
-//                LOG.log(Level.INFO, "Best word: so far {0} Failures: {1}", bestWord.get(), lowestFailures.get());
+//                LOG.log(Level.INFO, "Best word: so far {} Failures: {}", bestWord.get(), lowestFailures.get());
 //            }
         }
 
         Outcome bestOutcome = allOutcomes.values().stream().findFirst().orElseThrow();
 
-        LOG.log(Level.INFO, "Best outcome:{0}", bestOutcome);
+        LOG.log(Level.INFO, "Best outcome:{}", bestOutcome);
 
         return bestOutcome.guess;
     }
@@ -77,7 +77,7 @@ public class RecursiveSolutionEvaluator implements SolutionEvaluator {
                 allOutcomes.put(outcome.guess, outcome);
             }
 
-            //LOG.log(Level.INFO, "Word: {0}", guess);
+            //LOG.log(Level.INFO, "Word: {}", guess);
         }
 
         // Find the worst case
@@ -86,7 +86,7 @@ public class RecursiveSolutionEvaluator implements SolutionEvaluator {
         TreeSet<Outcome> sortedOutcomes = new TreeSet<>(allOutcomes.values());
         Outcome bestGuess = sortedOutcomes.first();
 
-        LOG.log(Level.INFO, "Best dry run for {0}", bestGuess);
+        LOG.log(Level.INFO, "Best dry run for {}", bestGuess);
 
         return bestGuess;
     }
@@ -102,12 +102,12 @@ public class RecursiveSolutionEvaluator implements SolutionEvaluator {
     private static Outcome findBestOutcome(GameState state, Word solution) {
 
         if (state.getGuessesRemaining() == 0) {
-            //LOG.log(Level.INFO, "Failed if {0} when {1}", solution, state.getPreviousGuesses());
+            //LOG.log(Level.INFO, "Failed if {} when {}", solution, state.getPreviousGuesses());
             return null;
         }
 
         if (state.getLastGuess().equals(solution)) {
-            LOG.log(Level.INFO, "Solved if {0} then {1}", solution, state.getPreviousGuesses());
+            LOG.log(Level.INFO, "Solved if {} then {}", solution, state.getPreviousGuesses());
             return new Outcome(solution, 1);
         }
 
